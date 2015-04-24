@@ -3,15 +3,19 @@ A library to help facilitate creating VST plugins in rust.
 
 This library is a work in progress and as such does not yet implement all opcodes. It is enough to create basic VST plugins without an editor interface.
 
+#### [Library Documentation](http://overdrivenpotato.github.io/rust-vst2)
+
 ### TODO
   - Editor support
   - Implement all opcodes
+  - Write more tests
+  - Provide better examples
 
 ## Usage
 To create a plugin, simply create a type which implements `Vst` and `std::default::Default`. Then call the macro `vst_main!`, which will export the necessary functions and handle dealing with the rest of the API.
 
 ### Example plugin
-A simple plugin that bears no functionality.
+A simple plugin that bears no functionality. The provided Cargo.toml has a crate-type directive which builds a dynamic library, usable by any VST host.
 ###### lib.rs
 
 ```rust
