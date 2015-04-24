@@ -1,0 +1,9 @@
+[package]
+name = "vst2"
+version = "0.0.1"
+authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
+
+[dependencies]
+log = "*"
+num = "*"
+bitflags = "*"
