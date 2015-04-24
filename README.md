@@ -1,7 +1,7 @@
 # rust-vst2
 A library to help facilitate creating VST plugins in rust.
 
-This library is a work in progress and as such does not yet implement all opcodes. It is enough to create a basic VST plugins without an editor interface.
+This library is a work in progress and as such does not yet implement all opcodes. It is enough to create basic VST plugins without an editor interface.
 
 ### TODO
   - Editor support
