@@ -6,7 +6,7 @@ This library is a work in progress and as such does not yet implement all opcode
 #### [Library Documentation](http://overdrivenpotato.github.io/rust-vst2)
 
 ### TODO
-  - Editor support
+  - Proper editor support (possibly [conrod](https://github.com/PistonDevelopers/conrod) + [sdl2](https://github.com/AngryLawyer/rust-sdl2)?)
   - Implement all opcodes
   - Write more tests
   - Provide better examples
