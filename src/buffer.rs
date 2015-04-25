@@ -99,3 +99,35 @@ impl<'a, T: 'a + Float> IntoIterator for ChannelBuffer<'a, T> {
         self.data.iter_mut()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use AudioBuffer;
+
+    #[test]
+    fn buffer_input() {
+        // This test creates a channel for 2 inputs and 2 outputs. The input channels are simply
+        // values from 0 to `SIZE` (e.g. [0, 1, 2, 3, 4, .. , SIZE - 1]) and the output channels
+        // are just 0. This test assures that when the buffers are zipped together, the input
+        // values do not change.
+        const SIZE: usize = 1024;
+        let vec: Vec<f32> = (0..SIZE).collect::<Vec<usize>>().iter().map(|&x| x as f32).collect();
+        let mut in1 = vec.clone();
+        let mut in2 = vec.clone();
+        let mut out1 = vec![0.0; SIZE];
+        let mut out2 = vec![0.0; SIZE];
+
+        let buffer = AudioBuffer::new(vec![&mut in1, &mut in2],
+                                      vec![&mut out1, &mut out2]);
+
+        for (input, output) in buffer.zip() {
+            input.into_iter().zip(output.into_iter())
+
+            .fold(0.0, |acc, (input, output)| {
+                assert!((*input - acc).abs() <= 0.001);
+                assert_eq!(*output, 0.0);
+                acc + 1.0
+            });
+        }
+    }
+}
