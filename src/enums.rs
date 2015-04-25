@@ -100,7 +100,7 @@ pub enum OpCode {
     /// Deprecated.
     _EditorKey,
 
-    /// Idle call from host 
+    /// Idle call from host.
     EditorIdle,
 
     /// Deprecated.

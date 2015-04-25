@@ -355,7 +355,7 @@ pub trait Vst {
 
 
 #[cfg(test)]
-mod test {
+mod tests {
     use std::default::Default;
     use std::ptr;
 

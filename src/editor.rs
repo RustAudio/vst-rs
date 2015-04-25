@@ -30,7 +30,7 @@ pub trait Editor {
     /// Set the knob mode for this editor (if supported by host).
     fn set_knob_mode(&mut self, mode: KnobMode);
 
-    /// Recieve key up event. 
+    /// Recieve key up event.
     fn key_up(&mut self, keycode: KeyCode) -> bool;
 
     /// Receive key down event. Return true if the key was used.
