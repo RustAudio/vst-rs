@@ -6,6 +6,4 @@ authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 [dependencies]
 log = "*"
 bitflags = "*"
-
-[dependencies.num]
-git = "https://github.com/overdrivenpotato/num"
+num = "*"
