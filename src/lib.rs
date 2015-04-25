@@ -70,12 +70,14 @@ use libc::c_void;
 pub mod buffer;
 pub mod enums;
 pub mod api;
+pub mod editor;
 mod interfaces;
 
 use enums::flags::plugin::*;
-use enums::{KnobMode, PluginCategory, CanDo, Supported};
-use api::{KeyCode, HostCallback, AEffect};
+use enums::{PluginCategory, CanDo, Supported};
+use api::{HostCallback, AEffect};
 pub use buffer::AudioBuffer;
+use editor::Editor;
 
 /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
 const VST_MAGIC: i32 = ('V' as i32) << 24 |
@@ -206,14 +208,10 @@ pub struct Info {
     /// This ID is used to identify a plugin during save and load of a preset and project.
     pub unique_id: i32,
 
-    /// Plugin version
-    ///
-    /// # Examples
-    /// * 0001 = `v0.0.0.1`
-    /// * 1283 = `v1.2.8.3`
+    /// Plugin version (e.g. 0001 = `v0.0.0.1`, 1283 = `v1.2.8.3`).
     pub version: i32,
 
-    /// Plugin category. Possible values are found in `enums::PluginCategory`
+    /// Plugin category. Possible values are found in `enums::PluginCategory`.
     pub category: PluginCategory,
 
     //TODO: Doc
@@ -268,7 +266,7 @@ pub trait Vst {
 
 
     /// Set the current preset to the index specified by `preset`.
-    fn set_preset(&mut self, preset: i32) { }
+    fn change_preset(&mut self, preset: i32) { }
 
     /// Get the current preset index.
     fn get_preset_num(&mut self) -> i32 { 0 }
@@ -351,25 +349,10 @@ pub trait Vst {
         }
     }
 
-    /// Return handle to plugin editor. //TODO: Unimplemented
-    #[doc(hidden)]
+    /// Return handle to plugin editor if supported.
     fn get_editor(&mut self) -> Option<&mut Editor> { None }
 }
 
-/// Implemented by plugin editors. //TODO: Implement editors in editor specific module
-#[doc(hidden)]
-pub trait Editor {
-    fn size(&self) -> (i32, i32);
-    fn position(&self) -> (i32, i32);
-
-    fn idle(&mut self);
-    fn close(&mut self);
-    fn open(&mut self, window: *mut c_void);
-
-    fn set_knob_mode(&mut self, mode: KnobMode);
-    fn key_up(&mut self, keycode: KeyCode);
-    fn key_down(&mut self, keycode: KeyCode);
-}
 
 #[cfg(test)]
 mod test {

@@ -5,7 +5,6 @@ use libc::c_void;
 
 use Vst;
 use self::consts::*;
-use enums::Key;
 
 /// Constant values
 #[allow(dead_code)]
@@ -150,27 +149,4 @@ struct VstPinProperties {
     short_name: [char; MAX_SHORT_LABEL as usize], //Short name (recommended: 6 + delimiter)
 
     future: [char; 48] //Reserved for future use
-}
-
-/// Rectangle used to specify dimensions of editor window.
-pub struct Rect {
-    /// Y value in pixels of top side.
-    pub top: i16,
-    /// X value in pixels of left side.
-    pub left: i16,
-    /// Y value in pixels of bottom side.
-    pub bottom: i16,
-    /// X value in pixels of right side.
-    pub right: i16
-}
-
-// TODO: Move into another editor specific module
-/// A platform independant key code. Includes modifier keys.
-pub struct KeyCode {
-    /// ASCII character for key pressed (if applicable).
-    pub character: char,
-    /// Key pressed. See `enums::Key`.
-    pub key: Key,
-    /// Modifier key bitflags. See `enums::flags::modifier_key`.
-    pub modifier: u8
 }

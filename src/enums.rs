@@ -86,7 +86,7 @@ pub enum OpCode {
     /// [value]: 1 when plugin enabled, 0 when disabled.
     StateChanged,
 
-    /// [ptr]: Rect** receiving pointer to editor size. TODO
+    /// [ptr]: Rect** receiving pointer to editor size.
     EditorGetRect,
     /// [ptr]: system dependent window pointer, eg HWND on Windows.
     EditorOpen,
@@ -369,7 +369,7 @@ pub enum KnobMode {
 }
 impl_clike!(KnobMode);
 
-/// Platform independant key codes.
+/// Platform independent key codes.
 #[allow(dead_code, missing_docs)]
 #[repr(usize)]
 #[derive(Debug, Copy, Clone)]
