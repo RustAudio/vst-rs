@@ -26,6 +26,7 @@
 //!
 //! use vst2::{Vst, Info};
 //!
+//! #[derive(Default)]
 //! struct BasicVst;
 //!
 //! impl Vst for BasicVst {
@@ -35,12 +36,6 @@
 //!
 //!             ..Default::default()
 //!         }
-//!     }
-//! }
-//!
-//! impl Default for BasicVst {
-//!     fn default() -> BasicVst {
-//!         BasicVst
 //!     }
 //! }
 //!
