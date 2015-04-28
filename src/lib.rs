@@ -386,21 +386,14 @@ mod tests {
     use main;
     use api::AEffect;
 
-    struct TestVst { info: Info }
+    #[derive(Default)]
+    struct TestVst;
 
     impl Vst for TestVst {
-        fn get_info(&mut self) -> &mut Info {
-            &mut self.info
-        }
-    }
-
-    impl Default for TestVst {
-        fn default() -> TestVst {
-            TestVst {
-                info: Info {
-                    name: "TestVST".to_string(),
-                    ..Default::default()
-                }
+        fn get_info(&self) -> Info {
+            Info {
+                name: "TestVST".to_string(),
+                ..Default::default()
             }
         }
     }
