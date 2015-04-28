@@ -260,8 +260,8 @@ impl Default for Info {
 /// safely overridden.
 #[allow(unused_variables)]
 pub trait Vst {
-    /// This method must return a mutable reference to an `Info` struct.
-    fn get_info(&mut self) -> &mut Info;
+    /// This method must return an `Info` struct.
+    fn get_info(&self) -> Info;
 
 
     /// Called when VST is initialized.
