@@ -110,7 +110,7 @@ pub enum OpCode {
     /// Deprecated.
     _EditorIdentify,
 
-    GetData, //void** for chunk data address. [index]: 0 for bank, 1 for program
+    GetData, //[ptr]: void** for chunk data address. [index]: 0 for bank, 1 for program
     SetData, //[ptr]: data [value]: byte size [index]: 0 for bank, 1 for program
 
     /// [ptr]: VstEvents* TODO: Events

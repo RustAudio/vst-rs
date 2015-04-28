@@ -217,7 +217,10 @@ pub struct Info {
     //TODO: Doc
     pub initial_delay: i32,
 
-    /// Indicates whether preset data is handled in formatless chunks. Default is `true`.
+    /// Indicates whether preset data is handled in formatless chunks. If false,
+    /// host saves and restores plugins by reading/writing parameter data. If true, it is up to
+    /// the plugin to manage saving preset data by implementing  the
+    /// `{get, load}_{preset, bank}_chunks()` methods. Default is `false`.
     pub preset_chunks: bool,
 
     /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers. Default is
@@ -245,7 +248,7 @@ impl Default for Info {
 
             initial_delay: 0,
 
-            preset_chunks: true,
+            preset_chunks: false,
             f64_precision: false,
         }
     }
@@ -351,6 +354,23 @@ pub trait Vst {
 
     /// Return handle to plugin editor if supported.
     fn get_editor(&mut self) -> Option<&mut Editor> { None }
+
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current preset.
+    fn get_preset_chunks(&mut self) -> Vec<u8> { Vec::new() }
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current plugin bank.
+    fn get_bank_chunks(&mut self) -> Vec<u8> { Vec::new() }
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
+    /// chunk data.
+    fn load_preset_chunks(&mut self, data: Vec<u8>) {}
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
+    /// given chunk data.
+    fn load_bank_chunks(&mut self, data: Vec<u8>) {}
 }
 
 

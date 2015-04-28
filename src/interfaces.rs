@@ -145,6 +145,31 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             }
         }
 
+        OpCode::GetData => {
+            let chunks = if index == 0 {
+                vst.get_bank_chunks()
+            } else {
+                vst.get_preset_chunks()
+            };
+
+            let len = chunks.len() as isize;
+
+            unsafe {
+                *mem::transmute::<*mut c_void, *mut *mut c_void>(ptr) =
+                    chunks.into_boxed_slice().as_ptr() as *mut c_void;
+            }
+
+            return len;
+        }
+        OpCode::SetData => {
+            let chunks = unsafe { Vec::from_raw_buf(ptr as *mut u8, value as usize) };
+            if index == 0 {
+                vst.load_bank_chunks(chunks);
+            } else {
+                vst.load_preset_chunks(chunks);
+            }
+        }
+
         OpCode::CanBeAutomated => return vst.can_be_automated(index) as isize,
 
         OpCode::GetPresetName => copy_string(&vst.get_preset_name(index), MAX_PRESET_NAME_LEN),
