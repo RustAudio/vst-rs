@@ -38,6 +38,7 @@ pub trait Editor {
 }
 
 /// Rectangle used to specify dimensions of editor window.
+#[doc(hidden)]
 pub struct Rect {
     /// Y value in pixels of top side.
     pub top: i16,
