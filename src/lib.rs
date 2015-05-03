@@ -349,19 +349,19 @@ pub trait Vst {
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current preset.
-    fn get_preset_chunks(&mut self) -> Vec<u8> { Vec::new() }
+    fn get_preset_data(&mut self) -> Vec<u8> { Vec::new() }
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current plugin bank.
-    fn get_bank_chunks(&mut self) -> Vec<u8> { Vec::new() }
+    fn get_bank_data(&mut self) -> Vec<u8> { Vec::new() }
 
     /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
     /// chunk data.
-    fn load_preset_chunks(&mut self, data: Vec<u8>) {}
+    fn load_preset_data(&mut self, data: Vec<u8>) {}
 
     /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
     /// given chunk data.
-    fn load_bank_chunks(&mut self, data: Vec<u8>) {}
+    fn load_bank_data(&mut self, data: Vec<u8>) {}
 }
 
 

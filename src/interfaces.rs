@@ -147,13 +147,14 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         OpCode::GetData => {
             let chunks = if index == 0 {
-                vst.get_bank_chunks()
+                vst.get_bank_data()
             } else {
-                vst.get_preset_chunks()
+                vst.get_preset_data()
             };
 
             let len = chunks.len() as isize;
 
+            // u8 array to **void ptr.
             unsafe {
                 *mem::transmute::<*mut c_void, *mut *mut c_void>(ptr) =
                     chunks.into_boxed_slice().as_ptr() as *mut c_void;
@@ -164,9 +165,9 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::SetData => {
             let chunks = unsafe { Vec::from_raw_buf(ptr as *mut u8, value as usize) };
             if index == 0 {
-                vst.load_bank_chunks(chunks);
+                vst.load_bank_data(chunks);
             } else {
-                vst.load_preset_chunks(chunks);
+                vst.load_preset_data(chunks);
             }
         }
 
