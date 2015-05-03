@@ -25,24 +25,15 @@ use std::default::Default;
 
 use vst2::{Vst, Info};
 
-struct BasicVst {
-    info: Info
-}
+#[derive(Default)]
+struct BasicVst;
 
 impl Vst for BasicVst {
-    fn get_info(&mut self) -> &mut Info {
-        &mut self.info
-    }
-}
+    fn get_info(&self) -> Info {
+        Info {
+            name: "BasicVst".to_string(),
 
-impl Default for BasicVst {
-    fn default() -> BasicVst {
-        BasicVst {
-            info: Info {
-                name: "BasicVst".to_string(),
-
-                ..Default::default()
-            }
+            ..Default::default()
         }
     }
 }
