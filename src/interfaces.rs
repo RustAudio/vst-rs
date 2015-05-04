@@ -175,6 +175,18 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         OpCode::GetPresetName => copy_string(&vst.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
+        OpCode::GetInputInfo => {
+            if index >= 0 && index < vst.get_info().inputs {
+                mem::swap(&mut vst.get_input_info(index).to_vst_api(),
+                          unsafe { mem::transmute(ptr) });
+            }
+        }
+        OpCode::GetOutputInfo => {
+            if index >= 0 && index < vst.get_info().outputs {
+                mem::swap(&mut vst.get_output_info(index).to_vst_api(),
+                          unsafe { mem::transmute(ptr) });
+            }
+        }
         OpCode::GetCategory => {
             return vst.get_info().category.to_usize() as isize;
         }

@@ -139,14 +139,104 @@ impl Drop for AEffect {
     }
 }
 
-// TODO: Implement this struct.
+/// Information about a channel. Only some hosts use this information.
 #[allow(dead_code)]
 #[repr(C)]
-struct VstPinProperties {
-    label: [char; MAX_LABEL as usize], //pin name
-    flags: i32, //See `VstPinPropertiesFlags`
-    speaker_arrangement: i32, //See `VstSpeakerArragement`
-    short_name: [char; MAX_SHORT_LABEL as usize], //Short name (recommended: 6 + delimiter)
+pub struct ChannelProperties {
+    /// Channel name.
+    pub name: [u8; MAX_LABEL as usize],
 
-    future: [char; 48] //Reserved for future use
+    /// Flags found in `channel_flags` module.
+    pub flags: i32,
+
+    /// Type of speaker arrangement this channel is a part of.
+    pub arrangement_type: SpeakerArrangementType,
+
+    /// Name of channel (recommended: 6 characters + delimiter).
+    pub short_name: [u8; MAX_SHORT_LABEL as usize],
+
+    /// Reserved for future use.
+    pub future: [u8; 48]
+}
+
+/// Tells the host how the channels are intended to be used in the plugin. Only useful for some
+/// hosts.
+#[repr(i32)]
+pub enum SpeakerArrangementType {
+    /// User defined arrangement.
+    Custom = -2,
+    /// Empty arrangement.
+    Empty = -1,
+
+    /// Mono.
+    Mono = 0,
+
+    /// L R
+    Stereo,
+    /// Ls Rs
+    StereoSurround,
+    /// Lc Rc
+    StereoCenter,
+    /// Sl Sr
+    StereoSide,
+    /// C Lfe
+    StereoCLfe,
+
+    /// L R C
+    Cinema30,
+    /// L R S
+    Music30,
+
+    /// L R C Lfe
+    Cinema31,
+    /// L R Lfe S
+    Music31,
+
+    /// L R C S (LCRS)
+    Cinema40,
+    /// L R Ls Rs (Quadro)
+    Music40,
+
+    /// L R C Lfe S (LCRS + Lfe)
+    Cinema41,
+    /// L R Lfe Ls Rs (Quadro + Lfe)
+    Music41,
+
+    /// L R C Ls Rs
+    Surround50,
+    /// L R C Lfe Ls Rs
+    Surround51,
+
+    /// L R C Ls  Rs Cs
+    Cinema60,
+    /// L R Ls Rs  Sl Sr
+    Music60,
+
+    /// L R C Lfe Ls Rs Cs
+    Cinema61,
+    /// L R Lfe Ls Rs Sl Sr
+    Music61,
+
+    /// L R C Ls Rs Lc Rc
+    Cinema70,
+    /// L R C Ls Rs Sl Sr
+    Music70,
+
+    /// L R C Lfe Ls Rs Lc Rc
+    Cinema71,
+    /// L R C Lfe Ls Rs Sl Sr
+    Music71,
+
+    /// L R C Ls Rs Lc Rc Cs
+    Cinema80,
+    /// L R C Ls Rs Cs Sl Sr
+    Music80,
+
+    /// L R C Lfe Ls Rs Lc Rc Cs
+    Cinema81,
+    /// L R C Lfe Ls Rs Cs Sl Sr
+    Music81,
+
+    /// L R C Lfe Ls Rs Tfl Tfc Tfr Trl Trr Lfe2
+    Surround102,
 }

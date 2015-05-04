@@ -437,6 +437,20 @@ impl_clike!(Key);
 /// Bitflags.
 #[allow(dead_code, missing_docs)]
 pub mod flags {
+    /// Flags for VST channel.
+    pub mod channel_flags {
+        bitflags! {
+            flags Channel: i32 {
+                /// Indicates channel is active. Ignored by host.
+                const ACTIVE = 1,
+                /// Indicates channel is first of stereo pair.
+                const STEREO = 1 << 1,
+                /// Use channel's specified speaker_arrangement instead of stereo flag.
+                const SPEAKER = 1 << 2
+            }
+        }
+    }
+
     /// Flags for VST plugins.
     pub mod plugin {
         bitflags! {

@@ -62,6 +62,7 @@ pub mod buffer;
 pub mod enums;
 pub mod api;
 pub mod editor;
+pub mod channels;
 mod interfaces;
 
 use enums::flags::plugin::*;
@@ -69,6 +70,7 @@ use enums::{PluginCategory, CanDo, Supported};
 use api::{HostCallback, AEffect};
 pub use buffer::AudioBuffer;
 use editor::Editor;
+use channels::ChannelInfo;
 
 /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
 const VST_MAGIC: i32 = ('V' as i32) << 24 |
@@ -362,6 +364,20 @@ pub trait Vst {
     /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
     /// given chunk data.
     fn load_bank_data(&mut self, data: Vec<u8>) {}
+
+    /// Get information about an input channel. Only used by some hosts.
+    fn get_input_info(&self, input: i32) -> ChannelInfo {
+        ChannelInfo::new(format!("Input channel {}", input),
+                         Some(format!("In {}", input)),
+                         true, None)
+    }
+
+    /// Get information about an output channel. Only used by some hosts.
+    fn get_output_info(&self, output: i32) -> ChannelInfo {
+        ChannelInfo::new(format!("Output channel {}", output),
+                         Some(format!("Out {}", output)),
+                         true, None)
+    }
 }
 
 
