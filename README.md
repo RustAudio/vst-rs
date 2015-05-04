@@ -3,6 +3,8 @@ A library to help facilitate creating VST plugins in rust.
 
 This library is a work in progress and as such does not yet implement all opcodes. It is enough to create basic VST plugins without an editor interface.
 
+*Please note: This api may be subject to rapid changes and the current state of this library is not final.*
+
 #### [Library Documentation](http://overdrivenpotato.github.io/rust-vst2)
 
 ### TODO
