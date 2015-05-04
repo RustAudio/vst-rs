@@ -263,34 +263,34 @@ pub trait Vst {
     fn change_preset(&mut self, preset: i32) { }
 
     /// Get the current preset index.
-    fn get_preset_num(&mut self) -> i32 { 0 }
+    fn get_preset_num(&self) -> i32 { 0 }
 
     /// Set the current preset name.
-    fn set_preset_name(&mut self, name: String) { }
+    fn set_preset_name(&self, name: String) { }
 
     /// Get the name of the preset at the index specified by `preset`.
-    fn get_preset_name(&mut self, preset: i32) -> String { "".to_string() }
+    fn get_preset_name(&self, preset: i32) -> String { "".to_string() }
 
 
     /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
-    fn get_parameter_label(&mut self, index: i32) -> String { "".to_string() }
+    fn get_parameter_label(&self, index: i32) -> String { "".to_string() }
 
     /// Get the parameter value for parameter at `index` (e.g. "1.0", "150", "Plate", "Off").
-    fn get_parameter_text(&mut self, index: i32) -> String {
+    fn get_parameter_text(&self, index: i32) -> String {
         format!("{:.3}", self.get_parameter(index))
     }
 
     /// Get the name of parameter at `index`.
-    fn get_parameter_name(&mut self, index: i32) -> String { format!("Param {}", index) }
+    fn get_parameter_name(&self, index: i32) -> String { format!("Param {}", index) }
 
     /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
-    fn get_parameter(&mut self, index: i32) -> f32 { 0.0 }
+    fn get_parameter(&self, index: i32) -> f32 { 0.0 }
 
     /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
     fn set_parameter(&mut self, index: i32, value: f32) { }
 
     /// Return whether parameter at `index` can be automated.
-    fn can_be_automated(&mut self, index: i32) -> bool { false }
+    fn can_be_automated(&self, index: i32) -> bool { false }
 
 
     /// Called when sample rate is changed by host.
@@ -312,13 +312,13 @@ pub trait Vst {
 
 
     /// Return whether plugin supports specified action.
-    fn can_do(&mut self, can_do: CanDo) -> Supported {
+    fn can_do(&self, can_do: CanDo) -> Supported {
         info!("Host is asking if plugin can: {:?}.", can_do);
         Supported::Maybe
     }
 
     /// Get the tail size of plugin when it is stopped. Used in offline processing as well.
-    fn get_tail_size(&mut self) -> isize { 0 }
+    fn get_tail_size(&self) -> isize { 0 }
 
 
     /// Process an audio buffer containing `f32` values. TODO: Examples

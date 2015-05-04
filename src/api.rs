@@ -79,7 +79,7 @@ pub struct AEffect {
 
     /// Reserved for host, must be 0.
     pub reserved1: isize,
- 
+
     /// Reserved for host, must be 0.
     pub reserved2: isize,
 
