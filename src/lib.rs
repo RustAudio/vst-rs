@@ -112,7 +112,7 @@ pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
 
     let mut vst: T = Default::default();
     let info = vst.get_info().clone();
-    trace!("Creating VST Instance...");
+    trace!("Creating VST plugin instance...");
 
     unsafe { mem::transmute(Box::new(AEffect {
         magic: VST_MAGIC,
@@ -258,7 +258,7 @@ pub trait Vst {
 
 
     /// Called when VST is initialized.
-    fn init(&mut self) { trace!("Initialized vst."); }
+    fn init(&mut self) { trace!("Initialized vst plugin."); }
 
 
     /// Set the current preset to the index specified by `preset`.
