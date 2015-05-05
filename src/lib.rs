@@ -1,4 +1,4 @@
-#![feature(libc, alloc, core, collections, unsafe_no_drop_flag)]
+#![feature(libc, alloc, collections, unsafe_no_drop_flag)]
 #![warn(missing_docs)]
 
 //! rust-vst2 is a rust implementation of the VST2.4 API

@@ -1,5 +1,5 @@
 //! Structures and types for interfacing with the VST 2.4 API.
-use std::{mem, ptr};
+use std::mem;
 
 use libc::c_void;
 
@@ -135,7 +135,6 @@ impl Drop for AEffect {
             drop(Box::from_raw(
                 mem::transmute::<&mut Box<Vst>, &mut Box<Drop>>(self.get_vst())
             ));
-            ptr::read_and_zero(self.object);
         }
     }
 }
