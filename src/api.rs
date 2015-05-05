@@ -38,6 +38,7 @@ pub type GetParameterProc = fn(effect: *mut AEffect, index: i32) -> f32;
 /// Used with the VST API to pass around plugin information.
 #[allow(non_snake_case, dead_code)]
 #[repr(C)]
+#[unsafe_no_drop_flag]
 pub struct AEffect {
     /// Magic number. Must be `['V', 'S', 'T', 'P']`.
     pub magic: i32,
