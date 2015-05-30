@@ -9,12 +9,12 @@ use self::consts::*;
 /// Constant values
 #[allow(dead_code)]
 pub mod consts {
-    pub const MAX_PRESET_NAME_LEN: u64 = 24;
-    pub const MAX_PARAM_STR_LEN: u64 = 8;
-    pub const MAX_LABEL: u64 = 64;
-    pub const MAX_SHORT_LABEL: u64 = 8;
-    pub const MAX_PRODUCT_STR_LEN: u64 = 64;
-    pub const MAX_VENDOR_STR_LEN: u64 = 64;
+    pub const MAX_PRESET_NAME_LEN: u32 = 24;
+    pub const MAX_PARAM_STR_LEN: u32 = 8;
+    pub const MAX_LABEL: usize = 64;
+    pub const MAX_SHORT_LABEL: usize = 8;
+    pub const MAX_PRODUCT_STR_LEN: u32 = 64;
+    pub const MAX_VENDOR_STR_LEN: u32 = 64;
 }
 
 /// Host callback function passed to VST. Can be used to query host information from plugin.
@@ -38,7 +38,6 @@ pub type GetParameterProc = fn(effect: *mut AEffect, index: i32) -> f32;
 /// Used with the VST API to pass around plugin information.
 #[allow(non_snake_case, dead_code)]
 #[repr(C)]
-#[unsafe_no_drop_flag]
 pub struct AEffect {
     /// Magic number. Must be `['V', 'S', 'T', 'P']`.
     pub magic: i32,
@@ -127,15 +126,11 @@ impl AEffect {
     pub unsafe fn get_vst(&mut self) -> &mut Box<Vst> {
         mem::transmute::<*mut c_void, &mut Box<Vst>>(self.object)
     }
-}
 
-impl Drop for AEffect {
-    fn drop(&mut self) {
-        unsafe {
-            drop(Box::from_raw(
-                mem::transmute::<&mut Box<Vst>, &mut Box<Drop>>(self.get_vst())
-            ));
-        }
+    /// Drop the VST object.
+    pub unsafe fn drop_vst(&mut self) {
+        // Possibly a simpler way of doing this..?
+        drop(*mem::transmute::<*mut c_void, Box<Box<Drop>>>(self.object))
     }
 }
 

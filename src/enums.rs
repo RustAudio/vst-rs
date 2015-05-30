@@ -1,6 +1,13 @@
 //! Enums for use in this library.
 
-use collections::enum_set::CLike;
+/// Copied from unstable `collections` library.
+#[doc(hidden)]
+pub trait CLike {
+    /// Converts a C-like enum to a `usize`.
+    fn to_usize(&self) -> usize;
+    /// Converts a `usize` to a C-like enum.
+    fn from_usize(usize) -> Self;
+}
 
 /// Quick implementation of CLike
 macro_rules! impl_clike {

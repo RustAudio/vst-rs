@@ -1,4 +1,3 @@
-#![feature(libc, alloc, collections, unsafe_no_drop_flag)]
 #![warn(missing_docs)]
 
 //! rust-vst2 is a rust implementation of the VST2.4 API
@@ -46,7 +45,6 @@
 //! # Hosts
 //! Hosts are currently not supported. TODO
 
-extern crate collections;
 extern crate libc;
 extern crate num;
 #[macro_use] extern crate log;
@@ -226,7 +224,7 @@ pub struct Info {
 impl Default for Info {
     fn default() -> Info {
         Info {
-            name: String::from_str("VST"),
+            name: "VST".to_string(),
             vendor: String::new(),
 
             presets: 1, // default preset
@@ -426,8 +424,6 @@ mod tests {
 
     #[test]
     fn vst_drop() {
-        use std::mem;
-
         static mut drop_test: bool = false;
 
         impl Drop for TestVst {
@@ -439,10 +435,19 @@ mod tests {
         let aeffect = main::<TestVst>(pass_callback);
         assert!(!aeffect.is_null());
 
-        unsafe { drop(mem::transmute::<*mut AEffect, Box<AEffect>>(aeffect)) };
+        unsafe { (*aeffect).drop_vst() };
 
         // Assert that the VST is shut down and dropped.
         assert!(unsafe { drop_test });
+    }
+
+    #[test]
+    fn vst_no_drop() {
+        let aeffect = main::<TestVst>(pass_callback);
+        assert!(!aeffect.is_null());
+
+        // Make sure this doesn't crash.
+        unsafe { (*aeffect).drop_vst() };
     }
 
     #[test]

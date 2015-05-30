@@ -7,3 +7,4 @@ authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 log = "*"
 bitflags = "*"
 num = "*"
+libc = "*"

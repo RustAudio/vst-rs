@@ -3,14 +3,13 @@
 #![doc(hidden)]
 
 use std::ffi::{CStr, CString};
-use std::{mem, vec};
+use std::mem;
 
-use collections::enum_set::CLike;
 use libc::{self, c_char, c_void};
 
 use Vst;
 use buffer::AudioBuffer;
-use enums::{OpCode, CanDo};
+use enums::{CLike, OpCode, CanDo};
 use api::consts::*;
 use api::AEffect;
 use editor::{Rect, KeyCode};
@@ -65,12 +64,11 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
     // Convert passed in opcode to enum
     let opcode: OpCode = CLike::from_usize(opcode as usize);
-
     // Vst handle
     let mut vst = unsafe { (*effect).get_vst() };
 
     // Copy a string into the `ptr` buffer
-    let copy_string = |string: &String, max: u64| {
+    let copy_string = |string: &String, max: u32| {
         unsafe {
             libc::strncpy(ptr as *mut c_char,
                           CString::new(string.clone()).unwrap().as_ptr(),
@@ -80,14 +78,17 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
     // Read a string from the `ptr` buffer
     let read_string = || -> String {
-        String::from_utf8(
-            vec::as_vec(unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }).clone()
-        ).unwrap()
+        String::from_utf8_lossy(
+            unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
+        ).into_owned()
     };
 
     match opcode {
         OpCode::Initialize => vst.init(),
-        OpCode::Shutdown => unsafe { drop(mem::transmute::<*mut AEffect, Box<AEffect>>(effect)) },
+        OpCode::Shutdown => unsafe {
+            (*effect).drop_vst();
+            drop(mem::transmute::<*mut AEffect, Box<AEffect>>(effect));
+        },
 
         OpCode::ChangePreset => vst.change_preset(value as i32),
         OpCode::GetCurrentPresetNum => return vst.get_preset_num() as isize,
@@ -163,7 +164,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             return len;
         }
         OpCode::SetData => {
-            let chunks = unsafe { Vec::from_raw_buf(ptr as *mut u8, value as usize) };
+            let chunks = unsafe { Vec::from_raw_parts(ptr as *mut u8, value as usize, value as usize) };
             if index == 0 {
                 vst.load_bank_data(chunks);
             } else {
