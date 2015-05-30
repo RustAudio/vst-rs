@@ -5,7 +5,7 @@
 use std::ffi::{CStr, CString};
 use std::mem;
 
-use libc::{self, c_char, c_void};
+use libc::{self, size_t, c_char, c_void};
 
 use Vst;
 use buffer::AudioBuffer;
@@ -68,7 +68,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
     let mut vst = unsafe { (*effect).get_vst() };
 
     // Copy a string into the `ptr` buffer
-    let copy_string = |string: &String, max: u32| {
+    let copy_string = |string: &String, max: size_t| {
         unsafe {
             libc::strncpy(ptr as *mut c_char,
                           CString::new(string.clone()).unwrap().as_ptr(),

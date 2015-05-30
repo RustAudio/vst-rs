@@ -9,12 +9,14 @@ use self::consts::*;
 /// Constant values
 #[allow(dead_code)]
 pub mod consts {
-    pub const MAX_PRESET_NAME_LEN: u32 = 24;
-    pub const MAX_PARAM_STR_LEN: u32 = 8;
+    use libc::size_t;
+
+    pub const MAX_PRESET_NAME_LEN: size_t = 24;
+    pub const MAX_PARAM_STR_LEN: size_t = 8;
     pub const MAX_LABEL: usize = 64;
     pub const MAX_SHORT_LABEL: usize = 8;
-    pub const MAX_PRODUCT_STR_LEN: u32 = 64;
-    pub const MAX_VENDOR_STR_LEN: u32 = 64;
+    pub const MAX_PRODUCT_STR_LEN: size_t = 64;
+    pub const MAX_VENDOR_STR_LEN: size_t = 64;
 }
 
 /// Host callback function passed to VST. Can be used to query host information from plugin.
