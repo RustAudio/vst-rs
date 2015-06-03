@@ -31,6 +31,7 @@
 //!     fn get_info(&self) -> Info {
 //!         Info {
 //!             name: "BasicVst".to_string(),
+//!             unique_id: 1357, // Used by hosts to differentiate between plugins.
 //!
 //!             ..Default::default()
 //!         }
@@ -234,7 +235,7 @@ impl Default for Info {
             inputs: 2, // Stereo in,out
             outputs: 2,
 
-            unique_id: 0,
+            unique_id: 0, // This must be changed.
             version: 0001, // v0.0.0.1
 
             category: PluginCategory::Effect,

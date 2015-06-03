@@ -33,6 +33,7 @@ impl Vst for BasicVst {
     fn get_info(&self) -> Info {
         Info {
             name: "BasicVst".to_string(),
+            unique_id: 1357, // Used by hosts to differentiate between plugins.
 
             ..Default::default()
         }
