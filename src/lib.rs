@@ -83,12 +83,12 @@ const VST_MAGIC: i32 = ('V' as i32) << 24 |
 macro_rules! vst_main {
     ($t:ty) => {
         #[cfg(target_os = "mac")]
-        pub extern "system" fn main_macho (callback: $crate::callbacks::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho (callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
-        pub extern "system" fn MAIN (callback: $crate::callbacks::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN (callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
