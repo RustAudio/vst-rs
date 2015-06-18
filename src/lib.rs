@@ -70,10 +70,10 @@ use editor::Editor;
 use channels::ChannelInfo;
 
 /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
-const VST_MAGIC: i32 = ('V' as i32) << 24 |
-                       ('s' as i32) << 16 |
-                       ('t' as i32) << 8  |
-                       ('P' as i32) << 0  ;
+pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
+                           ('s' as i32) << 16 |
+                           ('t' as i32) << 8  |
+                           ('P' as i32) << 0  ;
 
 /// Exports the necessary symbols for the plugin to be used by a vst host.
 ///
