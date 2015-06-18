@@ -21,7 +21,6 @@
 //! ```no_run
 //! #[macro_use]
 //! extern crate vst2;
-//! use std::default::Default;
 //!
 //! use vst2::{Vst, Info};
 //!

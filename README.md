@@ -23,7 +23,6 @@ A simple plugin that bears no functionality. The provided Cargo.toml has a crate
 ```rust
 #[macro_use]
 extern crate vst2;
-use std::default::Default;
 
 use vst2::{Vst, Info};
 
