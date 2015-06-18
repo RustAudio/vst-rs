@@ -1,4 +1,4 @@
-# rust-vst2 [![Build Status](https://travis-ci.org/overdrivenpotato/rust-vst2.svg?branch=master)](https://travis-ci.org/overdrivenpotato/rust-vst2)
+# rust-vst2 [![Travis Build Status](https://travis-ci.org/overdrivenpotato/rust-vst2.svg?branch=master)](https://travis-ci.org/overdrivenpotato/rust-vst2) [![Appveyor Build Status](https://ci.appveyor.com/api/projects/status/4kg8efxas08b72bp?svg=true)](https://ci.appveyor.com/project/overdrivenpotato/rust-vst2)
 A library to help facilitate creating VST plugins in rust.
 
 This library is a work in progress and as such does not yet implement all opcodes. It is enough to create basic VST plugins without an editor interface.
