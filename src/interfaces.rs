@@ -173,6 +173,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         }
 
         OpCode::CanBeAutomated => return vst.can_be_automated(index) as isize,
+        OpCode::StringToParameter => return vst.string_to_parameter(index, read_string()) as isize,
 
         OpCode::GetPresetName => copy_string(&vst.get_preset_name(index), MAX_PRESET_NAME_LEN),
 

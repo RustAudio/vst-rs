@@ -295,6 +295,11 @@ pub trait Vst {
     /// Return whether parameter at `index` can be automated.
     fn can_be_automated(&self, index: i32) -> bool { false }
 
+    /// Use String as input for parameter value. Used by host to provide an editable field to
+    /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
+    /// the input string was used.
+    fn string_to_parameter(&self, index: i32, text: String) -> bool { false }
+
 
     /// Called when sample rate is changed by host.
     fn sample_rate_changed(&mut self, rate: f32) { }
