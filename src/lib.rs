@@ -163,8 +163,8 @@ pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
         object: mem::transmute(Box::new(Box::new(vst) as Box<Vst>)),
         user: ptr::null_mut(),
 
-        uniqueId: 0,
-        version: 0001,
+        uniqueId: info.unique_id,
+        version: info.version,
 
         processReplacing: interfaces::process_replacing, // fn pointer
         processReplacingF64: interfaces::process_replacing_f64, //fn pointer
