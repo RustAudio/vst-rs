@@ -154,7 +154,7 @@ pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
         reserved1: 0,
         reserved2: 0,
 
-        initialDelay: 0,
+        initialDelay: info.initial_delay,
 
         _realQualities: 0,
         _offQualities: 0,
