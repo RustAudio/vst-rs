@@ -50,7 +50,6 @@ extern crate num;
 #[macro_use] extern crate log;
 #[macro_use] extern crate bitflags;
 
-use std::default::Default;
 use std::{ptr, mem};
 use std::iter::IntoIterator;
 
@@ -61,6 +60,7 @@ pub mod enums;
 pub mod api;
 pub mod editor;
 pub mod channels;
+pub mod host;
 mod interfaces;
 
 use enums::flags::plugin::*;
@@ -69,6 +69,7 @@ use api::{HostCallback, AEffect};
 pub use buffer::AudioBuffer;
 use editor::Editor;
 use channels::ChannelInfo;
+use host::Host;
 
 /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
 pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
@@ -84,14 +85,14 @@ macro_rules! vst_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
-        pub extern "system" fn main_macho (callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho(callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn MAIN (callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN(callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
@@ -106,16 +107,22 @@ macro_rules! vst_main {
 /// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
 #[doc(hidden)]
 pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
-    // 1 is audioMasterVersion TODO: abstract this
-    if callback(ptr::null_mut(), 1, 0, 0, ptr::null_mut(), 0.0) == 0 {
+    // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it
+    // can be passed into the Host `wrap` method. The AEffect is then updated after the vst object
+    // is created so that the host still contains a raw pointer to the AEffect struct.
+    let effect = unsafe { mem::transmute(Box::new(mem::zeroed::<AEffect>())) };
+
+    let host = Host::wrap(callback, effect);
+    if host.vst_version() == 0 { // TODO: Better criteria would probably be useful here...
         return ptr::null_mut();
     }
 
-    let mut vst: T = Default::default();
-    let info = vst.get_info().clone();
     trace!("Creating VST plugin instance...");
+    let mut vst = <T>::new(host);
+    let info = vst.get_info().clone();
 
-    unsafe { mem::transmute(Box::new(AEffect {
+    // Update AEffect in place
+    unsafe { *effect = AEffect {
         magic: VST_MAGIC,
         dispatcher: interfaces::dispatch, // fn pointer
 
@@ -170,7 +177,8 @@ pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
         processReplacingF64: interfaces::process_replacing_f64, //fn pointer
 
         future: [0u8; 56]
-    })) }
+    }};
+    effect
 }
 
 /// A structure representing static plugin information.
@@ -257,8 +265,51 @@ pub trait Vst {
     /// This method must return an `Info` struct.
     fn get_info(&self) -> Info;
 
+    /// Called during initialization to pass a Host wrapper to the plugin.
+    ///
+    /// This method can be overriden to set `host` as a field in the plugin struct.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// // ...
+    /// # extern crate vst2;
+    /// # #[macro_use] extern crate log;
+    /// # use vst2::{Vst, Info};
+    /// use vst2::host::Host;
+    ///
+    /// # #[derive(Default)]
+    /// struct Plugin {
+    ///     host: Host
+    /// }
+    ///
+    /// impl Vst for Plugin {
+    ///     fn new(host: Host) -> Plugin {
+    ///         Plugin {
+    ///             host: host
+    ///         }
+    ///     }
+    ///
+    ///     fn init(&mut self) {
+    ///         info!("loaded with host vst version: {}", self.host.vst_version());
+    ///     }
+    ///
+    ///     // ...
+    /// #     fn get_info(&self) -> Info {
+    /// #         Info {
+    /// #             name: "Example Plugin".to_string(),
+    /// #             ..Default::default()
+    /// #         }
+    /// #     }
+    /// }
+    ///
+    /// # fn main() {}
+    /// ```
+    fn new(host: Host) -> Self where Self: Sized + Default {
+        Default::default()
+    }
 
-    /// Called when VST is initialized.
+    /// Called when VST is fully initialized.
     fn init(&mut self) { trace!("Initialized vst plugin."); }
 
 
