@@ -1,31 +1,31 @@
 //! Enums for use in this library.
 
-/// Copied from unstable `collections` library.
-#[doc(hidden)]
-pub trait CLike {
-    /// Converts a C-like enum to a `usize`.
-    fn to_usize(&self) -> usize;
-    /// Converts a `usize` to a C-like enum.
-    fn from_usize(usize) -> Self;
-}
-
-/// Quick implementation of CLike
+/// Implements `From` and `Into` for enums with `#[repr(usize)]`. Useful for interfacing with C
+/// enums.
 macro_rules! impl_clike {
-    ($t:ty) => {
-        impl ::enums::CLike for $t {
-            fn to_usize(&self) -> usize {
-                *self as usize
+    ($t:ty, $($c:ty) +) => {
+        $(
+            impl From<$c> for $t {
+                fn from(v: $c) -> $t {
+                    use std::mem;
+                    unsafe { mem::transmute(v as usize) }
+                }
             }
 
-            fn from_usize(v: usize) -> $t {
-                use std::mem;
-                unsafe { mem::transmute(v) }
+            impl Into<$c> for $t {
+                fn into(self) -> $c {
+                    self as $c
+                }
             }
-        }
+        )*
+    };
+
+    ($t:ty) => {
+        impl_clike!($t, i8 i16 i32 i64 isize u8 u16 u32 u64 usize);
     }
 }
 
-// generally, only effect and synth are necessary.
+// Generally, only effect and synth are necessary.
 /// Plugin type. Generally either Effect or Synth.
 ///
 /// Other types are not necessary to build a plugin and are only useful for the host to categorize

@@ -7,7 +7,7 @@ use libc::c_void;
 
 use VST_MAGIC;
 use api::{AEffect, HostCallback};
-use enums::{CLike, HostOpCode};
+use enums::HostOpCode;
 
 /// A reference to the host which allows the plugin to call back and access information.
 ///
@@ -59,14 +59,14 @@ impl Host {
     #[doc(hidden)]
     fn callback(&self,
                 effect: *mut AEffect,
-                opcode: usize,
+                opcode: HostOpCode,
                 index: i32,
                 value: isize,
                 ptr: *mut c_void,
                 opt: f32)
                 -> isize {
         let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
-        callback(effect, opcode as i32, index, value, ptr, opt)
+        callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
     /// Check whether the plugin has been initialized.
@@ -88,14 +88,14 @@ impl Host {
     /// Notify the host that a parameter value was changed.
     pub fn automate(&mut self, index: i32, value: f32) {
         if self.is_effect_valid() { // TODO: Investigate removing this check, should be up to host
-            self.callback(self.effect, HostOpCode::Automate.to_usize(),
+            self.callback(self.effect, HostOpCode::Automate,
                           index, 0, ptr::null_mut(), value);
         }
     }
 
     /// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.
     pub fn vst_version(&self) -> i32 {
-        self.callback(self.effect, HostOpCode::Version.to_usize(),
+        self.callback(self.effect, HostOpCode::Version,
                       0, 0, ptr::null_mut(), 0.0) as i32
     }
 
@@ -104,7 +104,7 @@ impl Host {
     /// This is only useful for shell plugins where this value will change the plugin returned.
     /// `TODO: implement shell plugins`
     pub fn get_plugin_id(&self) -> i32 {
-        self.callback(self.effect, HostOpCode::CurrentId.to_usize(),
+        self.callback(self.effect, HostOpCode::CurrentId,
                       0, 0, ptr::null_mut(), 0.0) as i32
     }
 
@@ -112,7 +112,7 @@ impl Host {
     ///
     /// This is useful when the plugin is doing something such as mouse tracking in the UI.
     pub fn idle(&self) {
-        self.callback(self.effect, HostOpCode::Idle.to_usize(),
+        self.callback(self.effect, HostOpCode::Idle,
                       0, 0, ptr::null_mut(), 0.0);
     }
 }
@@ -121,7 +121,7 @@ impl Host {
 mod tests {
     use std::ptr;
 
-    use enums::{CLike, OpCode};
+    use enums::OpCode;
 
     /// Create a plugin instance.
     ///
@@ -174,7 +174,7 @@ mod tests {
                                  _ptr: *mut c_void,
                                  opt: f32)
                                  -> isize {
-                    let opcode = HostOpCode::from_usize(opcode as usize);
+                    let opcode = HostOpCode::from(opcode);
                     match opcode {
                         HostOpCode::Automate => {
                             assert_eq!(index, 123);
@@ -215,7 +215,7 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(aeffect, OpCode::Initialize.to_usize() as i32,
+        (unsafe { (*aeffect).dispatcher })(aeffect, OpCode::Initialize.into(),
                                            0, 0, ptr::null_mut(), 0.0);
     }
 }

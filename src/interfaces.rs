@@ -9,10 +9,10 @@ use libc::{self, size_t, c_char, c_void};
 
 use Vst;
 use buffer::AudioBuffer;
-use enums::{CLike, OpCode, CanDo};
+use enums::{OpCode, CanDo};
 use api::consts::*;
 use api::AEffect;
-use editor::{Rect, KeyCode};
+use editor::{Rect, KeyCode, Key, KnobMode};
 
 /// Deprecated process function.
 pub fn process_deprecated(_effect: *mut AEffect, _inputs_raw: *mut *mut f32, _outputs_raw: *mut *mut f32, _samples: i32) { }
@@ -63,7 +63,7 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the vst plugin.
 pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
     // Convert passed in opcode to enum
-    let opcode: OpCode = CLike::from_usize(opcode as usize);
+    let opcode = OpCode::from(opcode);
     // Vst handle
     let mut vst = unsafe { (*effect).get_vst() };
 
@@ -190,7 +190,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             }
         }
         OpCode::GetCategory => {
-            return vst.get_info().category.to_usize() as isize;
+            return vst.get_info().category.into();
         }
 
         OpCode::GetVendorName => copy_string(&vst.get_info().vendor, MAX_VENDOR_STR_LEN),
@@ -214,7 +214,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             if let Some(editor) = vst.get_editor() {
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
-                    key: CLike::from_usize(value as usize),
+                    key: Key::from(value),
                     modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
                 });
             }
@@ -223,14 +223,14 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             if let Some(editor) = vst.get_editor() {
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
-                    key: CLike::from_usize(value as usize),
+                    key: Key::from(value),
                     modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
                 });
             }
         }
         OpCode::EditorSetKnobMode => {
             if let Some(editor) = vst.get_editor() {
-                editor.set_knob_mode(CLike::from_usize(value as usize));
+                editor.set_knob_mode(KnobMode::from(value));
             }
         }
 
