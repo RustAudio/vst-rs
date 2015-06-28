@@ -442,12 +442,14 @@ pub trait Vst {
 #[allow(private_no_mangle_fns)] // For `vst_main!`
 mod tests {
     use std::default::Default;
-    use std::ptr;
+    use std::{mem, ptr};
 
     use libc::c_void;
 
     use Vst;
     use Info;
+    use VST_MAGIC;
+    use interfaces;
     use api::AEffect;
 
     #[derive(Default)]
@@ -457,6 +459,16 @@ mod tests {
         fn get_info(&self) -> Info {
             Info {
                 name: "TestVST".to_string(),
+                vendor: "overdrivenpotato".to_string(),
+
+                presets: 1,
+                parameters: 1,
+
+                unique_id: 5678,
+                version: 1234,
+
+                initial_delay: 123,
+
                 ..Default::default()
             }
         }
@@ -531,5 +543,39 @@ mod tests {
         let vst = unsafe { (*aeffect).get_vst() };
         // Assert that deref works correctly.
         assert!(vst.get_info().name == "TestVST");
+    }
+
+    #[test]
+    fn aeffect_params() {
+        // Assert that 2 function pointers are equal.
+        macro_rules! assert_fn_eq {
+            ($a:expr, $b:expr) => {
+                unsafe {
+                    assert_eq!(
+                        mem::transmute::<_, usize>($a),
+                        mem::transmute::<_, usize>($b)
+                    );
+                }
+            }
+        }
+
+        let aeffect = unsafe { &mut *VSTPluginMain(pass_callback) };
+
+        assert_eq!(aeffect.magic, VST_MAGIC);
+        assert_fn_eq!(aeffect.dispatcher, interfaces::dispatch);
+        assert_fn_eq!(aeffect._process, interfaces::process_deprecated);
+        assert_fn_eq!(aeffect.setParameter, interfaces::set_parameter);
+        assert_fn_eq!(aeffect.getParameter, interfaces::get_parameter);
+        assert_eq!(aeffect.numPrograms, 1);
+        assert_eq!(aeffect.numParams, 1);
+        assert_eq!(aeffect.numInputs, 2);
+        assert_eq!(aeffect.numOutputs, 2);
+        assert_eq!(aeffect.reserved1, 0);
+        assert_eq!(aeffect.reserved2, 0);
+        assert_eq!(aeffect.initialDelay, 123);
+        assert_eq!(aeffect.uniqueId, 5678);
+        assert_eq!(aeffect.version, 1234);
+        assert_fn_eq!(aeffect.processReplacing, interfaces::process_replacing);
+        assert_fn_eq!(aeffect.processReplacingF64, interfaces::process_replacing_f64);
     }
 }
