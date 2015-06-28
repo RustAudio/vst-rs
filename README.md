@@ -25,7 +25,7 @@ the necessary functions and handle dealing with the rest of the API.
 A simple plugin that bears no functionality. The provided Cargo.toml has a
 crate-type directive which builds a dynamic library, usable by any VST host.
 
-`lib.rs`
+`src/lib.rs`
 
 ```rust
 #[macro_use]
