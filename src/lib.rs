@@ -56,7 +56,7 @@ use std::iter::IntoIterator;
 use libc::c_void;
 
 pub mod buffer;
-pub mod enums;
+#[macro_use] pub mod enums; // Use `impl_clike!`
 pub mod api;
 pub mod editor;
 pub mod channels;

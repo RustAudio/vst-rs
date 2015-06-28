@@ -12,7 +12,7 @@ pub trait CLike {
 /// Quick implementation of CLike
 macro_rules! impl_clike {
     ($t:ty) => {
-        impl CLike for $t {
+        impl ::enums::CLike for $t {
             fn to_usize(&self) -> usize {
                 *self as usize
             }
@@ -383,81 +383,6 @@ impl Supported {
     }
 }
 
-/// For use in editor. Allows host to set how a parameter knob works.
-#[repr(usize)]
-#[derive(Copy, Clone, Debug)]
-#[allow(missing_docs)]
-pub enum KnobMode {
-    Circular,
-    CircularRelative,
-    Linear
-}
-impl_clike!(KnobMode);
-
-/// Platform independent key codes.
-#[allow(dead_code, missing_docs)]
-#[repr(usize)]
-#[derive(Debug, Copy, Clone)]
-pub enum Key {
-	Back = 1,
-	Tab,
-	Clear,
-	Return,
-	Pause,
-	Escape,
-	Space,
-	Next,
-	End,
-	Home,
-	Left,
-	Up,
-	Right,
-	Down,
-	PageUp,
-	PageDown,
-	Select,
-	Print,
-	Enter,
-	Snapshot,
-	Insert,
-	Delete,
-	Help,
-	Numpad0,
-	Numpad1,
-	Numpad2,
-	Numpad3,
-	Numpad4,
-	Numpad5,
-	Numpad6,
-	Numpad7,
-	Numpad8,
-	Numpad9,
-	Multiply,
-	Add,
-	Separator,
-	Subtract,
-	Decimal,
-	Divide,
-	F1,
-	F2,
-	F3,
-	F4,
-	F5,
-	F6,
-	F7,
-	F8,
-	F9,
-	F10,
-	F11,
-	F12,
-	Numlock,
-	Scroll,
-	Shift,
-	Control,
-	Alt,
-	Equals
-}
-impl_clike!(Key);
 
 /// Bitflags.
 #[allow(dead_code, missing_docs)]

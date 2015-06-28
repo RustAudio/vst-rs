@@ -2,8 +2,6 @@
 
 use libc::c_void;
 
-use enums::{KnobMode, Key};
-
 /// Implemented by plugin editors.
 pub trait Editor {
     /// Get the size of the editor window.
@@ -28,9 +26,11 @@ pub trait Editor {
 
 
     /// Set the knob mode for this editor (if supported by host).
-    fn set_knob_mode(&mut self, mode: KnobMode);
+    ///
+    /// Return true if the knob mode was set.
+    fn set_knob_mode(&mut self, mode: KnobMode) -> bool;
 
-    /// Recieve key up event.
+    /// Recieve key up event. Return true if the key was used.
     fn key_up(&mut self, keycode: KeyCode) -> bool;
 
     /// Receive key down event. Return true if the key was used.
@@ -59,3 +59,79 @@ pub struct KeyCode {
     /// Modifier key bitflags. See `enums::flags::modifier_key`.
     pub modifier: u8
 }
+
+/// Allows host to set how a parameter knob works.
+#[repr(usize)]
+#[derive(Copy, Clone, Debug)]
+#[allow(missing_docs)]
+pub enum KnobMode {
+    Circular,
+    CircularRelative,
+    Linear
+}
+impl_clike!(KnobMode);
+
+/// Platform independent key codes.
+#[allow(missing_docs)]
+#[repr(usize)]
+#[derive(Debug, Copy, Clone)]
+pub enum Key {
+	Back = 1,
+	Tab,
+	Clear,
+	Return,
+	Pause,
+	Escape,
+	Space,
+	Next,
+	End,
+	Home,
+	Left,
+	Up,
+	Right,
+	Down,
+	PageUp,
+	PageDown,
+	Select,
+	Print,
+	Enter,
+	Snapshot,
+	Insert,
+	Delete,
+	Help,
+	Numpad0,
+	Numpad1,
+	Numpad2,
+	Numpad3,
+	Numpad4,
+	Numpad5,
+	Numpad6,
+	Numpad7,
+	Numpad8,
+	Numpad9,
+	Multiply,
+	Add,
+	Separator,
+	Subtract,
+	Decimal,
+	Divide,
+	F1,
+	F2,
+	F3,
+	F4,
+	F5,
+	F6,
+	F7,
+	F8,
+	F9,
+	F10,
+	F11,
+	F12,
+	Numlock,
+	Scroll,
+	Shift,
+	Control,
+	Alt,
+	Equals
+}
+impl_clike!(Key);
