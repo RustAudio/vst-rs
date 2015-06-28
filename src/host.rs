@@ -5,8 +5,8 @@ use std::{mem, ptr};
 
 use libc::c_void;
 
-use VST_MAGIC;
 use api::{AEffect, HostCallback};
+use api::consts::VST_MAGIC;
 
 #[repr(usize)]
 #[derive(Clone, Copy, Debug)]

@@ -71,15 +71,10 @@ use editor::Editor;
 use channels::ChannelInfo;
 use host::Host;
 use plugin::CanDo;
+use api::consts::VST_MAGIC;
 
 pub use plugin::Info;
 pub use buffer::AudioBuffer;
-
-/// VST plugins are identified by a magic number. This corresponds to 0x56737450.
-pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
-                           ('s' as i32) << 16 |
-                           ('t' as i32) << 8  |
-                           ('P' as i32) << 0  ;
 
 /// Exports the necessary symbols for the plugin to be used by a vst host.
 ///
@@ -376,9 +371,9 @@ mod tests {
     use libc::c_void;
 
     use Vst;
-    use VST_MAGIC;
     use interfaces;
     use api::AEffect;
+    use api::consts::VST_MAGIC;
     use plugin::Info;
 
     #[derive(Default)]
