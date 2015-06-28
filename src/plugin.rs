@@ -357,7 +357,7 @@ impl Default for Info {
             initial_delay: 0,
 
             preset_chunks: false,
-            f64_precision: false,
+            f64_precision: true,
             silent_when_stopped: false,
         }
     }
