@@ -271,3 +271,78 @@ pub enum OpCode {
     GetNumMidiOutputs,
 }
 impl_clike!(OpCode);
+
+/// A structure representing static plugin information.
+#[derive(Clone, Debug)]
+pub struct Info {
+    /// Plugin Name.
+    pub name: String,
+
+    /// Plugin Vendor.
+    pub vendor: String,
+
+
+    /// Number of different presets.
+    pub presets: i32,
+
+    /// Number of parameters.
+    pub parameters: i32,
+
+
+    /// Number of inputs.
+    pub inputs: i32,
+
+    /// Number of outputs.
+    pub outputs: i32,
+
+
+    /// Unique plugin ID. Can be registered with Steinberg to prevent conflicts with other plugins.
+    ///
+    /// This ID is used to identify a plugin during save and load of a preset and project.
+    pub unique_id: i32,
+
+    /// Plugin version (e.g. 0001 = `v0.0.0.1`, 1283 = `v1.2.8.3`).
+    pub version: i32,
+
+    /// Plugin category. Possible values are found in `enums::PluginCategory`.
+    pub category: Category,
+
+    //TODO: Doc
+    pub initial_delay: i32,
+
+    /// Indicates whether preset data is handled in formatless chunks. If false,
+    /// host saves and restores plugins by reading/writing parameter data. If true, it is up to
+    /// the plugin to manage saving preset data by implementing  the
+    /// `{get, load}_{preset, bank}_chunks()` methods. Default is `false`.
+    pub preset_chunks: bool,
+
+    /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers. Default is
+    /// `false`.
+    pub f64_precision: bool,
+
+    //no_sound_in_stop: bool, //TODO: Implement this somehow
+}
+
+impl Default for Info {
+    fn default() -> Info {
+        Info {
+            name: "VST".to_string(),
+            vendor: String::new(),
+
+            presets: 1, // default preset
+            parameters: 0,
+            inputs: 2, // Stereo in,out
+            outputs: 2,
+
+            unique_id: 0, // This must be changed.
+            version: 0001, // v0.0.0.1
+
+            category: Category::Effect,
+
+            initial_delay: 0,
+
+            preset_chunks: false,
+            f64_precision: false,
+        }
+    }
+}

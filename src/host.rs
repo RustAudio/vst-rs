@@ -148,10 +148,10 @@ mod tests {
             use libc::c_void;
 
             use Vst;
-            use Info;
             use main;
             use api::AEffect;
             use host::{Host, OpCode};
+            use plugin::Info;
 
             $(#[$attr]) *
             struct TestPlugin {
