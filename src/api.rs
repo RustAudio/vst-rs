@@ -91,6 +91,7 @@ pub struct AEffect {
     pub reserved2: isize,
 
     /// For algorithms which need input in the first place (Group delay or latency in samples).
+    ///
     /// This value should be initially in a resume state.
     pub initialDelay: i32,
 

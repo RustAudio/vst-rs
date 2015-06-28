@@ -315,7 +315,9 @@ pub struct Info {
     /// Plugin category. Possible values are found in `enums::PluginCategory`.
     pub category: Category,
 
-    //TODO: Doc
+    /// Latency of the plugin in samples.
+    ///
+    /// This reports how many samples it takes for the plugin to create an output (group delay).
     pub initial_delay: i32,
 
     /// Indicates that preset data is handled in formatless chunks.
