@@ -298,24 +298,6 @@ pub enum OpCode {
 }
 impl_clike!(OpCode);
 
-#[repr(usize)]
-#[derive(Clone, Copy, Debug)]
-#[doc(hidden)]
-pub enum HostOpCode {
-    /// [index]: parameter index
-    /// [opt]: parameter value
-    Automate = 0,
-    /// [return]: host vst version (e.g. 2400 for VST 2.4)
-    Version,
-    /// [return]: current plugin ID (useful for shell plugins to figure out which plugin to load in
-    ///           `VSTPluginMain()`).
-    CurrentId,
-    /// No arguments. Give idle time to Host application, e.g. if plug-in editor is doing mouse
-    /// tracking in a modal loop.
-    Idle,
-}
-impl_clike!(HostOpCode);
-
 /// Features which are optionally supported by a plugin. These are queried by the host at run time.
 #[derive(Debug)]
 #[allow(missing_docs)]

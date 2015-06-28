@@ -7,7 +7,24 @@ use libc::c_void;
 
 use VST_MAGIC;
 use api::{AEffect, HostCallback};
-use enums::HostOpCode;
+
+#[repr(usize)]
+#[derive(Clone, Copy, Debug)]
+#[doc(hidden)]
+pub enum OpCode {
+    /// [index]: parameter index
+    /// [opt]: parameter value
+    Automate = 0,
+    /// [return]: host vst version (e.g. 2400 for VST 2.4)
+    Version,
+    /// [return]: current plugin ID (useful for shell plugins to figure out which plugin to load in
+    ///           `VSTPluginMain()`).
+    CurrentId,
+    /// No arguments. Give idle time to Host application, e.g. if plug-in editor is doing mouse
+    /// tracking in a modal loop.
+    Idle,
+}
+impl_clike!(OpCode);
 
 /// A reference to the host which allows the plugin to call back and access information.
 ///
@@ -59,7 +76,7 @@ impl Host {
     #[doc(hidden)]
     fn callback(&self,
                 effect: *mut AEffect,
-                opcode: HostOpCode,
+                opcode: OpCode,
                 index: i32,
                 value: isize,
                 ptr: *mut c_void,
@@ -88,14 +105,14 @@ impl Host {
     /// Notify the host that a parameter value was changed.
     pub fn automate(&mut self, index: i32, value: f32) {
         if self.is_effect_valid() { // TODO: Investigate removing this check, should be up to host
-            self.callback(self.effect, HostOpCode::Automate,
+            self.callback(self.effect, OpCode::Automate,
                           index, 0, ptr::null_mut(), value);
         }
     }
 
     /// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.
     pub fn vst_version(&self) -> i32 {
-        self.callback(self.effect, HostOpCode::Version,
+        self.callback(self.effect, OpCode::Version,
                       0, 0, ptr::null_mut(), 0.0) as i32
     }
 
@@ -104,7 +121,7 @@ impl Host {
     /// This is only useful for shell plugins where this value will change the plugin returned.
     /// `TODO: implement shell plugins`
     pub fn get_plugin_id(&self) -> i32 {
-        self.callback(self.effect, HostOpCode::CurrentId,
+        self.callback(self.effect, OpCode::CurrentId,
                       0, 0, ptr::null_mut(), 0.0) as i32
     }
 
@@ -112,7 +129,7 @@ impl Host {
     ///
     /// This is useful when the plugin is doing something such as mouse tracking in the UI.
     pub fn idle(&self) {
-        self.callback(self.effect, HostOpCode::Idle,
+        self.callback(self.effect, OpCode::Idle,
                       0, 0, ptr::null_mut(), 0.0);
     }
 }
@@ -121,7 +138,7 @@ impl Host {
 mod tests {
     use std::ptr;
 
-    use enums::OpCode;
+    use enums;
 
     /// Create a plugin instance.
     ///
@@ -134,8 +151,7 @@ mod tests {
             use Info;
             use main;
             use api::AEffect;
-            use enums::HostOpCode;
-            use host::Host;
+            use host::{Host, OpCode};
 
             $(#[$attr]) *
             struct TestPlugin {
@@ -174,16 +190,16 @@ mod tests {
                                  _ptr: *mut c_void,
                                  opt: f32)
                                  -> isize {
-                    let opcode = HostOpCode::from(opcode);
+                    let opcode = OpCode::from(opcode);
                     match opcode {
-                        HostOpCode::Automate => {
+                        OpCode::Automate => {
                             assert_eq!(index, 123);
                             assert_eq!(opt, 12.3);
                             0
                         }
-                        HostOpCode::Version => 2400,
-                        HostOpCode::CurrentId => 9876,
-                        HostOpCode::Idle => 0,
+                        OpCode::Version => 2400,
+                        OpCode::CurrentId => 9876,
+                        OpCode::Idle => 0,
                     }
                 }
 
@@ -215,7 +231,7 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(aeffect, OpCode::Initialize.into(),
+        (unsafe { (*aeffect).dispatcher })(aeffect, enums::OpCode::Initialize.into(),
                                            0, 0, ptr::null_mut(), 0.0);
     }
 }
