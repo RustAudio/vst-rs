@@ -18,8 +18,8 @@ this library is not final.*
 
 ## Usage
 To create a plugin, simply create a type which implements `plugin::Plugin` and
-`std::default::Default`. Then call the macro `vst_main!`, which will export the
-necessary functions and handle dealing with the rest of the API.
+`std::default::Default`. Then call the macro `plugin_main!`, which will export
+the necessary functions and handle dealing with the rest of the API.
 
 ## Example Plugin
 A simple plugin that bears no functionality. The provided Cargo.toml has a
@@ -47,7 +47,7 @@ impl Plugin for BasicPlugin {
     }
 }
 
-vst_main!(BasicPlugin); // Important!
+plugin_main!(BasicPlugin); // Important!
 ```
 
 `Cargo.toml`

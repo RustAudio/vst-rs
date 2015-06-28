@@ -3,17 +3,17 @@
 //! rust-vst2 is a rust implementation of the VST2.4 API
 //!
 //! # Plugins
-//! All Plugins must implement the `Plugin` trait and `std::default::Default`. The `vst_main!` macro
-//! must also be called in order to export the necessary functions for the VST to function.
+//! All Plugins must implement the `Plugin` trait and `std::default::Default`. The `plugin_main!`
+//! macro must also be called in order to export the necessary functions for the plugin to function.
 //!
 //! ## `Plugin` Trait
 //! All methods in this trait have a default implementation except for the `get_info` method which
-//! must be implemented by the Vst object. Any of the default implementations may be overriden for
+//! must be implemented by the plugin. Any of the default implementations may be overriden for
 //! custom functionality; the defaults do nothing on their own.
 //!
-//! ## `vst_main!` macro
-//! `vst_main!` will export the necessary functions to create a proper VST. This must be called
-//! with your VST struct name in order for the vst to work.
+//! ## `plugin_main!` macro
+//! `plugin_main!` will export the necessary functions to create a proper VST plugin. This must be
+//! called with your VST plugin struct name in order for the vst to work.
 //!
 //! ## Example plugin
 //! A barebones VST plugin:
@@ -38,7 +38,7 @@
 //!     }
 //! }
 //!
-//! vst_main!(BasicPlugin); // Important!
+//! plugin_main!(BasicPlugin); // Important!
 //! # fn main() {} // For `extern crate vst2`
 //! ```
 //!
@@ -67,11 +67,12 @@ use host::Host;
 use plugin::Plugin;
 use enums::flags::plugin::*;
 
-/// Exports the necessary symbols for the plugin to be used by a vst host.
+/// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
-/// This macro takes a type which must implement the traits `Plugin` and `std::default::Default`.
+/// This macro takes a type which must implement the traits `plugin::Plugin` and
+/// `std::default::Default`.
 #[macro_export]
-macro_rules! vst_main {
+macro_rules! plugin_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
@@ -172,7 +173,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallback) -> *mut AEffect {
 }
 
 #[cfg(test)]
-#[allow(private_no_mangle_fns)] // For `vst_main!`
+#[allow(private_no_mangle_fns)] // For `plugin_main!`
 mod tests {
     use std::default::Default;
     use std::{mem, ptr};
@@ -206,7 +207,7 @@ mod tests {
         }
     }
 
-    vst_main!(TestPlugin);
+    plugin_main!(TestPlugin);
 
     fn pass_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
         1
