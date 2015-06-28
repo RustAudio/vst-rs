@@ -9,11 +9,10 @@ use libc::{self, size_t, c_char, c_void};
 
 use Vst;
 use buffer::AudioBuffer;
-use enums::{CanDo};
 use api::consts::*;
 use api::AEffect;
 use editor::{Rect, KeyCode, Key, KnobMode};
-use plugin::OpCode;
+use plugin::{CanDo, OpCode};
 
 /// Deprecated process function.
 pub fn process_deprecated(_effect: *mut AEffect, _inputs_raw: *mut *mut f32, _outputs_raw: *mut *mut f32, _samples: i32) { }

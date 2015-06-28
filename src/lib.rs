@@ -65,11 +65,12 @@ pub mod plugin;
 mod interfaces;
 
 use enums::flags::plugin::*;
-use enums::{CanDo, Supported};
+use enums::Supported;
 use api::{HostCallback, AEffect};
 use editor::Editor;
 use channels::ChannelInfo;
 use host::Host;
+use plugin::CanDo;
 
 pub use plugin::Info;
 pub use buffer::AudioBuffer;

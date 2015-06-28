@@ -346,3 +346,49 @@ impl Default for Info {
         }
     }
 }
+
+/// Features which are optionally supported by a plugin. These are queried by the host at run time.
+#[derive(Debug)]
+#[allow(missing_docs)]
+pub enum CanDo {
+    SendEvents,
+    SendMidiEvent,
+    ReceiveEvents,
+    ReceiveMidiEvent,
+    ReceiveTimeInfo,
+    Offline,
+    MidiProgramNames,
+    Bypass,
+
+    //Bitwig specific?
+    ReceiveSysexEvent,
+    MidiSingleNoteTuningChange,
+    MidiKeyBasedInstrumentControl,
+
+    Other(String)
+}
+
+use std::str::FromStr;
+impl FromStr for CanDo {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<CanDo, String> {
+        use self::CanDo::*;
+
+        Ok(match s {
+            "sendVstEvents" => SendEvents,
+            "sendVstMidiEvent" => SendMidiEvent,
+            "receiveVstEvents" => ReceiveEvents,
+            "receiveVstMidiEvent" => ReceiveMidiEvent,
+            "receiveVstTimeInfo" => ReceiveTimeInfo,
+            "offline" => Offline,
+            "midiProgramNames" => MidiProgramNames,
+            "bypass" => Bypass,
+
+            "receiveVstSysexEvent" => ReceiveSysexEvent,
+            "midiSingleNoteTuningChange" => MidiSingleNoteTuningChange,
+            "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
+            otherwise => Other(otherwise.to_string())
+        })
+    }
+}
