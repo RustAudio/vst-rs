@@ -7,16 +7,14 @@ use std::slice;
 use num::Float;
 
 /// A buffer containing `ChannelBuffer` buffers for each input/output.
-#[allow(dead_code)]
 pub struct AudioBuffer<'a, T: 'a + Float> {
     inputs: Vec<ChannelBuffer<'a, T>>,
-    outputs: Vec<ChannelBuffer<'a, T>>
+    outputs: Vec<ChannelBuffer<'a, T>>,
 }
 
 /// Iterator over channel buffers for either inputs or outputs.
 pub type ChannelBufferIter<'a, T> = IntoIter<ChannelBuffer<'a, T>>;
 
-#[allow(dead_code)]
 impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
     /// Create an `AudioBuffer` from vectors of slices. Each vector represents either an input or
     /// output, and contains an array of samples.
@@ -33,21 +31,23 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
     /// Create an `AudioBuffer` from raw pointers. Only really useful for interacting with the VST
     /// API.
     pub unsafe fn from_raw(inputs_raw: *mut *mut T, outputs_raw: *mut *mut T, num_inputs: usize, num_outputs: usize, samples: usize) -> AudioBuffer<'a, T> {
-        // Allocate an array size of vst input count
-        let mut inputs: Vec<&mut [T]> = Vec::with_capacity(num_inputs);
-        for i in 0 .. inputs.capacity() {
-            // Push samples for each input to `inputs` array
-            inputs.push(slice::from_raw_parts_mut(*inputs_raw.offset(i as isize), samples));
-        }
+        let inputs =
+            // Create a slice of type &mut [*mut f32]
+            slice::from_raw_parts_mut(inputs_raw, num_inputs).iter()
+            // Convert to &mut [&mut [f32]]
+            .map(|input| slice::from_raw_parts_mut(*input, samples))
+            // Collect into Vec<&mut [f32]>
+            .collect();
 
-        // Allocate an array size of vst output count
-        let mut outputs: Vec<&mut [T]> = Vec::with_capacity(num_outputs);
-        for i in 0 .. outputs.capacity() {
-            // Push samples for each output to `outputs` array
-            outputs.push(slice::from_raw_parts_mut(*outputs_raw.offset(i as isize), samples));
-        }
+        let outputs =
+            // Create a slice of type &mut [*mut f32]
+            slice::from_raw_parts_mut(outputs_raw, num_outputs).iter()
+            // Convert to &mut [&mut [f32]]
+            .map(|output| slice::from_raw_parts_mut(*output, samples))
+            // Collect into Vec<&mut [f32]>
+            .collect();
 
-        // Call constructor with slices
+        // Call constructor with vectors
         AudioBuffer::new(inputs, outputs)
     }
 
@@ -77,17 +77,14 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
     }
 }
 
+// Maybe Replace this with just a slice?
 /// Buffer samples for one channel.
-pub struct ChannelBuffer<'a, T: 'a + Float> {
-    data: &'a mut [T]
-}
+pub struct ChannelBuffer<'a, T: 'a + Float>(&'a mut [T]);
 
 impl<'a, T: 'a + Float> ChannelBuffer<'a, T> {
     /// Construct a new `ChannelBuffer` from a slice.
     pub fn new(data: &'a mut [T]) -> ChannelBuffer<'a, T> {
-        ChannelBuffer {
-            data: data
-        }
+        ChannelBuffer(data)
     }
 }
 
@@ -96,7 +93,7 @@ impl<'a, T: 'a + Float> IntoIterator for ChannelBuffer<'a, T> {
     type IntoIter = slice::IterMut<'a, T>;
 
     fn into_iter(self) -> slice::IterMut<'a, T> {
-        self.data.iter_mut()
+        self.0.iter_mut()
     }
 }
 
@@ -104,29 +101,56 @@ impl<'a, T: 'a + Float> IntoIterator for ChannelBuffer<'a, T> {
 mod tests {
     use AudioBuffer;
 
+    /// Size of buffers used in tests.
+    const SIZE: usize = 1024;
+
+    /// Test that creating and zipping buffers works.
+    ///
+    /// This test creates a channel for 2 inputs and 2 outputs. The input channels are simply values
+    /// from 0 to `SIZE-1` (e.g. [0, 1, 2, 3, 4, .. , SIZE - 1]) and the output channels are just 0.
+    /// This test assures that when the buffers are zipped together, the input values do not change.
     #[test]
-    fn buffer_input() {
-        // This test creates a channel for 2 inputs and 2 outputs. The input channels are simply
-        // values from 0 to `SIZE` (e.g. [0, 1, 2, 3, 4, .. , SIZE - 1]) and the output channels
-        // are just 0. This test assures that when the buffers are zipped together, the input
-        // values do not change.
-        const SIZE: usize = 1024;
-        let vec: Vec<f32> = (0..SIZE).collect::<Vec<usize>>().iter().map(|&x| x as f32).collect();
-        let mut in1 = vec.clone();
-        let mut in2 = vec.clone();
+    fn buffer_zip() {
+        let mut in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
+        let mut in2 = in1.clone();
+
         let mut out1 = vec![0.0; SIZE];
-        let mut out2 = vec![0.0; SIZE];
+        let mut out2 = out1.clone();
 
         let buffer = AudioBuffer::new(vec![&mut in1, &mut in2],
                                       vec![&mut out1, &mut out2]);
 
         for (input, output) in buffer.zip() {
             input.into_iter().zip(output.into_iter())
-
-            .fold(0.0, |acc, (input, output)| {
-                assert!((*input - acc).abs() <= 0.001);
+            .fold(0, |acc, (input, output)| {
+                assert_eq!(*input - acc as f32, 0.0);
                 assert_eq!(*output, 0.0);
-                acc + 1.0
+                acc + 1
+            });
+        }
+    }
+
+    /// Test that creating buffers from raw pointers works.
+    #[test]
+    fn from_raw() {
+        let mut in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
+        let mut in2 = in1.clone();
+
+        let mut out1 = vec![0.0; SIZE];
+        let mut out2 = out1.clone();
+
+        let buffer = unsafe {
+            AudioBuffer::from_raw(vec![in1.as_mut_ptr(), in2.as_mut_ptr()].as_mut_ptr(),
+                                  vec![out1.as_mut_ptr(), out2.as_mut_ptr()].as_mut_ptr(),
+                                  2, 2, SIZE)
+        };
+
+        for (input, output) in buffer.zip() {
+            input.into_iter().zip(output.into_iter())
+            .fold(0, |acc, (input, output)| {
+                assert_eq!(*input - acc as f32, 0.0);
+                assert_eq!(*output, 0.0);
+                acc + 1
             });
         }
     }

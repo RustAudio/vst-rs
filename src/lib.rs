@@ -453,12 +453,12 @@ mod tests {
     use api::AEffect;
 
     #[derive(Default)]
-    struct TestVst;
+    struct TestPlugin;
 
-    impl Vst for TestVst {
+    impl Vst for TestPlugin {
         fn get_info(&self) -> Info {
             Info {
-                name: "TestVST".to_string(),
+                name: "Test Plugin".to_string(),
                 vendor: "overdrivenpotato".to_string(),
 
                 presets: 1,
@@ -474,7 +474,7 @@ mod tests {
         }
     }
 
-    vst_main!(TestVst);
+    vst_main!(TestPlugin);
 
     fn pass_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
         1
@@ -511,7 +511,7 @@ mod tests {
     fn vst_drop() {
         static mut drop_test: bool = false;
 
-        impl Drop for TestVst {
+        impl Drop for TestPlugin {
             fn drop(&mut self) {
                 unsafe { drop_test = true; }
             }
@@ -542,7 +542,7 @@ mod tests {
 
         let vst = unsafe { (*aeffect).get_vst() };
         // Assert that deref works correctly.
-        assert!(vst.get_info().name == "TestVST");
+        assert!(vst.get_info().name == "Test Plugin");
     }
 
     #[test]
