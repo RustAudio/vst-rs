@@ -46,7 +46,9 @@ impl_clike!(Category);
 #[derive(Clone, Copy, Debug)]
 #[doc(hidden)]
 pub enum OpCode {
+    /// Called when plugin is initialized.
     Initialize,
+    /// Called when plugin is being shut down.
     Shutdown,
 
     /// [value]: preset number to change to.
@@ -99,8 +101,13 @@ pub enum OpCode {
     /// Deprecated.
     _EditorIdentify,
 
-    GetData, //[ptr]: void** for chunk data address. [index]: 0 for bank, 1 for program
-    SetData, //[ptr]: data [value]: byte size [index]: 0 for bank, 1 for program
+    /// [ptr]: pointer for chunk data address (void**).
+    /// [index]: 0 for bank, 1 for program
+    GetData,
+    /// [ptr]: data (void*)
+    /// [value]: data size in bytes
+    /// [index]: 0 for bank, 1 for program
+    SetData,
 
     /// [ptr]: VstEvents* TODO: Events
     ProcessEvents,
@@ -329,7 +336,7 @@ pub struct Info {
 
     /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers.
     ///
-    /// Default is `false`.
+    /// Default is `true`.
     pub f64_precision: bool,
 
     /// If this is true, the plugin will not produce sound when the input is silence.

@@ -16,10 +16,11 @@ pub struct AudioBuffer<'a, T: 'a + Float> {
 pub type ChannelBufferIter<'a, T> = IntoIter<ChannelBuffer<'a, T>>;
 
 impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
-    /// Create an `AudioBuffer` from vectors of slices. Each vector represents either an input or
-    /// output, and contains an array of samples.
-    /// Eg if inputs was a vector of size 2 containing slices of size 512, it would hold 2 inputs
-    /// where each input holds 512 samples.
+    /// Create an `AudioBuffer` from vectors of slices.
+    ///
+    /// Each vector item represents either an input or output, and contains an array of samples. Eg
+    /// if inputs was a vector of size 2 containing slices of size 512, it would hold 2 inputs where
+    /// each input holds 512 samples.
     pub fn new(inputs: Vec<&'a mut [T]>, outputs: Vec<&'a mut [T]>) -> AudioBuffer<'a, T> {
         // Creats an input / output for each array in respective Vec
         AudioBuffer {

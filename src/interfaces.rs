@@ -156,7 +156,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
             // u8 array to **void ptr.
             unsafe {
-                *mem::transmute::<_, *mut *mut c_void>(ptr) =
+                *(ptr as *mut *mut c_void) =
                     chunks.into_boxed_slice().as_ptr() as *mut c_void;
             }
 
