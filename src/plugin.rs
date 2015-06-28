@@ -318,17 +318,22 @@ pub struct Info {
     //TODO: Doc
     pub initial_delay: i32,
 
-    /// Indicates whether preset data is handled in formatless chunks. If false,
-    /// host saves and restores plugins by reading/writing parameter data. If true, it is up to
-    /// the plugin to manage saving preset data by implementing  the
+    /// Indicates that preset data is handled in formatless chunks.
+    ///
+    /// If false, host saves and restores plugin by reading/writing parameter data. If true, it is
+    /// up to the plugin to manage saving preset data by implementing the
     /// `{get, load}_{preset, bank}_chunks()` methods. Default is `false`.
     pub preset_chunks: bool,
 
-    /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers. Default is
-    /// `false`.
+    /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers.
+    ///
+    /// Default is `false`.
     pub f64_precision: bool,
 
-    //no_sound_in_stop: bool, //TODO: Implement this somehow
+    /// If this is true, the plugin will not produce sound when the input is silence.
+    ///
+    /// Default is `false`.
+    pub silent_when_stopped: bool,
 }
 
 impl Default for Info {
@@ -351,6 +356,7 @@ impl Default for Info {
 
             preset_chunks: false,
             f64_precision: false,
+            silent_when_stopped: false,
         }
     }
 }

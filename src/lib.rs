@@ -171,6 +171,10 @@ pub fn main<T: Plugin + Default>(callback: HostCallback) -> *mut AEffect {
                 flag = flag | IS_SYNTH;
             }
 
+            if info.silent_when_stopped {
+                flag = flag | NO_SOUND_IN_STOP;
+            }
+
             flag.bits()
         },
 

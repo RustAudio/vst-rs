@@ -288,7 +288,7 @@ pub mod flags {
             const PROGRAM_CHUNKS = 1 << 5,
             /// Plugin is a synth.
             const IS_SYNTH = 1 << 8,
-            //TODO: Implement and doc.
+            /// Plugin does not produce sound when all input is silence.
             const NO_SOUND_IN_STOP = 1 << 9,
             /// Supports 64 bit audio processing.
             const CAN_DOUBLE_REPLACING = 1 << 12
