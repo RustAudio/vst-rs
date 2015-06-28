@@ -10,7 +10,7 @@ use libc::{self, size_t, c_char, c_void};
 use Vst;
 use buffer::AudioBuffer;
 use api::consts::*;
-use api::AEffect;
+use api::{AEffect, ChannelProperties};
 use editor::{Rect, KeyCode, Key, KnobMode};
 use plugin::{CanDo, OpCode};
 
@@ -179,14 +179,18 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         OpCode::GetInputInfo => {
             if index >= 0 && index < vst.get_info().inputs {
-                mem::swap(&mut vst.get_input_info(index).to_vst_api(),
-                          unsafe { mem::transmute(ptr) });
+                unsafe {
+                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    *ptr = vst.get_input_info(index).into();
+                }
             }
         }
         OpCode::GetOutputInfo => {
             if index >= 0 && index < vst.get_info().outputs {
-                mem::swap(&mut vst.get_output_info(index).to_vst_api(),
-                          unsafe { mem::transmute(ptr) });
+                unsafe {
+                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    *ptr = vst.get_output_info(index).into();
+                }
             }
         }
         OpCode::GetCategory => {

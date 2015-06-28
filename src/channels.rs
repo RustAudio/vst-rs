@@ -39,9 +39,11 @@ impl ChannelInfo {
             arrangement_type: arrangement_type.unwrap_or(SpeakerArrangementType::Custom)
         }
     }
+}
 
+impl Into<api::ChannelProperties> for ChannelInfo {
     /// Convert to the VST api equivalent of this structure.
-    pub fn to_vst_api(self) -> api::ChannelProperties {
+    fn into(self) -> api::ChannelProperties {
         api::ChannelProperties {
             name: {
                 let mut label = [0; MAX_LABEL as usize];
