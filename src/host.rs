@@ -23,6 +23,30 @@ pub enum OpCode {
     /// No arguments. Give idle time to Host application, e.g. if plug-in editor is doing mouse
     /// tracking in a modal loop.
     Idle,
+    /// Deprecated.
+    _PinConnected = 4,
+
+    /// Deprecated.
+    _WantMidi = 6, // Not a typo
+    /// [value]: request mask. see `VstTimeInfoFlags`
+    /// [return]: `VstTimeInfo` pointer or null if not supported.
+    GetTime,
+    /// Deprecated.
+    _SetTime,
+    /// Deprecated.
+    _TempoAt,
+    /// Deprecated.
+    _GetNumAutomatableParameters,
+    /// Deprecated.
+    _GetParameterQuantization,
+
+    /// Notifies the host that the input/output setup has changed. This can allow the host to check
+    /// numInputs/numOutputs or call `getSpeakerArrangement()`
+    /// [return]: 1 if supported.
+    IOChanged,
+
+    /// Deprecated.
+    _NeedIdle,
 }
 impl_clike!(OpCode);
 
@@ -199,6 +223,7 @@ mod tests {
                         OpCode::Version => 2400,
                         OpCode::CurrentId => 9876,
                         OpCode::Idle => 0,
+                        _ => 0
                     }
                 }
 
