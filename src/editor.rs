@@ -3,6 +3,7 @@
 use libc::c_void;
 
 /// Implemented by plugin editors.
+#[allow(unused_variables)]
 pub trait Editor {
     /// Get the size of the editor window.
     fn size(&self) -> (i32, i32);
@@ -12,10 +13,10 @@ pub trait Editor {
 
 
     /// Editor idle call. Called by host.
-    fn idle(&mut self);
+    fn idle(&mut self) {}
 
     /// Called when the editor window is closed.
-    fn close(&mut self);
+    fn close(&mut self) {}
 
     /// Called when the editor window is opened. `window` is a platform dependant window pointer
     /// (e.g. `HWND` on Windows, `WindowRef` on OSX, `Window` on X11/Linux).
@@ -28,13 +29,13 @@ pub trait Editor {
     /// Set the knob mode for this editor (if supported by host).
     ///
     /// Return true if the knob mode was set.
-    fn set_knob_mode(&mut self, mode: KnobMode) -> bool;
+    fn set_knob_mode(&mut self, mode: KnobMode) -> bool { false }
 
     /// Recieve key up event. Return true if the key was used.
-    fn key_up(&mut self, keycode: KeyCode) -> bool;
+    fn key_up(&mut self, keycode: KeyCode) -> bool { false }
 
     /// Receive key down event. Return true if the key was used.
-    fn key_down(&mut self, keycode: KeyCode) -> bool;
+    fn key_down(&mut self, keycode: KeyCode) -> bool { false }
 }
 
 /// Rectangle used to specify dimensions of editor window.
