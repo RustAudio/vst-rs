@@ -35,26 +35,26 @@ impl_clike!(OpCode);
 /// called.
 ///
 /// ```should_panic
-/// # use vst2::{Info, Vst};
+/// # use vst2::plugin::{Info, Plugin};
 /// # use vst2::host::Host;
-/// struct Plugin;
+/// struct ExamplePlugin;
 ///
-/// impl Default for Plugin {
-///     fn default() -> Plugin {
+/// impl Default for ExamplePlugin {
+///     fn default() -> ExamplePlugin {
 ///         // Will panic, don't do this. If needed, you can query
 ///         // the host during initialization via Vst::new()
 ///         let host: Host = Default::default();
 ///         let version = host.vst_version();
 ///
 ///         // ...
-/// #         Plugin
+/// #         ExamplePlugin
 ///     }
 /// }
 /// #
-/// # impl Vst for Plugin {
+/// # impl Plugin for ExamplePlugin {
 /// #     fn get_info(&self) -> Info { Default::default() }
 /// # }
-/// # fn main() { let plugin: Plugin = Default::default(); }
+/// # fn main() { let plugin: ExamplePlugin = Default::default(); }
 /// ```
 pub struct Host {
     callback: Option<HostCallback>,
@@ -147,18 +147,17 @@ mod tests {
         ($($attr:meta) *) => {
             use libc::c_void;
 
-            use Vst;
             use main;
             use api::AEffect;
             use host::{Host, OpCode};
-            use plugin::Info;
+            use plugin::{Info, Plugin};
 
             $(#[$attr]) *
             struct TestPlugin {
                 host: Host
             }
 
-            impl Vst for TestPlugin {
+            impl Plugin for TestPlugin {
                 fn get_info(&self) -> Info {
                     Info {
                         name: "Test Plugin".to_string(),

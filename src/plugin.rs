@@ -1,5 +1,13 @@
 //! Plugin specific structures.
 
+use libc::c_void;
+
+use channels::ChannelInfo;
+use host::Host;
+use enums::Supported;
+use buffer::AudioBuffer;
+use editor::Editor;
+
 /// Plugin type. Generally either Effect or Synth.
 ///
 /// Other types are not necessary to build a plugin and are only useful for the host to categorize
@@ -390,5 +398,186 @@ impl FromStr for CanDo {
             "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
             otherwise => Other(otherwise.to_string())
         })
+    }
+}
+
+/// Must be implemented by all VST plugins.
+///
+/// All methods except `get_info` provide a default implementation which does nothing and can be
+/// safely overridden.
+#[allow(unused_variables)]
+pub trait Plugin {
+    /// This method must return an `Info` struct.
+    fn get_info(&self) -> Info;
+
+    /// Called during initialization to pass a Host wrapper to the plugin.
+    ///
+    /// This method can be overriden to set `host` as a field in the plugin struct.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// // ...
+    /// # extern crate vst2;
+    /// # #[macro_use] extern crate log;
+    /// # use vst2::plugin::{Plugin, Info};
+    /// use vst2::host::Host;
+    ///
+    /// # #[derive(Default)]
+    /// struct ExamplePlugin {
+    ///     host: Host
+    /// }
+    ///
+    /// impl Plugin for ExamplePlugin {
+    ///     fn new(host: Host) -> ExamplePlugin {
+    ///         ExamplePlugin {
+    ///             host: host
+    ///         }
+    ///     }
+    ///
+    ///     fn init(&mut self) {
+    ///         info!("loaded with host vst version: {}", self.host.vst_version());
+    ///     }
+    ///
+    ///     // ...
+    /// #     fn get_info(&self) -> Info {
+    /// #         Info {
+    /// #             name: "Example Plugin".to_string(),
+    /// #             ..Default::default()
+    /// #         }
+    /// #     }
+    /// }
+    ///
+    /// # fn main() {}
+    /// ```
+    fn new(host: Host) -> Self where Self: Sized + Default {
+        Default::default()
+    }
+
+    /// Called when plugin is fully initialized.
+    fn init(&mut self) { trace!("Initialized vst plugin."); }
+
+
+    /// Set the current preset to the index specified by `preset`.
+    fn change_preset(&mut self, preset: i32) { }
+
+    /// Get the current preset index.
+    fn get_preset_num(&self) -> i32 { 0 }
+
+    /// Set the current preset name.
+    fn set_preset_name(&self, name: String) { }
+
+    /// Get the name of the preset at the index specified by `preset`.
+    fn get_preset_name(&self, preset: i32) -> String { "".to_string() }
+
+
+    /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
+    fn get_parameter_label(&self, index: i32) -> String { "".to_string() }
+
+    /// Get the parameter value for parameter at `index` (e.g. "1.0", "150", "Plate", "Off").
+    fn get_parameter_text(&self, index: i32) -> String {
+        format!("{:.3}", self.get_parameter(index))
+    }
+
+    /// Get the name of parameter at `index`.
+    fn get_parameter_name(&self, index: i32) -> String { format!("Param {}", index) }
+
+    /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
+    fn get_parameter(&self, index: i32) -> f32 { 0.0 }
+
+    /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
+    fn set_parameter(&mut self, index: i32, value: f32) { }
+
+    /// Return whether parameter at `index` can be automated.
+    fn can_be_automated(&self, index: i32) -> bool { false }
+
+    /// Use String as input for parameter value. Used by host to provide an editable field to
+    /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
+    /// the input string was used.
+    fn string_to_parameter(&self, index: i32, text: String) -> bool { false }
+
+
+    /// Called when sample rate is changed by host.
+    fn sample_rate_changed(&mut self, rate: f32) { }
+
+    /// Called when block size is changed by host.
+    fn block_size_changed(&mut self, size: i64) { }
+
+
+    /// Called when plugin is turned on.
+    fn on_resume(&mut self) { }
+
+    /// Called when plugin is turned off.
+    fn on_suspend(&mut self) { }
+
+
+    /// Vendor specific handling.
+    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) { }
+
+
+    /// Return whether plugin supports specified action.
+    fn can_do(&self, can_do: CanDo) -> Supported {
+        info!("Host is asking if plugin can: {:?}.", can_do);
+        Supported::Maybe
+    }
+
+    /// Get the tail size of plugin when it is stopped. Used in offline processing as well.
+    fn get_tail_size(&self) -> isize { 0 }
+
+
+    /// Process an audio buffer containing `f32` values. TODO: Examples
+    fn process(&mut self, buffer: AudioBuffer<f32>) {
+        // For each input and output
+        for (input, output) in buffer.zip() {
+            // For each input sample and output sample in buffer
+            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+                *out_frame = *in_frame;
+            }
+        }
+    }
+
+    /// Process an audio buffer containing `f64` values. TODO: Examples
+    fn process_f64(&mut self, buffer: AudioBuffer<f64>) {
+        // For each input and output
+        for (input, output) in buffer.zip() {
+            // For each input sample and output sample in buffer
+            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+                *out_frame = *in_frame;
+            }
+        }
+    }
+
+    /// Return handle to plugin editor if supported.
+    fn get_editor(&mut self) -> Option<&mut Editor> { None }
+
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current preset.
+    fn get_preset_data(&mut self) -> Vec<u8> { Vec::new() }
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current plugin bank.
+    fn get_bank_data(&mut self) -> Vec<u8> { Vec::new() }
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
+    /// chunk data.
+    fn load_preset_data(&mut self, data: Vec<u8>) {}
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
+    /// given chunk data.
+    fn load_bank_data(&mut self, data: Vec<u8>) {}
+
+    /// Get information about an input channel. Only used by some hosts.
+    fn get_input_info(&self, input: i32) -> ChannelInfo {
+        ChannelInfo::new(format!("Input channel {}", input),
+                         Some(format!("In {}", input)),
+                         true, None)
+    }
+
+    /// Get information about an output channel. Only used by some hosts.
+    fn get_output_info(&self, output: i32) -> ChannelInfo {
+        ChannelInfo::new(format!("Output channel {}", output),
+                         Some(format!("Out {}", output)),
+                         true, None)
     }
 }

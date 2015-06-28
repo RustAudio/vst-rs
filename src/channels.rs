@@ -199,7 +199,7 @@ impl SpeakerArrangementType {
         }
     }
 
-    /// Convert to VST api arrangement type.
+    /// Convert to VST API arrangement type.
     pub fn to_vst_api(self) -> api::SpeakerArrangementType {
         use api::SpeakerArrangementType as Raw;
         use self::SpeakerArrangementType::*;

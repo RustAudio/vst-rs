@@ -3,7 +3,7 @@ use std::mem;
 
 use libc::c_void;
 
-use Vst;
+use plugin::Plugin;
 use self::consts::*;
 
 /// Constant values
@@ -24,16 +24,16 @@ pub mod consts {
                                ('P' as i32) << 0  ;
 }
 
-/// Host callback function passed to VST. Can be used to query host information from plugin.
+/// Host callback function passed to plugin. Can be used to query host information from plugin side.
 pub type HostCallback = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
-/// Dispatcher function used to process opcodes. Called by host as a callback function.
+/// Dispatcher function used to process opcodes. Called by host.
 pub type DispatcherProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
-/// Process function used to process 32 bit floating point samples.
+/// Process function used to process 32 bit floating point samples. Called by host.
 pub type ProcessProc = fn(effect: *mut AEffect, inputs: *mut *mut f32, outputs: *mut *mut f32, sample_frames: i32);
 
-/// Process function used to process 64 bit floating point samples.
+/// Process function used to process 64 bit floating point samples. Called by host.
 pub type ProcessProcF64 = fn(effect: *mut AEffect, inputs: *mut *mut f64, outputs: *mut *mut f64, sample_frames: i32);
 
 /// Callback function used to set parameter values. Called by host.
@@ -43,7 +43,7 @@ pub type SetParameterProc = fn(effect: *mut AEffect, index: i32, parameter: f32)
 pub type GetParameterProc = fn(effect: *mut AEffect, index: i32) -> f32;
 
 /// Used with the VST API to pass around plugin information.
-#[allow(non_snake_case, dead_code)]
+#[allow(non_snake_case)]
 #[repr(C)]
 pub struct AEffect {
     /// Magic number. Must be `['V', 'S', 'T', 'P']`.
@@ -129,20 +129,19 @@ pub struct AEffect {
 }
 
 impl AEffect {
-    /// Return handle to VST object.
-    pub unsafe fn get_vst(&mut self) -> &mut Box<Vst> {
-        mem::transmute::<*mut c_void, &mut Box<Vst>>(self.object)
+    /// Return handle to Plugin object. Only works for plugins created using this library.
+    pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
+        mem::transmute::<_, &mut Box<Plugin>>(self.object)
     }
 
-    /// Drop the VST object.
-    pub unsafe fn drop_vst(&mut self) {
+    /// Drop the Plugin object. Only works for plugins created using this library.
+    pub unsafe fn drop_plugin(&mut self) {
         // Possibly a simpler way of doing this..?
-        drop(*mem::transmute::<*mut c_void, Box<Box<Drop>>>(self.object))
+        drop(*mem::transmute::<_, Box<Box<Drop>>>(self.object))
     }
 }
 
 /// Information about a channel. Only some hosts use this information.
-#[allow(dead_code)]
 #[repr(C)]
 pub struct ChannelProperties {
     /// Channel name.

@@ -99,7 +99,7 @@ impl<'a, T: 'a + Float> IntoIterator for ChannelBuffer<'a, T> {
 
 #[cfg(test)]
 mod tests {
-    use AudioBuffer;
+    use buffer::AudioBuffer;
 
     /// Size of buffers used in tests.
     const SIZE: usize = 1024;
