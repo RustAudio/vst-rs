@@ -14,7 +14,8 @@ pub struct ChannelInfo {
 }
 
 impl ChannelInfo {
-    /// Construct a new `ChannelInfo`.
+    /// Construct a new `ChannelInfo` object.
+    ///
     /// `name` is a user friendly name for this channel limited to `MAX_LABEL` characters.
     /// `short_name` is an optional field which provides a short name limited to `MAX_SHORT_LABEL`.
     /// `active` determines whether this channel is active.
@@ -53,7 +54,7 @@ impl Into<api::ChannelProperties> for ChannelInfo {
                 label
             },
             flags: {
-                use enums::flags::channel_flags::*;
+                use api::flags::*;
 
                 let mut flag = Channel::empty();
                 if self.active { flag = flag | ACTIVE }
@@ -61,7 +62,7 @@ impl Into<api::ChannelProperties> for ChannelInfo {
                 if self.arrangement_type.is_speaker_type() { flag = flag | SPEAKER }
                 flag.bits()
             },
-            arrangement_type: self.arrangement_type.to_vst_api(),
+            arrangement_type: self.arrangement_type.into(),
             short_name: {
                 let mut label = [0; MAX_SHORT_LABEL as usize];
                 for (b, c) in self.short_name.bytes().zip(label.iter_mut()) {
@@ -198,9 +199,11 @@ impl SpeakerArrangementType {
             false
         }
     }
+}
 
+impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
     /// Convert to VST API arrangement type.
-    pub fn to_vst_api(self) -> api::SpeakerArrangementType {
+    fn into(self) -> api::SpeakerArrangementType {
         use api::SpeakerArrangementType as Raw;
         use self::SpeakerArrangementType::*;
 

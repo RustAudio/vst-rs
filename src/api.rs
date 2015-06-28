@@ -75,11 +75,11 @@ pub struct AEffect {
     pub numOutputs: i32,
 
 
-    /// Bitmask made of values from enums::flags::plugin.
+    /// Bitmask made of values from api::flags.
     ///
     /// ```no_run
-    /// use vst2::enums::flags::plugin;
-    /// let flags = plugin::CAN_REPLACING | plugin::CAN_DOUBLE_REPLACING;
+    /// use vst2::api::flags;
+    /// let flags = flags::CAN_REPLACING | flags::CAN_DOUBLE_REPLACING;
     /// // ...
     /// ```
     pub flags: i32,
@@ -137,7 +137,7 @@ impl AEffect {
     /// Drop the Plugin object. Only works for plugins created using this library.
     pub unsafe fn drop_plugin(&mut self) {
         // Possibly a simpler way of doing this..?
-        drop(*mem::transmute::<_, Box<Box<Drop>>>(self.object))
+        drop(mem::transmute::<_, Box<Box<Plugin>>>(self.object))
     }
 }
 
@@ -240,4 +240,72 @@ pub enum SpeakerArrangementType {
 
     /// L R C Lfe Ls Rs Tfl Tfc Tfr Trl Trr Lfe2
     Surround102,
+}
+
+/// Used to specify whether functionality is supported.
+#[allow(missing_docs)]
+pub enum Supported {
+    Yes,
+    Maybe,
+    No
+}
+
+impl Into<isize> for Supported {
+    /// Convert to integer ordinal for interop with VST api.
+    fn into(self) -> isize {
+        use self::Supported::*;
+
+        match self {
+            Yes => 1,
+            Maybe => 0,
+            No => -1
+        }
+    }
+}
+
+/// Bitflags.
+pub mod flags {
+    bitflags! {
+        /// Flags for VST channels.
+        flags Channel: i32 {
+            /// Indicates channel is active. Ignored by host.
+            const ACTIVE = 1,
+            /// Indicates channel is first of stereo pair.
+            const STEREO = 1 << 1,
+            /// Use channel's specified speaker_arrangement instead of stereo flag.
+            const SPEAKER = 1 << 2
+        }
+    }
+
+    bitflags! {
+        /// Flags for VST plugins.
+        flags Plugin: i32 {
+            /// Plugin has an editor.
+            const HAS_EDITOR = 1 << 0,
+            /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
+            const CAN_REPLACING = 1 << 4,
+            /// Plugin preset data is handled in formatless chunks.
+            const PROGRAM_CHUNKS = 1 << 5,
+            /// Plugin is a synth.
+            const IS_SYNTH = 1 << 8,
+            //TODO: Implement and doc.
+            const NO_SOUND_IN_STOP = 1 << 9,
+            /// Supports 64 bit audio processing.
+            const CAN_DOUBLE_REPLACING = 1 << 12
+        }
+    }
+
+    bitflags!{
+        /// Cross platform modifier key flags.
+        flags ModifierKey: u8 {
+            /// Shift key.
+            const SHIFT = 1 << 0, // Shift
+            /// Alt key.
+            const ALT = 1 << 1, // Alt
+            /// Control on mac.
+            const COMMAND = 1 << 2, // Control on Mac
+            /// Command on mac, ctrl on other.
+            const CONTROL = 1 << 3  // Ctrl on PC, Apple on Mac
+        }
+    }
 }

@@ -4,7 +4,7 @@ use libc::c_void;
 
 use channels::ChannelInfo;
 use host::Host;
-use enums::Supported;
+use api::Supported;
 use buffer::AudioBuffer;
 use editor::Editor;
 

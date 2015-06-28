@@ -52,7 +52,31 @@ extern crate num;
 
 use std::{ptr, mem};
 
-#[macro_use] pub mod enums; // Use `impl_clike!`
+/// Implements `From` and `Into` for enums with `#[repr(usize)]`. Useful for interfacing with C
+/// enums.
+macro_rules! impl_clike {
+    ($t:ty, $($c:ty) +) => {
+        $(
+            impl From<$c> for $t {
+                fn from(v: $c) -> $t {
+                    use std::mem;
+                    unsafe { mem::transmute(v as usize) }
+                }
+            }
+
+            impl Into<$c> for $t {
+                fn into(self) -> $c {
+                    self as $c
+                }
+            }
+        )*
+    };
+
+    ($t:ty) => {
+        impl_clike!($t, i8 i16 i32 i64 isize u8 u16 u32 u64 usize);
+    }
+}
+
 pub mod buffer;
 pub mod api;
 pub mod editor;
@@ -65,7 +89,6 @@ use api::{HostCallback, AEffect};
 use api::consts::VST_MAGIC;
 use host::Host;
 use plugin::Plugin;
-use enums::flags::plugin::*;
 
 /// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
@@ -128,6 +151,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallback) -> *mut AEffect {
         numOutputs: info.outputs,
 
         flags: {
+            use api::flags::*;
+
             let mut flag = CAN_REPLACING;
 
             if info.f64_precision {
