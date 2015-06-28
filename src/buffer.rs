@@ -61,6 +61,24 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
         &mut self.outputs
     }
 
+    /// Consume this buffer and split it into separate inputs and outputs.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use vst2::buffer::AudioBuffer;
+    /// # let mut in1 = vec![0.0; 512];
+    /// # let (mut in2, mut out1, mut out2) = (in1.clone(), in1.clone(), in1.clone());
+    /// #
+    /// # let buffer = AudioBuffer::new(vec![&mut in1, &mut in2],
+    /// #                               vec![&mut out1, &mut out2]);
+    /// let (mut inputs, mut outputs) = buffer.split();
+    /// let input: &mut [f32] = &mut inputs[0]; // First input
+    /// ```
+    pub fn split(self) -> (Vec<&'a mut [T]>, Vec<&'a mut [T]>) {
+        (self.inputs, self.outputs)
+    }
+
     /// Zip together buffers.
     pub fn zip(self) -> Zip<ChannelBufferIter<'a, T>, ChannelBufferIter<'a, T>> {
         self.inputs.into_iter().zip(self.outputs.into_iter())
