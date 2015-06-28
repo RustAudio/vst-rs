@@ -55,16 +55,17 @@ use std::iter::IntoIterator;
 
 use libc::c_void;
 
-pub mod buffer;
 #[macro_use] pub mod enums; // Use `impl_clike!`
+pub mod buffer;
 pub mod api;
 pub mod editor;
 pub mod channels;
 pub mod host;
+pub mod plugin;
 mod interfaces;
 
 use enums::flags::plugin::*;
-use enums::{PluginCategory, CanDo, Supported};
+use enums::{CanDo, Supported};
 use api::{HostCallback, AEffect};
 pub use buffer::AudioBuffer;
 use editor::Editor;
@@ -151,7 +152,7 @@ pub fn main<T: Vst + Default>(callback: HostCallback) -> *mut AEffect {
                 flag = flag | PROGRAM_CHUNKS;
             }
 
-            if let PluginCategory::Synth = info.category {
+            if let plugin::Category::Synth = info.category {
                 flag = flag | IS_SYNTH;
             }
 
@@ -214,7 +215,7 @@ pub struct Info {
     pub version: i32,
 
     /// Plugin category. Possible values are found in `enums::PluginCategory`.
-    pub category: PluginCategory,
+    pub category: plugin::Category,
 
     //TODO: Doc
     pub initial_delay: i32,
@@ -246,7 +247,7 @@ impl Default for Info {
             unique_id: 0, // This must be changed.
             version: 0001, // v0.0.0.1
 
-            category: PluginCategory::Effect,
+            category: plugin::Category::Effect,
 
             initial_delay: 0,
 

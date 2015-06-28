@@ -9,10 +9,11 @@ use libc::{self, size_t, c_char, c_void};
 
 use Vst;
 use buffer::AudioBuffer;
-use enums::{OpCode, CanDo};
+use enums::{CanDo};
 use api::consts::*;
 use api::AEffect;
 use editor::{Rect, KeyCode, Key, KnobMode};
+use plugin::OpCode;
 
 /// Deprecated process function.
 pub fn process_deprecated(_effect: *mut AEffect, _inputs_raw: *mut *mut f32, _outputs_raw: *mut *mut f32, _samples: i32) { }
@@ -202,7 +203,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 Ok(c) => c,
                 Err(e) => { warn!("{}", e); return 0; }
             };
-            return vst.can_do(can_do).ordinal() as isize;
+            return vst.can_do(can_do).into();
         }
         OpCode::GetTailSize => if vst.get_tail_size() == 0 { return 1; } else { return vst.get_tail_size() },
 

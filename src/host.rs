@@ -138,7 +138,7 @@ impl Host {
 mod tests {
     use std::ptr;
 
-    use enums;
+    use plugin;
 
     /// Create a plugin instance.
     ///
@@ -231,7 +231,7 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(aeffect, enums::OpCode::Initialize.into(),
+        (unsafe { (*aeffect).dispatcher })(aeffect, plugin::OpCode::Initialize.into(),
                                            0, 0, ptr::null_mut(), 0.0);
     }
 }
