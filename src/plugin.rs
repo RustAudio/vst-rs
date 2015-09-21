@@ -540,7 +540,38 @@ pub trait Plugin {
     fn get_tail_size(&self) -> isize { 0 }
 
 
-    /// Process an audio buffer containing `f32` values. TODO: Examples
+    /// Process an audio buffer containing `f32` values.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # #[macro_use]
+    /// # extern crate vst2;
+    /// # use vst2::plugin::{Info, Plugin};
+    /// # use vst2::buffer::AudioBuffer;
+    /// #
+    /// # #[derive(Default)] struct BasicPlugin;
+    /// # impl Plugin for BasicPlugin {
+    /// #     fn get_info(&self) -> Info { Default::default() }
+    /// #
+    /// // Processor that clips samples above 0.4 or below -0.4:
+    /// fn process(&mut self, buffer: AudioBuffer<f32>){
+    ///     let (inputs, mut outputs) = buffer.split();
+    ///
+    ///     for (channel, ibuf) in inputs.iter().enumerate() {
+    ///         for (i, sample) in ibuf.iter().enumerate() {
+    ///             outputs[channel][i] = if *sample > 0.4 {
+    ///                 0.4
+    ///             } else if *sample < -0.4 {
+    ///                 -0.4
+    ///             } else {
+    ///                 *sample
+    ///             };
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// # fn main() {}
+    /// ```
     fn process(&mut self, buffer: AudioBuffer<f32>) {
         // For each input and output
         for (input, output) in buffer.zip() {
@@ -551,7 +582,38 @@ pub trait Plugin {
         }
     }
 
-    /// Process an audio buffer containing `f64` values. TODO: Examples
+    /// Process an audio buffer containing `f64` values.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # #[macro_use]
+    /// # extern crate vst2;
+    /// # use vst2::plugin::{Info, Plugin};
+    /// # use vst2::buffer::AudioBuffer;
+    /// #
+    /// # #[derive(Default)] struct BasicPlugin;
+    /// # impl Plugin for BasicPlugin {
+    /// #     fn get_info(&self) -> Info { Default::default() }
+    /// #
+    /// // Processor that clips samples above 0.4 or below -0.4:
+    /// fn process_f64(&mut self, buffer: AudioBuffer<f64>){
+    ///     let (inputs, mut outputs) = buffer.split();
+    ///
+    ///     for (channel, ibuf) in inputs.iter().enumerate() {
+    ///         for (i, sample) in ibuf.iter().enumerate() {
+    ///             outputs[channel][i] = if *sample > 0.4 {
+    ///                 0.4
+    ///             } else if *sample < -0.4 {
+    ///                 -0.4
+    ///             } else {
+    ///                 *sample
+    ///             };
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// # fn main() {}
+    /// ```
     fn process_f64(&mut self, buffer: AudioBuffer<f64>) {
         // For each input and output
         for (input, output) in buffer.zip() {
