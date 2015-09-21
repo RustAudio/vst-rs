@@ -544,13 +544,11 @@ pub trait Plugin {
     ///
     /// # Example
     /// ```no_run
-    /// # #[macro_use]
-    /// # extern crate vst2;
     /// # use vst2::plugin::{Info, Plugin};
     /// # use vst2::buffer::AudioBuffer;
     /// #
-    /// # #[derive(Default)] struct BasicPlugin;
-    /// # impl Plugin for BasicPlugin {
+    /// # struct ExamplePlugin;
+    /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
@@ -570,7 +568,6 @@ pub trait Plugin {
     ///     }
     /// }
     /// # }
-    /// # fn main() {}
     /// ```
     fn process(&mut self, buffer: AudioBuffer<f32>) {
         // For each input and output
@@ -586,13 +583,11 @@ pub trait Plugin {
     ///
     /// # Example
     /// ```no_run
-    /// # #[macro_use]
-    /// # extern crate vst2;
     /// # use vst2::plugin::{Info, Plugin};
     /// # use vst2::buffer::AudioBuffer;
     /// #
-    /// # #[derive(Default)] struct BasicPlugin;
-    /// # impl Plugin for BasicPlugin {
+    /// # struct ExamplePlugin;
+    /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
@@ -612,7 +607,6 @@ pub trait Plugin {
     ///     }
     /// }
     /// # }
-    /// # fn main() {}
     /// ```
     fn process_f64(&mut self, buffer: AudioBuffer<f64>) {
         // For each input and output
