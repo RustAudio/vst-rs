@@ -1,10 +1,13 @@
 //! Plugin specific structures.
 
+use std::{mem, ptr};
+
 use libc::c_void;
 
 use channels::ChannelInfo;
-use host::Host;
-use api::Supported;
+use host::{self, Host};
+use api::{AEffect, HostCallbackProc, Supported};
+use api::consts::VST_MAGIC;
 use buffer::AudioBuffer;
 use editor::Editor;
 
@@ -425,7 +428,7 @@ pub trait Plugin {
     /// This method must return an `Info` struct.
     fn get_info(&self) -> Info;
 
-    /// Called during initialization to pass a Host wrapper to the plugin.
+    /// Called during initialization to pass a `HostCallback` to the plugin.
     ///
     /// This method can be overriden to set `host` as a field in the plugin struct.
     ///
@@ -436,15 +439,15 @@ pub trait Plugin {
     /// # extern crate vst2;
     /// # #[macro_use] extern crate log;
     /// # use vst2::plugin::{Plugin, Info};
-    /// use vst2::host::Host;
+    /// use vst2::plugin::HostCallback;
     ///
     /// # #[derive(Default)]
     /// struct ExamplePlugin {
-    ///     host: Host
+    ///     host: HostCallback
     /// }
     ///
     /// impl Plugin for ExamplePlugin {
-    ///     fn new(host: Host) -> ExamplePlugin {
+    ///     fn new(host: HostCallback) -> ExamplePlugin {
     ///         ExamplePlugin {
     ///             host: host
     ///         }
@@ -465,7 +468,7 @@ pub trait Plugin {
     ///
     /// # fn main() {}
     /// ```
-    fn new(host: Host) -> Self where Self: Sized + Default {
+    fn new(host: HostCallback) -> Self where Self: Sized + Default {
         Default::default()
     }
 
@@ -650,5 +653,209 @@ pub trait Plugin {
         ChannelInfo::new(format!("Output channel {}", output),
                          Some(format!("Out {}", output)),
                          true, None)
+    }
+}
+
+/// A reference to the host which allows the plugin to call back and access information.
+///
+/// # Panics
+///
+/// All methods in this struct will panic if the plugin has not yet been initialized. In practice,
+/// this can only occur if the plugin queries the host for information when `Default::default()` is
+/// called.
+///
+/// ```should_panic
+/// # use vst2::plugin::{Info, Plugin, HostCallback};
+/// struct ExamplePlugin;
+///
+/// impl Default for ExamplePlugin {
+///     fn default() -> ExamplePlugin {
+///         // Will panic, don't do this. If needed, you can query
+///         // the host during initialization via Vst::new()
+///         let host: HostCallback = Default::default();
+///         let version = host.vst_version();
+///
+///         // ...
+/// #         ExamplePlugin
+///     }
+/// }
+/// #
+/// # impl Plugin for ExamplePlugin {
+/// #     fn get_info(&self) -> Info { Default::default() }
+/// # }
+/// # fn main() { let plugin: ExamplePlugin = Default::default(); }
+/// ```
+pub struct HostCallback {
+    callback: Option<HostCallbackProc>,
+    effect: *mut AEffect,
+}
+
+/// `HostCallback` implements `Default` so that the plugin can implement `Default` and have a
+/// `HostCallback` field.
+impl Default for HostCallback {
+    fn default() -> HostCallback {
+        HostCallback {
+            callback: None,
+            effect: ptr::null_mut(),
+        }
+    }
+}
+
+impl HostCallback {
+    /// Wrap callback in a function to avoid using fn pointer notation.
+    #[doc(hidden)]
+    fn callback(&self,
+                effect: *mut AEffect,
+                opcode: host::OpCode,
+                index: i32,
+                value: isize,
+                ptr: *mut c_void,
+                opt: f32)
+                -> isize {
+        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
+        callback(effect, opcode.into(), index, value, ptr, opt)
+    }
+
+    /// Check whether the plugin has been initialized.
+    #[doc(hidden)]
+    fn is_effect_valid(&self) -> bool {
+        // Check whether `effect` points to a valid AEffect struct
+        unsafe { *mem::transmute::<*mut AEffect, *mut i32>(self.effect) == VST_MAGIC }
+    }
+
+    /// Create a new Host structure wrapping a host callback.
+    #[doc(hidden)]
+    pub fn wrap(callback: HostCallbackProc, effect: *mut AEffect) -> HostCallback {
+        HostCallback {
+            callback: Some(callback),
+            effect: effect,
+        }
+    }
+
+    /// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.
+    pub fn vst_version(&self) -> i32 {
+        self.callback(self.effect, host::OpCode::Version,
+                      0, 0, ptr::null_mut(), 0.0) as i32
+    }
+}
+
+impl Host for HostCallback {
+    fn automate(&mut self, index: i32, value: f32) {
+        if self.is_effect_valid() { // TODO: Investigate removing this check, should be up to host
+            self.callback(self.effect, host::OpCode::Automate,
+                          index, 0, ptr::null_mut(), value);
+        }
+    }
+
+    fn get_plugin_id(&self) -> i32 {
+        self.callback(self.effect, host::OpCode::CurrentId,
+                      0, 0, ptr::null_mut(), 0.0) as i32
+    }
+
+    fn idle(&self) {
+        self.callback(self.effect, host::OpCode::Idle,
+                      0, 0, ptr::null_mut(), 0.0);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::ptr;
+
+    use plugin;
+
+    /// Create a plugin instance.
+    ///
+    /// This is a macro to allow you to specify attributes on the created struct.
+    macro_rules! make_plugin {
+        ($($attr:meta) *) => {
+            use libc::c_void;
+
+            use main;
+            use api::AEffect;
+            use host::{Host, OpCode};
+            use plugin::{HostCallback, Info, Plugin};
+
+            $(#[$attr]) *
+            struct TestPlugin {
+                host: HostCallback
+            }
+
+            impl Plugin for TestPlugin {
+                fn get_info(&self) -> Info {
+                    Info {
+                        name: "Test Plugin".to_string(),
+                        ..Default::default()
+                    }
+                }
+
+                fn new(host: HostCallback) -> TestPlugin {
+                    TestPlugin {
+                        host: host
+                    }
+                }
+
+                fn init(&mut self) {
+                    info!("Loaded with host vst version: {}", self.host.vst_version());
+                    assert_eq!(2400, self.host.vst_version());
+                    assert_eq!(9876, self.host.get_plugin_id());
+                    // Callback will assert these.
+                    self.host.automate(123, 12.3);
+                    self.host.idle();
+                }
+            }
+
+            fn instance() -> *mut AEffect {
+                fn host_callback(_effect: *mut AEffect,
+                                 opcode: i32,
+                                 index: i32,
+                                 _value: isize,
+                                 _ptr: *mut c_void,
+                                 opt: f32)
+                                 -> isize {
+                    let opcode = OpCode::from(opcode);
+                    match opcode {
+                        OpCode::Automate => {
+                            assert_eq!(index, 123);
+                            assert_eq!(opt, 12.3);
+                            0
+                        }
+                        OpCode::Version => 2400,
+                        OpCode::CurrentId => 9876,
+                        OpCode::Idle => 0,
+                        _ => 0
+                    }
+                }
+
+                main::<TestPlugin>(host_callback)
+            }
+        }
+    }
+
+    make_plugin!(derive(Default));
+
+    #[test]
+    fn null_panic() {
+        make_plugin!(/* no `derive(Default)` */);
+
+        impl Default for TestPlugin {
+            fn default() -> TestPlugin {
+                let plugin = TestPlugin { host: Default::default() };
+
+                // Should panic
+                info!("Loaded with host vst version: {}", plugin.host.vst_version());
+
+                plugin
+            }
+        }
+
+        let _aeffect = instance();
+    }
+
+    #[test]
+    fn host_callbacks() {
+        let aeffect = instance();
+        (unsafe { (*aeffect).dispatcher })(aeffect, plugin::OpCode::Initialize.into(),
+                                           0, 0, ptr::null_mut(), 0.0);
     }
 }

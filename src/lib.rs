@@ -85,10 +85,9 @@ pub mod host;
 pub mod plugin;
 mod interfaces;
 
-use api::{HostCallback, AEffect};
+use api::{HostCallbackProc, AEffect};
 use api::consts::VST_MAGIC;
-use host::Host;
-use plugin::Plugin;
+use plugin::{HostCallback, Plugin};
 
 /// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
@@ -99,20 +98,20 @@ macro_rules! plugin_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
-        pub extern "system" fn main_macho(callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn MAIN(callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn VSTPluginMain(callback: $crate::api::HostCallback) -> *mut $crate::api::AEffect {
+        pub extern "system" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             $crate::main::<$t>(callback)
         }
     }
@@ -120,13 +119,13 @@ macro_rules! plugin_main {
 
 /// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
 #[doc(hidden)]
-pub fn main<T: Plugin + Default>(callback: HostCallback) -> *mut AEffect {
+pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it
-    // can be passed into the Host `wrap` method. The AEffect is then updated after the vst object
-    // is created so that the host still contains a raw pointer to the AEffect struct.
+    // can be passed into the HostCallback `wrap` method. The AEffect is then updated after the vst
+    // object is created so that the host still contains a raw pointer to the AEffect struct.
     let effect = unsafe { mem::transmute(Box::new(mem::zeroed::<AEffect>())) };
 
-    let host = Host::wrap(callback, effect);
+    let host = HostCallback::wrap(callback, effect);
     if host.vst_version() == 0 { // TODO: Better criteria would probably be useful here...
         return ptr::null_mut();
     }

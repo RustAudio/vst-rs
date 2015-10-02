@@ -7,6 +7,7 @@ use plugin::Plugin;
 use self::consts::*;
 
 /// Constant values
+#[allow(missing_docs)] // For obvious constants
 pub mod consts {
     use libc::size_t;
 
@@ -25,7 +26,7 @@ pub mod consts {
 }
 
 /// Host callback function passed to plugin. Can be used to query host information from plugin side.
-pub type HostCallback = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+pub type HostCallbackProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Dispatcher function used to process opcodes. Called by host.
 pub type DispatcherProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
