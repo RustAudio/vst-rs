@@ -835,6 +835,7 @@ mod tests {
     make_plugin!(derive(Default));
 
     #[test]
+    #[should_panic]
     fn null_panic() {
         make_plugin!(/* no `derive(Default)` */);
 
@@ -843,13 +844,14 @@ mod tests {
                 let plugin = TestPlugin { host: Default::default() };
 
                 // Should panic
-                info!("Loaded with host vst version: {}", plugin.host.vst_version());
+                let version = plugin.host.vst_version();
+                info!("Loaded with host vst version: {}", version);
 
                 plugin
             }
         }
 
-        let _aeffect = instance();
+        TestPlugin::default();
     }
 
     #[test]
