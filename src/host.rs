@@ -290,7 +290,7 @@ impl PluginInstance {
     fn read_string(&mut self, opcode: plugin::OpCode, max: u64) -> String {
         let mut buf = vec![0; max as usize];
         self.dispatch(opcode, 0, 0, unsafe { mem::transmute(buf.as_mut_ptr()) }, 0.0);
-        String::from_utf8_lossy(&buf).to_string()
+        String::from_utf8_lossy(&buf).chars().take_while(|c| *c != '\0').collect()
     }
 
     fn opcode(&mut self, opcode: plugin::OpCode) -> isize {
