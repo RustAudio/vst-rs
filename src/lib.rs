@@ -43,10 +43,56 @@
 //! ```
 //!
 //! # Hosts
-//! Hosts are currently not supported. TODO
+//!
+//! ## `Host` Trait
+//! All hosts must implement the [`Host` trait](host/trait.Host.html). To load a VST plugin, you
+//! need to wrap your host in an `Arc<Mutex<T>>` wrapper for thread safety reasons. Along with the
+//! plugin path, this can be passed to the [`PluginLoader::load`] method to create a plugin loader
+//! which can spawn plugin instances.
+//!
+//! ## Example Host
+//! ```no_run
+//! extern crate vst2;
+//!
+//! use std::sync::{Arc, Mutex};
+//! use std::path::Path;
+//!
+//! use vst2::host::{Host, PluginLoader};
+//! use vst2::plugin::Plugin;
+//!
+//! struct SampleHost;
+//!
+//! impl Host for SampleHost {
+//!     fn automate(&mut self, index: i32, value: f32) {
+//!         println!("Parameter {} had its value changed to {}", index, value);
+//!     }
+//! }
+//!
+//! fn main() {
+//!     let host = Arc::new(Mutex::new(SampleHost));
+//!     let path = Path::new("/path/to/vst");
+//!
+//!     let mut loader = PluginLoader::load(path, host.clone()).unwrap();
+//!     let mut instance = loader.instance().unwrap();
+//!
+//!     println!("Loaded {}", instance.get_info().name);
+//!
+//!     instance.init();
+//!     println!("Initialized instance!");
+//!
+//!     println!("Closing instance...");
+//!     // Not necessary as the instance is shut down when it goes out of scope anyway.
+//!     // drop(instance);
+//! }
+//!
+//! ```
+//!
+//! [`PluginLoader::load`]: host/struct.PluginLoader.html#method.load
+//!
 
 extern crate libc;
 extern crate num;
+extern crate dylib;
 #[macro_use] extern crate log;
 #[macro_use] extern crate bitflags;
 
@@ -131,7 +177,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     }
 
     trace!("Creating VST plugin instance...");
-    let mut plugin = <T>::new(host);
+    let mut plugin = T::new(host);
     let info = plugin.get_info().clone();
 
     // Update AEffect in place
@@ -203,7 +249,6 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
 #[cfg(test)]
 #[allow(private_no_mangle_fns)] // For `plugin_main!`
 mod tests {
-    use std::default::Default;
     use std::{mem, ptr};
 
     use libc::c_void;

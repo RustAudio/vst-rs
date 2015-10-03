@@ -25,6 +25,9 @@ pub mod consts {
                                ('P' as i32) << 0  ;
 }
 
+/// `VSTPluginMain` function signature.
+pub type PluginMain = fn(callback: HostCallbackProc) -> *mut AEffect;
+
 /// Host callback function passed to plugin. Can be used to query host information from plugin side.
 pub type HostCallbackProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 

@@ -5,6 +5,7 @@ authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 
 [dependencies]
 log = "*"
-bitflags = "*"
 num = "*"
 libc = "*"
+dylib = "*" # For hosts
+bitflags = "*"

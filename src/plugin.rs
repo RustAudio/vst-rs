@@ -805,6 +805,7 @@ mod tests {
                 }
             }
 
+            #[allow(dead_code)]
             fn instance() -> *mut AEffect {
                 fn host_callback(_effect: *mut AEffect,
                                  opcode: i32,
