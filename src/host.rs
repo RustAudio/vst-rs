@@ -246,8 +246,8 @@ impl PluginInstance {
             let flags = Plugin::from_bits_truncate(effect.flags);
 
             plug.info = Info {
-                name: plug.read_string(op::GetProductName, MAX_PRODUCT_STR_LEN),
-                vendor: plug.read_string(op::GetVendorName, MAX_VENDOR_STR_LEN),
+                name: plug.read_string(op::GetProductName, MAX_PRODUCT_STR_LEN as u64),
+                vendor: plug.read_string(op::GetVendorName, MAX_VENDOR_STR_LEN as u64),
 
                 presets: effect.numPrograms,
                 parameters: effect.numParams,

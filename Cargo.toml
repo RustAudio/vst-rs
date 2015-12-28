@@ -7,5 +7,5 @@ authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 log = "*"
 num = "*"
 libc = "*"
-dylib = "*" # For hosts
+dylib = { git="https://github.com/Earlz/rust-dylib" } # For hosts
 bitflags = "*"
