@@ -635,11 +635,11 @@ pub trait Plugin {
 
     /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
     /// chunk data.
-    fn load_preset_data(&mut self, data: Vec<u8>) {}
+    fn load_preset_data(&mut self, data: &[u8]) {}
 
     /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
     /// given chunk data.
-    fn load_bank_data(&mut self, data: Vec<u8>) {}
+    fn load_bank_data(&mut self, data: &[u8]) {}
 
     /// Get information about an input channel. Only used by some hosts.
     fn get_input_info(&self, input: i32) -> ChannelInfo {

@@ -3,7 +3,7 @@
 #![doc(hidden)]
 
 use std::ffi::{CStr, CString};
-use std::mem;
+use std::{mem, slice};
 
 use libc::{self, size_t, c_char, c_void};
 
@@ -119,13 +119,14 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 let pos = editor.position();
 
                 unsafe {
-                    //given a Rect** structure
+                    // Given a Rect** structure
+                    // TODO: Investigate whether we are given a valid Rect** pointer already
                     *(ptr as *mut *mut c_void) =
                         mem::transmute(Box::new(Rect {
-                            left: pos.0 as i16, //x coord of position
-                            top: pos.1 as i16, //y coord of position
-                            right: (pos.0 + size.0) as i16, //x coord of pos + x coord of size
-                            bottom: (pos.1 + size.1) as i16 //y coord of pos + y coord of size
+                            left: pos.0 as i16, // x coord of position
+                            top: pos.1 as i16, // y coord of position
+                            right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
+                            bottom: (pos.1 + size.1) as i16 // y coord of pos + y coord of size
                         }));
                 }
             }
@@ -156,7 +157,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
             let len = chunks.len() as isize;
 
-            // u8 array to **void ptr.
+            // u8 array to **void ptr
+            // TODO: Release the allocated memory for the chunk in resume / suspend event
             unsafe {
                 *(ptr as *mut *mut c_void) =
                     chunks.into_boxed_slice().as_ptr() as *mut c_void;
@@ -165,7 +167,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             return len;
         }
         OpCode::SetData => {
-            let chunks = unsafe { Vec::from_raw_parts(ptr as *mut u8, value as usize, value as usize) };
+            let chunks = unsafe { slice::from_raw_parts(ptr as *mut u8, value as usize) };
             if index == 0 {
                 plugin.load_bank_data(chunks);
             } else {
