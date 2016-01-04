@@ -18,7 +18,7 @@ pub trait Editor {
     /// Called when the editor window is closed.
     fn close(&mut self) {}
 
-    /// Called when the editor window is opened. `window` is a platform dependant window pointer
+    /// Called when the editor window is opened. `window` is a platform dependent window pointer
     /// (e.g. `HWND` on Windows, `WindowRef` on OSX, `Window` on X11/Linux).
     fn open(&mut self, window: *mut c_void);
 

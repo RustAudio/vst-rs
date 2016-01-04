@@ -9,9 +9,10 @@ use libc::{self, size_t, c_char, c_void};
 
 use buffer::AudioBuffer;
 use api::consts::*;
-use api::{AEffect, ChannelProperties};
+use api::{self, AEffect, ChannelProperties};
 use editor::{Rect, KeyCode, Key, KnobMode};
 use host::Host;
+use event::Event;
 
 /// Deprecated process function.
 pub fn process_deprecated(_effect: *mut AEffect, _inputs_raw: *mut *mut f32, _outputs_raw: *mut *mut f32, _samples: i32) { }
@@ -175,6 +176,18 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             }
         }
 
+        OpCode::ProcessEvents => {
+            let events: *const api::Events = ptr as *const api::Events;
+
+            let events: Vec<Event> = unsafe {
+                // Create a slice of type &mut [*mut Event]
+                slice::from_raw_parts((*events).events, (*events).num_events as usize)
+                // Deref and clone each event to get a slice
+                .iter().map(|item| Event::from(**item)).collect()
+            };
+
+            plugin.process_events(events);
+        }
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
         OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string()) as isize,
 

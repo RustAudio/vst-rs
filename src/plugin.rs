@@ -10,6 +10,7 @@ use api::{AEffect, HostCallbackProc, Supported};
 use api::consts::VST_MAGIC;
 use buffer::AudioBuffer;
 use editor::Editor;
+use event::Event;
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -60,7 +61,7 @@ pub enum OpCode {
     GetCurrentPresetNum,
     /// [ptr]: char array with new preset name, limited to `consts::MAX_PRESET_NAME_LEN`.
     SetCurrentPresetName,
-    /// [ptr]: char buffer for current preset name, limited to `consts::MAX_PRSET_NAME_LEN`.
+    /// [ptr]: char buffer for current preset name, limited to `consts::MAX_PRESET_NAME_LEN`.
     GetCurrentPresetName,
 
     /// [ptr]: char buffer for parameter label (e.g. "db", "ms", etc).
@@ -385,9 +386,9 @@ pub enum CanDo {
     Offline,
     MidiProgramNames,
     Bypass,
+    ReceiveSysExEvent,
 
     //Bitwig specific?
-    ReceiveSysexEvent,
     MidiSingleNoteTuningChange,
     MidiKeyBasedInstrumentControl,
 
@@ -411,7 +412,7 @@ impl FromStr for CanDo {
             "midiProgramNames" => MidiProgramNames,
             "bypass" => Bypass,
 
-            "receiveVstSysexEvent" => ReceiveSysexEvent,
+            "receiveVstSysexEvent" => ReceiveSysExEvent,
             "midiSingleNoteTuningChange" => MidiSingleNoteTuningChange,
             "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
             otherwise => Other(otherwise.to_string())
@@ -620,6 +621,11 @@ pub trait Plugin {
             }
         }
     }
+
+    /// Handle incoming events sent from the host.
+    ///
+    /// This is always called before the start of `process` or `process_f64`.
+    fn process_events(&mut self, events: Vec<Event>) {}
 
     /// Return handle to plugin editor if supported.
     fn get_editor(&mut self) -> Option<&mut Editor> { None }

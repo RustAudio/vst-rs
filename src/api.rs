@@ -268,6 +268,183 @@ impl Into<isize> for Supported {
     }
 }
 
+/// A struct which contains events.
+#[repr(C)]
+pub struct Events {
+    /// Number of events.
+    pub num_events: i32,
+
+    /// Reserved for future use. Should be 0.
+    pub _reserved: isize,
+
+    /// Array of pointers to `api::Event` objects.
+    pub events: *mut *mut Event,
+}
+
+/// The type of event that has occured. See `api::Event.event_type`.
+#[repr(i32)]
+#[derive(Copy, Clone, Debug)]
+pub enum EventType {
+    /// Midi event. See `api::MidiEvent`.
+    Midi = 1,
+
+    /// Deprecated.
+    _Audio,
+    /// Deprecated.
+    _Video,
+    /// Deprecated.
+    _Parameter,
+    /// Deprecated.
+    _Trigger,
+
+    /// System exclusive event. See `api::SysExEvent`.
+    SysEx,
+}
+
+/// A VST event intended to be casted to a corresponding type.
+///
+/// The event types are not all guaranteed to be the same size, so casting between them can be done
+/// via `mem::transmute()` while leveraging pointers, e.g.
+///
+/// ```
+/// # use vst2::api::{Event, EventType, MidiEvent, SysExEvent};
+/// # let mut event: *mut Event = &mut unsafe { std::mem::zeroed() };
+/// // let event: *const Event = ...;
+/// let midi_event: &MidiEvent = unsafe { std::mem::transmute(event) };
+/// ```
+#[repr(C)]
+#[derive(Copy, Clone)]
+pub struct Event {
+    /// The type of event. This lets you know which event this object should be casted to.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use vst2::api::{Event, EventType, MidiEvent, SysExEvent};
+    /// #
+    /// # // Valid for test
+    /// # let mut event: *mut Event = &mut unsafe { std::mem::zeroed() };
+    /// #
+    /// // let mut event: *mut Event = ...
+    /// match unsafe { (*event).event_type } {
+    ///     EventType::Midi => {
+    ///         let midi_event: &MidiEvent = unsafe {
+    ///             std::mem::transmute(event)
+    ///         };
+    ///
+    ///         // ...
+    ///     }
+    ///     EventType::SysEx => {
+    ///         let sys_event: &SysExEvent = unsafe {
+    ///             std::mem::transmute(event)
+    ///         };
+    ///
+    ///         // ...
+    ///     }
+    ///     // ...
+    /// #     _ => {}
+    /// }
+    /// ```
+    pub event_type: EventType,
+
+    /// Size of this structure; `mem::sizeof(event)`.
+    pub byte_size: i32,
+
+    /// Number of samples into the current processing block that this event occurs on.
+    ///
+    /// E.g. if the block size is 512 and this value is 123, the event will occur on sample
+    /// `samples[123]`.
+    pub delta_frames: i32,
+
+    /// Generic flags, none defined in VST api yet.
+    pub _flags: i32,
+
+    /// The `Event` type is cast appropriately, so this acts as reserved space.
+    ///
+    /// The actual size of the data may vary as this type is not guaranteed to be the same size as
+    /// the other event types.
+    pub _reserved: [u8; 16]
+}
+
+/// A midi event.
+#[repr(C)]
+pub struct MidiEvent {
+    /// Should be `EventType::Midi`.
+    pub event_type: EventType,
+
+    /// Size of this structure; `mem::sizeof(midi_event)`.
+    pub byte_size: i32,
+
+    /// Number of samples into the current processing block that this event occurs on.
+    ///
+    /// E.g. if the block size is 512 and this value is 123, the event will occur on sample
+    /// `samples[123]`.
+    pub delta_frames: i32,
+
+    /// See `flags::MidiFlags`.
+    pub flags: i32,
+
+
+    /// Length in sample frames of entire note if available, otherwise 0.
+    pub note_length: i32,
+
+    /// Offset in samples into note from start if available, otherwise 0.
+    pub note_offset: i32,
+
+    /// 1 to 3 midi bytes. TODO: Doc
+    pub midi_data: [u8; 3],
+
+    /// Reserved midi byte (0).
+    pub _midi_reserved: u8,
+
+    /// Detuning between -63 and +64 cents, for scales other than 'well-tempered'. e.g. 'microtuning'
+    pub detune: i8,
+
+    /// Note off velocity between 0 and 127.
+    pub note_off_velocity: u8,
+
+    /// Reserved for future use. Should be 0.
+    pub _reserved1: u8,
+    /// Reserved for future use. Should be 0.
+    pub _reserved2: u8,
+}
+
+/// A midi system exclusive event.
+///
+/// This event only contains raw byte data, and is up to the plugin to interpret it correctly.
+/// `plugin::CanDo` has a `ReceiveSysExEvent` variant which lets the host query the plugin as to
+/// whether this event is supported.
+#[repr(C)]
+pub struct SysExEvent {
+    /// Should be `EventType::SysEx`.
+    pub event_type: EventType,
+
+    /// Size of this structure; `mem::sizeof(system_event)`.
+    pub byte_size: i32,
+
+    /// Number of samples into the current processing block that this event occurs on.
+    ///
+    /// E.g. if the block size is 512 and this value is 123, the event will occur on sample
+    /// `samples[123]`.
+    pub delta_frames: i32,
+
+    /// Generic flags, none defined in VST api yet.
+    pub _flags: i32,
+
+
+    /// Size of payload in bytes.
+    pub data_size: i32,
+
+    /// Reserved for future use. Should be 0.
+    pub _reserved1: isize,
+
+    /// Pointer to payload.
+    pub system_data: *mut u8,
+
+    /// Reserved for future use. Should be 0.
+    pub _reserved2: isize,
+}
+
 /// Bitflags.
 pub mod flags {
     bitflags! {
@@ -304,13 +481,23 @@ pub mod flags {
         /// Cross platform modifier key flags.
         flags ModifierKey: u8 {
             /// Shift key.
-            const SHIFT = 1 << 0, // Shift
+            const SHIFT = 1 << 0,
             /// Alt key.
-            const ALT = 1 << 1, // Alt
+            const ALT = 1 << 1,
             /// Control on mac.
-            const COMMAND = 1 << 2, // Control on Mac
+            const COMMAND = 1 << 2,
             /// Command on mac, ctrl on other.
-            const CONTROL = 1 << 3  // Ctrl on PC, Apple on Mac
+            const CONTROL = 1 << 3, // Ctrl on PC, Apple on Mac
+        }
+    }
+
+    bitflags! {
+        /// MIDI event flags.
+        flags MidiEvent: i32 {
+            /// This event is played live (not in playback from a sequencer track). This allows the
+            /// plugin to handle these flagged events with higher priority, especially when the
+            /// plugin has a big latency as per `plugin::Info::initial_delay`.
+            const REALTIME_EVENT = 1 << 0,
         }
     }
 }

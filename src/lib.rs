@@ -127,6 +127,7 @@ pub mod buffer;
 pub mod api;
 pub mod editor;
 pub mod channels;
+pub mod event;
 pub mod host;
 pub mod plugin;
 mod interfaces;
