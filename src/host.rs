@@ -90,6 +90,9 @@ pub enum PluginLoadError {
     /// This can happen for many reasons, such as if the plugin requires a different version of
     /// the VST API to be used, or due to improper licensing.
     InstanceFailed,
+
+    /// The API version which the plugin used is not supported by this library.
+    InvalidApiVersion,
 }
 
 impl fmt::Display for PluginLoadError {
@@ -106,6 +109,7 @@ impl Error for PluginLoadError {
             InvalidPath => "Could not open the requested path",
             NotAPlugin => "The given path does not contain a VST2.4 compatible library",
             InstanceFailed => "Failed to create a plugin instance",
+            InvalidApiVersion => "The plugin API version is not compatible with this library"
         }
     }
 }
@@ -222,10 +226,18 @@ impl<T: Host> PluginLoader<T> {
             (*effect).reserved1 = mem::transmute(Box::new(self.host.clone()));
         }
 
-        Ok(PluginInstance::new(
+        let mut instance = PluginInstance::new(
             effect,
             self.lib.clone()
-        ))
+        );
+
+        let api_ver = instance.dispatch(plugin::OpCode::GetApiVersion, 0, 0, ptr::null_mut(), 0.0);
+        if api_ver >= 2400 {
+            Ok(instance)
+        } else {
+            trace!("Could not load plugin with api version {}", api_ver);
+            Err(PluginLoadError::InvalidApiVersion)
+        }
     }
 }
 

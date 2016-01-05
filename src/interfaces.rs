@@ -276,7 +276,7 @@ pub fn host_dispatch(host: &mut Host,
         OpCode::Version => return 2400,
         OpCode::Automate => host.automate(index, opt),
         unimplemented => {
-            println!("VST: Got unimplemented host opcode ({:?})", unimplemented);
+            trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
             trace!("Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",
                     effect, index, value, ptr, opt);
         }
