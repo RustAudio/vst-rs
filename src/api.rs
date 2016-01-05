@@ -268,6 +268,107 @@ impl Into<isize> for Supported {
     }
 }
 
+/// Denotes in which thread the host is in.
+#[repr(i32)]
+pub enum ProcessLevel {
+    /// Unsupported by host.
+    Unknown = 0,
+
+    /// GUI thread.
+    User,
+    /// Audio process thread.
+    Realtime,
+    /// Sequence thread (MIDI, etc).
+    Prefetch,
+    /// Offline processing thread (therefore GUI/user thread).
+    Offline,
+}
+
+/// Language that the host is using.
+#[repr(i32)]
+#[allow(missing_docs)]
+pub enum HostLanguage {
+    English = 1,
+    German,
+    French,
+    Italian,
+    Spanish,
+    Japanese,
+}
+
+/// The file operation to perform.
+#[repr(i32)]
+pub enum FileSelectCommand {
+    /// Load a file.
+    Load = 0,
+    /// Save a file.
+    Save,
+    /// Load multiple files simultaneously.
+    LoadMultipleFiles,
+    /// Choose a directory.
+    SelectDirectory,
+}
+
+// TODO: investigate removing this.
+/// Format to select files.
+pub enum FileSelectType {
+    /// Regular file selector.
+    Regular
+}
+
+/// File type descriptor.
+#[repr(C)]
+pub struct FileType {
+    /// Display name of file type.
+    name: [u8; 128],
+
+    /// OS X file type.
+    osx_type: [u8; 8],
+    /// Windows file type.
+    win_type: [u8; 8],
+    /// Unix file type.
+    nix_type: [u8; 8],
+
+    /// MIME type.
+    mime_type_1: [u8; 128],
+    /// Additional MIME type.
+    mime_type_2: [u8; 128],
+}
+
+/// File selector descriptor used in `host::OpCode::OpenFileSelector`.
+#[repr(C)]
+pub struct FileSelect {
+    /// The type of file selection to perform.
+    pub command: FileSelectCommand,
+    /// The file selector to open.
+    pub select_type: FileSelectType,
+    /// Unknown. 0 = no creator.
+    pub mac_creator: i32,
+    /// Number of file types.
+    pub num_types: i32,
+    /// List of file types to show.
+    pub file_types: *mut FileType,
+
+    /// File selector's title.
+    pub title: [u8; 1024],
+    /// Initial path.
+    pub initial_path: *mut u8,
+    /// Used when operation returns a single path.
+    pub return_path: *mut u8,
+    /// Size of the path buffer in bytes.
+    pub size_return_path: i32,
+
+    /// Used when operation returns multiple paths.
+    pub return_multiple_paths: *mut *mut u8,
+    /// Number of paths returned.
+    pub num_paths: i32,
+
+    /// Reserved by host.
+    reserved: isize,
+    /// Reserved for future use.
+    future: [u8; 116]
+}
+
 /// A struct which contains events.
 #[repr(C)]
 pub struct Events {
