@@ -85,9 +85,9 @@ pub enum OpCode {
     OfflineStart,
     /// Called by the plugin to read data.
     /// [index]: (bool)
-    ///     VST offline processing allows a plugin to overwrite existing files. If this value is
-    ///     true then the host will read the original file's samples, but if it is false it will
-    ///     read the samples which the plugin has written via `OfflineWrite`
+    ///    VST offline processing allows a plugin to overwrite existing files. If this value is
+    ///    true then the host will read the original file's samples, but if it is false it will
+    ///    read the samples which the plugin has written via `OfflineWrite`
     /// [value]: see `OfflineOption`
     /// [ptr]: `OfflineTask*` describing the task.
     /// [return]: 1 on success
