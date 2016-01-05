@@ -320,19 +320,19 @@ pub enum FileSelectType {
 #[repr(C)]
 pub struct FileType {
     /// Display name of file type.
-    name: [u8; 128],
+    pub name: [u8; 128],
 
     /// OS X file type.
-    osx_type: [u8; 8],
+    pub osx_type: [u8; 8],
     /// Windows file type.
-    win_type: [u8; 8],
+    pub win_type: [u8; 8],
     /// Unix file type.
-    nix_type: [u8; 8],
+    pub nix_type: [u8; 8],
 
     /// MIME type.
-    mime_type_1: [u8; 128],
+    pub mime_type_1: [u8; 128],
     /// Additional MIME type.
-    mime_type_2: [u8; 128],
+    pub mime_type_2: [u8; 128],
 }
 
 /// File selector descriptor used in `host::OpCode::OpenFileSelector`.
@@ -364,9 +364,9 @@ pub struct FileSelect {
     pub num_paths: i32,
 
     /// Reserved by host.
-    reserved: isize,
+    pub reserved: isize,
     /// Reserved for future use.
-    future: [u8; 116]
+    pub future: [u8; 116]
 }
 
 /// A struct which contains events.
