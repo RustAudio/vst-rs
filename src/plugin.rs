@@ -517,10 +517,10 @@ pub trait Plugin {
 
 
     /// Called when sample rate is changed by host.
-    fn sample_rate_changed(&mut self, rate: f32) { }
+    fn set_sample_rate(&mut self, rate: f32) { }
 
     /// Called when block size is changed by host.
-    fn block_size_changed(&mut self, size: i64) { }
+    fn set_block_size(&mut self, size: i64) { }
 
 
     /// Called when plugin is turned on.

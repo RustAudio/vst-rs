@@ -104,8 +104,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::GetParameterDisplay => copy_string(&plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
         OpCode::GetParameterName => copy_string(&plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
-        OpCode::SetSampleRate => plugin.sample_rate_changed(opt),
-        OpCode::SetBlockSize => plugin.block_size_changed(value as i64),
+        OpCode::SetSampleRate => plugin.set_sample_rate(opt),
+        OpCode::SetBlockSize => plugin.set_block_size(value as i64),
         OpCode::StateChanged => {
             if value == 1 {
                 plugin.on_resume();
