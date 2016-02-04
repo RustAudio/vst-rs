@@ -75,13 +75,27 @@ impl Into<api::ChannelProperties> for ChannelInfo {
     }
 }
 
+impl From<api::ChannelProperties> for ChannelInfo {
+    fn from(api: api::ChannelProperties) -> ChannelInfo {
+        use api::flags::*;
+
+        ChannelInfo {
+            name: String::from_utf8_lossy(&api.name).to_string(),
+            short_name: String::from_utf8_lossy(&api.short_name).to_string(),
+            active: Channel::from_bits(api.flags).expect("Invalid bits in channel info")
+                            .intersects(ACTIVE),
+            arrangement_type: SpeakerArrangementType::from(api),
+        }
+    }
+}
+
 /// Target for Speaker arrangement type. Can be a cinema configuration or music configuration. Both
 /// are technically identical but this provides extra information to the host.
 pub enum ArrangementTarget {
     /// Music arrangement. Technically identical to Cinema.
     Music,
     /// Cinematic arrangement. Technically identical to Music.
-    Cinema
+    Cinema,
 }
 
 /// An enum for all channels in a stereo configuration.
@@ -113,19 +127,19 @@ pub enum SurroundConfig {
     /// 3.0 surround sound.
     /// Cinema: L R C
     /// Music: L R S
-    S3_0,
+    S3_0(ArrangementTarget),
     /// 3.1 surround sound.
     /// Cinema: L R C Lfe
     /// Music: L R Lfe S
-    S3_1,
+    S3_1(ArrangementTarget),
     /// 4.0 surround sound.
     /// Cinema: L R C S (LCRS)
     /// Music: L R Ls Rs (Quadro)
-    S4_0,
+    S4_0(ArrangementTarget),
     /// 4.1 surround sound.
     /// Cinema: L R C Lfe S (LCRS + Lfe)
     /// Music: L R Ls Rs (Quadro + Lfe)
-    S4_1,
+    S4_1(ArrangementTarget),
     /// 5.0 surround sound.
     /// Cinema and music: L R C Ls Rs
     S5_0,
@@ -135,27 +149,27 @@ pub enum SurroundConfig {
     /// 6.0 surround sound.
     /// Cinema: L R C Ls Rs Cs
     /// Music: L R Ls Rs Sl Sr
-    S6_0,
+    S6_0(ArrangementTarget),
     /// 6.1 surround sound.
     /// Cinema: L R C Lfe Ls Rs Cs
     /// Music: L R Ls Rs Sl Sr
-    S6_1,
+    S6_1(ArrangementTarget),
     /// 7.0 surround sound.
     /// Cinema: L R C Ls Rs Lc Rc
     /// Music: L R C Ls Rs Sl Sr
-    S7_0,
+    S7_0(ArrangementTarget),
     /// 7.1 surround sound.
     /// Cinema: L R C Lfe Ls Rs Lc Rc
     /// Music: L R C Lfe Ls Rs Sl Sr
-    S7_1,
+    S7_1(ArrangementTarget),
     /// 8.0 surround sound.
     /// Cinema: L R C Ls Rs Lc Rc Cs
     /// Music: L R C Ls Rs Cs Sl Sr
-    S8_0,
+    S8_0(ArrangementTarget),
     /// 8.1 surround sound.
     /// Cinema: L R C Lfe Ls Rs Lc Rc Cs
     /// Music: L R C Lfe Ls Rs Cs Sl Sr
-    S8_1,
+    S8_1(ArrangementTarget),
     /// 10.2 surround sound.
     /// Cinema + Music: L R C Lfe Ls Rs Tfl Tfc Tfr Trl Trr Lfe2
     S10_2,
@@ -172,7 +186,7 @@ pub enum SpeakerArrangementType {
     /// Stereo channel. Contains type of stereo arrangement and speaker represented.
     Stereo(StereoConfig, StereoChannel),
     /// Surround channel. Contains surround arrangement and target (cinema or music).
-    Surround(SurroundConfig, ArrangementTarget),
+    Surround(SurroundConfig),
 }
 
 impl Default for SpeakerArrangementType {
@@ -184,7 +198,7 @@ impl Default for SpeakerArrangementType {
 impl SpeakerArrangementType {
     /// Determine whether this channel is part of a surround speaker arrangement.
     pub fn is_speaker_type(&self) -> bool {
-        if let SpeakerArrangementType::Surround(_, _) = *self {
+        if let SpeakerArrangementType::Surround(..) = *self {
             true
         } else {
             false
@@ -206,6 +220,7 @@ impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
     fn into(self) -> api::SpeakerArrangementType {
         use api::SpeakerArrangementType as Raw;
         use self::SpeakerArrangementType::*;
+        use self::ArrangementTarget::{Music, Cinema};
 
         match self {
             Custom => Raw::Custom,
@@ -218,50 +233,111 @@ impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
                 StereoConfig::Sl_Sr => Raw::StereoSide,
                 StereoConfig::C_Lfe => Raw::StereoCLfe
             },
-            Surround(conf, target) => match target { // Surround channels.
-                ArrangementTarget::Music => match conf {
-                    SurroundConfig::S3_0 => Raw::Music30,
-                    SurroundConfig::S3_1 => Raw::Music31,
+            Surround(conf) => match conf { // Surround channels.
+                SurroundConfig::S3_0(Music) => Raw::Music30,
+                SurroundConfig::S3_0(Cinema) => Raw::Cinema30,
 
-                    SurroundConfig::S4_0 => Raw::Music40,
-                    SurroundConfig::S4_1 => Raw::Music41,
+                SurroundConfig::S3_1(Music) => Raw::Music31,
+                SurroundConfig::S3_1(Cinema) => Raw::Cinema31,
 
-                    SurroundConfig::S5_0 => Raw::Surround50,
-                    SurroundConfig::S5_1 => Raw::Surround51,
+                SurroundConfig::S4_0(Music) => Raw::Music40,
+                SurroundConfig::S4_0(Cinema) => Raw::Cinema40,
 
-                    SurroundConfig::S6_0 => Raw::Music60,
-                    SurroundConfig::S6_1 => Raw::Music61,
+                SurroundConfig::S4_1(Music) => Raw::Music41,
+                SurroundConfig::S4_1(Cinema) => Raw::Cinema41,
 
-                    SurroundConfig::S7_0 => Raw::Music70,
-                    SurroundConfig::S7_1 => Raw::Music71,
+                SurroundConfig::S5_0 => Raw::Surround50,
+                SurroundConfig::S5_1 => Raw::Surround51,
 
-                    SurroundConfig::S8_0 => Raw::Music80,
-                    SurroundConfig::S8_1 => Raw::Music81,
+                SurroundConfig::S6_0(Music) => Raw::Music60,
+                SurroundConfig::S6_0(Cinema) => Raw::Cinema60,
 
-                    SurroundConfig::S10_2 => Raw::Surround102,
-                },
-                ArrangementTarget::Cinema => match conf {
-                    SurroundConfig::S3_0 => Raw::Cinema30,
-                    SurroundConfig::S3_1 => Raw::Cinema31,
+                SurroundConfig::S6_1(Music) => Raw::Music61,
+                SurroundConfig::S6_1(Cinema) => Raw::Cinema61,
 
-                    SurroundConfig::S4_0 => Raw::Cinema40,
-                    SurroundConfig::S4_1 => Raw::Cinema41,
+                SurroundConfig::S7_0(Music) => Raw::Music70,
+                SurroundConfig::S7_0(Cinema) => Raw::Cinema70,
 
-                    SurroundConfig::S5_0 => Raw::Surround50,
-                    SurroundConfig::S5_1 => Raw::Surround51,
+                SurroundConfig::S7_1(Music) => Raw::Music71,
+                SurroundConfig::S7_1(Cinema) => Raw::Cinema71,
 
-                    SurroundConfig::S6_0 => Raw::Cinema60,
-                    SurroundConfig::S6_1 => Raw::Cinema61,
+                SurroundConfig::S8_0(Music) => Raw::Music80,
+                SurroundConfig::S8_0(Cinema) => Raw::Cinema80,
 
-                    SurroundConfig::S7_0 => Raw::Cinema70,
-                    SurroundConfig::S7_1 => Raw::Cinema71,
+                SurroundConfig::S8_1(Music) => Raw::Music81,
+                SurroundConfig::S8_1(Cinema) => Raw::Cinema81,
 
-                    SurroundConfig::S8_0 => Raw::Cinema80,
-                    SurroundConfig::S8_1 => Raw::Cinema81,
-
-                    SurroundConfig::S10_2 => Raw::Surround102,
-                }
+                SurroundConfig::S10_2 => Raw::Surround102,
             }
+        }
+    }
+}
+
+/// Convert the VST API equivalent struct into something more usable.
+///
+/// We implement `From<ChannelProperties>` as `SpeakerArrangementType` contains extra info about
+/// stereo speakers found in the channel flags.
+impl From<api::ChannelProperties> for SpeakerArrangementType {
+    fn from(api: api::ChannelProperties) -> SpeakerArrangementType {
+        use api::flags::*;
+
+        use api::SpeakerArrangementType as Raw;
+        use self::SpeakerArrangementType::*;
+        use self::ArrangementTarget::{Music, Cinema};
+        use self::SurroundConfig::*;
+
+        let stereo = if Channel::from_bits(api.flags).expect("Invalid Channel Flags")
+                                .intersects(STEREO) {
+            StereoChannel::Left
+        } else {
+            StereoChannel::Right
+        };
+
+        match api.arrangement_type {
+            Raw::Custom => Custom,
+            Raw::Empty => Empty,
+            Raw::Mono => Mono,
+
+            Raw::Stereo => Stereo(StereoConfig::L_R, stereo),
+            Raw::StereoSurround => Stereo(StereoConfig::Ls_Rs, stereo),
+            Raw::StereoCenter => Stereo(StereoConfig::Lc_Rc, stereo),
+            Raw::StereoSide => Stereo(StereoConfig::Sl_Sr, stereo),
+            Raw::StereoCLfe => Stereo(StereoConfig::C_Lfe, stereo),
+
+            Raw::Music30 => Surround(S3_0(Music)),
+            Raw::Cinema30 => Surround(S3_0(Cinema)),
+
+            Raw::Music31 => Surround(S3_1(Music)),
+            Raw::Cinema31 => Surround(S3_1(Cinema)),
+
+            Raw::Music40 => Surround(S4_0(Music)),
+            Raw::Cinema40 => Surround(S4_0(Cinema)),
+
+            Raw::Music41 => Surround(S4_1(Music)),
+            Raw::Cinema41 => Surround(S4_1(Cinema)),
+
+            Raw::Surround50 => Surround(S5_0),
+            Raw::Surround51 => Surround(S5_1),
+
+            Raw::Music60 => Surround(S6_0(Music)),
+            Raw::Cinema60 => Surround(S6_0(Cinema)),
+
+            Raw::Music61 => Surround(S6_1(Music)),
+            Raw::Cinema61 => Surround(S6_1(Cinema)),
+
+            Raw::Music70 => Surround(S7_0(Music)),
+            Raw::Cinema70 => Surround(S7_0(Cinema)),
+
+            Raw::Music71 => Surround(S7_1(Music)),
+            Raw::Cinema71 => Surround(S7_1(Cinema)),
+
+            Raw::Music80 => Surround(S8_0(Music)),
+            Raw::Cinema80 => Surround(S8_0(Cinema)),
+
+            Raw::Music81 => Surround(S8_1(Music)),
+            Raw::Cinema81 => Surround(S8_1(Cinema)),
+
+            Raw::Surround102 => Surround(S10_2)
         }
     }
 }

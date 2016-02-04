@@ -108,9 +108,9 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
         OpCode::StateChanged => {
             if value == 1 {
-                plugin.on_resume();
+                plugin.resume();
             } else {
-                plugin.on_suspend();
+                plugin.suspend();
             }
         }
 
@@ -216,7 +216,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::GetVendorName => copy_string(&plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
         OpCode::GetProductName => copy_string(&plugin.get_info().name, MAX_PRODUCT_STR_LEN),
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
-        OpCode::VendorSpecific => plugin.vendor_specific(index, value, ptr, opt),
+        OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
             let can_do: CanDo = match read_string().parse() {
                 Ok(c) => c,
@@ -272,9 +272,27 @@ pub fn host_dispatch(host: &mut Host,
                      opt: f32) -> isize {
     use host::OpCode;
 
+    // Copy a string into the `ptr` buffer
+    let copy_string = |string: &String, max: size_t| {
+        unsafe {
+            libc::strncpy(ptr as *mut c_char,
+                          CString::new(string.clone()).unwrap().as_ptr(),
+                          max);
+        }
+    };
+
     match OpCode::from(opcode) {
         OpCode::Version => return 2400,
         OpCode::Automate => host.automate(index, opt),
+
+        OpCode::Idle => host.idle(),
+
+        // ...
+
+        OpCode::GetVendorVersion => return host.get_info().0,
+        OpCode::GetVendorString => copy_string(&host.get_info().1, MAX_VENDOR_STR_LEN),
+        OpCode::GetProductString => copy_string(&host.get_info().2, MAX_PRODUCT_STR_LEN),
+
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
             trace!("Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",

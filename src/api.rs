@@ -168,6 +168,7 @@ pub struct ChannelProperties {
 /// Tells the host how the channels are intended to be used in the plugin. Only useful for some
 /// hosts.
 #[repr(i32)]
+#[derive(Clone, Copy)]
 pub enum SpeakerArrangementType {
     /// User defined arrangement.
     Custom = -2,
@@ -253,6 +254,20 @@ pub enum Supported {
     Yes,
     Maybe,
     No
+}
+
+impl Supported {
+    /// Create a `Supported` value from an integer if possible.
+    pub fn from(val: isize) -> Option<Supported> {
+        use self::Supported::*;
+
+        match val {
+             1 => Some(Yes),
+             0 => Some(Maybe),
+            -1 => Some(No),
+            _ => None
+        }
+    }
 }
 
 impl Into<isize> for Supported {
@@ -448,7 +463,7 @@ pub struct Event {
     /// ```
     pub event_type: EventType,
 
-    /// Size of this structure; `mem::sizeof(event)`.
+    /// Size of this structure; `mem::sizeof::<Event>()`.
     pub byte_size: i32,
 
     /// Number of samples into the current processing block that this event occurs on.
@@ -473,7 +488,7 @@ pub struct MidiEvent {
     /// Should be `EventType::Midi`.
     pub event_type: EventType,
 
-    /// Size of this structure; `mem::sizeof(midi_event)`.
+    /// Size of this structure; `mem::sizeof::<MidiEvent>()`.
     pub byte_size: i32,
 
     /// Number of samples into the current processing block that this event occurs on.
@@ -520,7 +535,7 @@ pub struct SysExEvent {
     /// Should be `EventType::SysEx`.
     pub event_type: EventType,
 
-    /// Size of this structure; `mem::sizeof(system_event)`.
+    /// Size of this structure; `mem::sizeof::<SysExEvent>()`.
     pub byte_size: i32,
 
     /// Number of samples into the current processing block that this event occurs on.

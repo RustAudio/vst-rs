@@ -64,11 +64,14 @@ pub enum OpCode {
     /// [ptr]: char buffer for current preset name, limited to `consts::MAX_PRESET_NAME_LEN`.
     GetCurrentPresetName,
 
-    /// [ptr]: char buffer for parameter label (e.g. "db", "ms", etc).
+    /// [index]: parameter
+    /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "db", "ms", etc)
     GetParameterLabel,
-    /// [ptr]: char buffer (e.g. "0.5", "ROOM", etc).
+    /// [index]: paramter
+    /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "0.5", "ROOM", etc).
     GetParameterDisplay,
-    /// [ptr]: char buffer. (e.g. "Release", "Gain").
+    /// [index]: parameter
+    /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "Release", "Gain")
     GetParameterName,
 
     /// Deprecated.
@@ -420,6 +423,29 @@ impl FromStr for CanDo {
     }
 }
 
+impl Into<String> for CanDo {
+    fn into(self) -> String {
+        use self::CanDo::*;
+
+        match self {
+            SendEvents => "sendVstEvents".to_string(),
+            SendMidiEvent => "sendVstMidiEvent".to_string(),
+            ReceiveEvents => "receiveVstEvents".to_string(),
+            ReceiveMidiEvent => "receiveVstMidiEvent".to_string(),
+            ReceiveTimeInfo => "receiveVstTimeInfo".to_string(),
+            Offline => "offline".to_string(),
+            MidiProgramNames => "midiProgramNames".to_string(),
+            Bypass => "bypass".to_string(),
+
+            ReceiveSysExEvent => "receiveVstSysexEvent".to_string(),
+            MidiSingleNoteTuningChange => "midiSingleNoteTuningChange".to_string(),
+            MidiKeyBasedInstrumentControl => "midiKeyBasedInstrumentControl".to_string(),
+            Other(other) => other
+        }
+    }
+
+}
+
 /// Must be implemented by all VST plugins.
 ///
 /// All methods except `get_info` provide a default implementation which does nothing and can be
@@ -484,7 +510,7 @@ pub trait Plugin {
     fn get_preset_num(&self) -> i32 { 0 }
 
     /// Set the current preset name.
-    fn set_preset_name(&self, name: String) { }
+    fn set_preset_name(&mut self, name: String) { }
 
     /// Get the name of the preset at the index specified by `preset`.
     fn get_preset_name(&self, preset: i32) -> String { "".to_string() }
@@ -524,14 +550,14 @@ pub trait Plugin {
 
 
     /// Called when plugin is turned on.
-    fn on_resume(&mut self) { }
+    fn resume(&mut self) { }
 
     /// Called when plugin is turned off.
-    fn on_suspend(&mut self) { }
+    fn suspend(&mut self) { }
 
 
     /// Vendor specific handling.
-    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) { }
+    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize { 0 }
 
 
     /// Return whether plugin supports specified action.
