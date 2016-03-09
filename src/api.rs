@@ -565,7 +565,7 @@ pub struct SysExEvent {
 pub mod flags {
     bitflags! {
         /// Flags for VST channels.
-        flags Channel: i32 {
+        pub flags Channel: i32 {
             /// Indicates channel is active. Ignored by host.
             const ACTIVE = 1,
             /// Indicates channel is first of stereo pair.
@@ -577,7 +577,7 @@ pub mod flags {
 
     bitflags! {
         /// Flags for VST plugins.
-        flags Plugin: i32 {
+        pub flags Plugin: i32 {
             /// Plugin has an editor.
             const HAS_EDITOR = 1 << 0,
             /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
@@ -595,7 +595,7 @@ pub mod flags {
 
     bitflags!{
         /// Cross platform modifier key flags.
-        flags ModifierKey: u8 {
+        pub flags ModifierKey: u8 {
             /// Shift key.
             const SHIFT = 1 << 0,
             /// Alt key.
@@ -609,7 +609,7 @@ pub mod flags {
 
     bitflags! {
         /// MIDI event flags.
-        flags MidiEvent: i32 {
+        pub flags MidiEvent: i32 {
             /// This event is played live (not in playback from a sequencer track). This allows the
             /// plugin to handle these flagged events with higher priority, especially when the
             /// plugin has a big latency as per `plugin::Info::initial_delay`.
