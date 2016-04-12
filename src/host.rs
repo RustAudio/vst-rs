@@ -332,7 +332,7 @@ impl<T: Host> PluginLoader<T> {
 
     /// Call the VST entry point and retrieve a (possibly null) pointer.
     unsafe fn call_main(&mut self) -> *mut AEffect {
-        load_pointer = mem::transmute(Box::new(self.host.clone()));
+        load_pointer = Box::into_raw(Box::new(self.host.clone())) as *mut c_void;
         (self.main)(callback_wrapper::<T>)
     }
 
@@ -351,7 +351,7 @@ impl<T: Host> PluginLoader<T> {
 
         unsafe {
             // Move the host to the heap and add it to the `AEffect` struct for future reference
-            (*effect).reserved1 = mem::transmute(Box::new(self.host.clone()));
+            (*effect).reserved1 = Box::into_raw(Box::new(self.host.clone())) as isize;
         }
 
         let instance = PluginInstance::new(
