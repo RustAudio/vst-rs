@@ -382,7 +382,7 @@ impl PluginInstance {
         unsafe {
             use api::flags::*;
 
-            let effect: &mut AEffect = mem::transmute(effect);
+            let effect: &AEffect = &*effect;
             let flags = Plugin::from_bits_truncate(effect.flags);
 
             plug.info = Info {
@@ -726,7 +726,8 @@ fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
         // If the effect pointer is not null and the host pointer is not null, the plugin has
         // already been initialized
         if !effect.is_null() && (*effect).reserved1 != 0 {
-            let host: &mut Arc<Mutex<T>> = mem::transmute((*effect).reserved1);
+            let reserved = (*effect).reserved1 as *const Arc<Mutex<T>>;
+            let host = &*reserved;
 
             let host = &mut *host.lock().unwrap();
 
@@ -735,7 +736,8 @@ fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
         // dereferenced
         } else {
             // Used only during the plugin initialization
-            let host: &mut Arc<Mutex<T>> = mem::transmute(load_pointer);
+            let host = load_pointer as *const Arc<Mutex<T>>;
+            let host = &*host;
             let host = &mut *host.lock().unwrap();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
