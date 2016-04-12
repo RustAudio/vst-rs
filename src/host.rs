@@ -723,13 +723,10 @@ static mut load_pointer: *mut c_void = 0 as *mut c_void;
 fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
                              value: isize, ptr: *mut c_void, opt: f32) -> isize {
     unsafe {
-        // Convert `*mut` to `&mut` for easier usage
-        let effect_ref: &mut AEffect = mem::transmute(effect);
-
         // If the effect pointer is not null and the host pointer is not null, the plugin has
         // already been initialized
-        if !effect.is_null() && effect_ref.reserved1 != 0 {
-            let host: &mut Arc<Mutex<T>> = mem::transmute(effect_ref.reserved1);
+        if !effect.is_null() && (*effect).reserved1 != 0 {
+            let host: &mut Arc<Mutex<T>> = mem::transmute((*effect).reserved1);
 
             let host = &mut *host.lock().unwrap();
 
