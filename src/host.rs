@@ -320,8 +320,8 @@ impl<T: Host> PluginLoader<T> {
             main: unsafe {
                       // Search the library for the VSTAPI entry point
                       match lib.symbol("VSTPluginMain") {
-                          // Use `Fn(...)` instead of `*mut Fn(...)`.
-                          Ok(s) => mem::transmute::<*mut PluginMain, PluginMain>(s),
+                          // Use `fn(...)` instead of `*mut Fn(...)`.
+                          Ok(s) => mem::transmute::<*mut (), PluginMain>(s),
                           _ => return Err(PluginLoadError::NotAPlugin)
                       }
                   },
