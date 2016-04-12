@@ -1,6 +1,4 @@
 # rust-vst2 [![Travis Build][trav-img]][trav-url] [![Appveyor Build][appv-img]][appv-url]
-#### NOTE
-  * OS X users should compile plugins with rust 1.4 beta+. This is to ensure that `jemalloc` does not cause a segfault when the plugin's dylib is unloaded.
 
 A library to help facilitate creating VST plugins in rust.
 
