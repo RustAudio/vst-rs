@@ -456,7 +456,7 @@ impl PluginInstance {
                          max: usize)
                          -> String {
         let mut buf = vec![0; max];
-        self.dispatch(opcode, index, value, unsafe { mem::transmute(buf.as_mut_ptr()) }, opt);
+        self.dispatch(opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
         String::from_utf8_lossy(&buf).chars().take_while(|c| *c != '\0').collect()
     }
 }
