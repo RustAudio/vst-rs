@@ -8,4 +8,4 @@ log = "*"
 num = "*"
 libc = "*"
 dylib = { git="https://github.com/Earlz/rust-dylib" } # For hosts
-bitflags = "*"
+bitflags = "0.4.0"

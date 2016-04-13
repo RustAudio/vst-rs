@@ -320,8 +320,8 @@ impl<T: Host> PluginLoader<T> {
             main: unsafe {
                       // Search the library for the VSTAPI entry point
                       match lib.symbol("VSTPluginMain") {
-                          // Use `Fn(...)` instead of `*mut Fn(...)`.
-                          Ok(s) => mem::transmute::<*mut PluginMain, PluginMain>(s),
+                          // Use `fn(...)` instead of `*mut Fn(...)`.
+                          Ok(s) => mem::transmute::<*mut (), PluginMain>(s),
                           _ => return Err(PluginLoadError::NotAPlugin)
                       }
                   },
@@ -332,7 +332,7 @@ impl<T: Host> PluginLoader<T> {
 
     /// Call the VST entry point and retrieve a (possibly null) pointer.
     unsafe fn call_main(&mut self) -> *mut AEffect {
-        load_pointer = mem::transmute(Box::new(self.host.clone()));
+        load_pointer = Box::into_raw(Box::new(self.host.clone())) as *mut c_void;
         (self.main)(callback_wrapper::<T>)
     }
 
@@ -351,7 +351,7 @@ impl<T: Host> PluginLoader<T> {
 
         unsafe {
             // Move the host to the heap and add it to the `AEffect` struct for future reference
-            (*effect).reserved1 = mem::transmute(Box::new(self.host.clone()));
+            (*effect).reserved1 = Box::into_raw(Box::new(self.host.clone())) as isize;
         }
 
         let instance = PluginInstance::new(
@@ -382,7 +382,7 @@ impl PluginInstance {
         unsafe {
             use api::flags::*;
 
-            let effect: &mut AEffect = mem::transmute(effect);
+            let effect: &AEffect = &*effect;
             let flags = Plugin::from_bits_truncate(effect.flags);
 
             plug.info = Info {
@@ -456,7 +456,7 @@ impl PluginInstance {
                          max: usize)
                          -> String {
         let mut buf = vec![0; max];
-        self.dispatch(opcode, index, value, unsafe { mem::transmute(buf.as_mut_ptr()) }, opt);
+        self.dispatch(opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
         String::from_utf8_lossy(&buf).chars().take_while(|c| *c != '\0').collect()
     }
 }
@@ -723,13 +723,11 @@ static mut load_pointer: *mut c_void = 0 as *mut c_void;
 fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
                              value: isize, ptr: *mut c_void, opt: f32) -> isize {
     unsafe {
-        // Convert `*mut` to `&mut` for easier usage
-        let effect_ref: &mut AEffect = mem::transmute(effect);
-
         // If the effect pointer is not null and the host pointer is not null, the plugin has
         // already been initialized
-        if !effect.is_null() && effect_ref.reserved1 != 0 {
-            let host: &mut Arc<Mutex<T>> = mem::transmute(effect_ref.reserved1);
+        if !effect.is_null() && (*effect).reserved1 != 0 {
+            let reserved = (*effect).reserved1 as *const Arc<Mutex<T>>;
+            let host = &*reserved;
 
             let host = &mut *host.lock().unwrap();
 
@@ -738,7 +736,8 @@ fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
         // dereferenced
         } else {
             // Used only during the plugin initialization
-            let host: &mut Arc<Mutex<T>> = mem::transmute(load_pointer);
+            let host = load_pointer as *const Arc<Mutex<T>>;
+            let host = &*host;
             let host = &mut *host.lock().unwrap();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
