@@ -158,7 +158,7 @@ macro_rules! plugin_main {
 
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
+        pub extern "C" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             $crate::main::<$t>(callback)
         }
     }
