@@ -769,6 +769,22 @@ impl HostCallback {
         self.callback(self.effect, host::OpCode::Version,
                       0, 0, ptr::null_mut(), 0.0) as i32
     }
+
+    fn read_string(&self, opcode: host::OpCode, max: usize) -> String {
+        self.read_string_param(opcode, 0, 0, 0.0, max)
+    }
+
+    fn read_string_param(&self,
+                         opcode: host::OpCode,
+                         index: i32,
+                         value: isize,
+                         opt: f32,
+                         max: usize)
+                         -> String {
+        let mut buf = vec![0; max];
+        self.callback(self.effect, opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
+        String::from_utf8_lossy(&buf).chars().take_while(|c| *c != '\0').collect()
+    }
 }
 
 impl Host for HostCallback {
@@ -787,6 +803,14 @@ impl Host for HostCallback {
     fn idle(&self) {
         self.callback(self.effect, host::OpCode::Idle,
                       0, 0, ptr::null_mut(), 0.0);
+    }
+
+    fn get_info(&self) -> (isize, String, String) {
+        use api::consts::*;
+        let version = self.callback(self.effect, host::OpCode::CurrentId, 0, 0, ptr::null_mut(), 0.0) as isize;
+        let vendor_name = self.read_string(host::OpCode::GetVendorString, MAX_VENDOR_STR_LEN);
+        let product_name = self.read_string(host::OpCode::GetProductString, MAX_PRODUCT_STR_LEN);
+        (version, vendor_name, product_name)
     }
 }
 
