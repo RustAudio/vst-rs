@@ -40,6 +40,11 @@ pub enum OpCode {
     /// [value]: request mask. see `VstTimeInfoFlags`
     /// [return]: `VstTimeInfo` pointer or null if not supported.
     GetTime,
+    /// Inform host that the plugin has MIDI events ready to be processed. Should be called at the
+    /// end of `Plugin::process`.
+    /// [ptr]: `VstEvents*` the events to be processed.
+    /// [return]: 1 if supported and processed OK.
+    ProcessEvents,
     /// Deprecated.
     _SetTime,
     /// Deprecated.
@@ -50,7 +55,7 @@ pub enum OpCode {
     _GetParameterQuantization,
 
     /// Notifies the host that the input/output setup has changed. This can allow the host to check
-    /// numInputs/numOutputs or call `getSpeakerArrangement()`
+    /// numInputs/numOutputs or call `getSpeakerArrangement()`.
     /// [return]: 1 if supported.
     IOChanged,
 
