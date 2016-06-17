@@ -12,7 +12,7 @@ pub mod consts {
     use libc::size_t;
 
     pub const MAX_PRESET_NAME_LEN: size_t = 24;
-    pub const MAX_PARAM_STR_LEN: size_t = 8;
+    pub const MAX_PARAM_STR_LEN: size_t = 32;
     pub const MAX_LABEL: usize = 64;
     pub const MAX_SHORT_LABEL: usize = 8;
     pub const MAX_PRODUCT_STR_LEN: size_t = 64;

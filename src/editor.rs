@@ -40,6 +40,7 @@ pub trait Editor {
 
 /// Rectangle used to specify dimensions of editor window.
 #[doc(hidden)]
+#[derive(Copy, Clone, Debug)]
 pub struct Rect {
     /// Y value in pixels of top side.
     pub top: i16,
@@ -52,6 +53,7 @@ pub struct Rect {
 }
 
 /// A platform independent key code. Includes modifier keys.
+#[derive(Copy, Clone, Debug)]
 pub struct KeyCode {
     /// ASCII character for key pressed (if applicable).
     pub character: char,
