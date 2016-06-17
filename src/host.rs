@@ -521,7 +521,7 @@ impl Plugin for PluginInstance {
         self.dispatch(plugin::OpCode::CanBeAutomated, index, 0, ptr::null_mut(), 0.0) > 0
     }
 
-    fn string_to_parameter(&self, index: i32, text: String) -> bool {
+    fn string_to_parameter(&mut self, index: i32, text: String) -> bool {
         self.write_string(plugin::OpCode::StringToParameter, index, 0, &text, 0.0) > 0
     }
 

@@ -539,7 +539,7 @@ pub trait Plugin {
     /// Use String as input for parameter value. Used by host to provide an editable field to
     /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
     /// the input string was used.
-    fn string_to_parameter(&self, index: i32, text: String) -> bool { false }
+    fn string_to_parameter(&mut self, index: i32, text: String) -> bool { false }
 
 
     /// Called when sample rate is changed by host.
