@@ -1,4 +1,7 @@
-# rust-vst2 [![Travis Build][trav-img]][trav-url] [![Appveyor Build][appv-img]][appv-url]
+# rust-vst2
+[![Travis Build][trav-img]][trav-url]
+[![Appveyor Build][appv-img]][appv-url]
+[![crates.io][crates-img]][crates-url]
 
 A library to help facilitate creating VST plugins in rust.
 
@@ -71,5 +74,7 @@ crate-type = ["dylib"]
 [trav-url]: https://travis-ci.org/overdrivenpotato/rust-vst2
 [appv-img]: https://ci.appveyor.com/api/projects/status/4kg8efxas08b72bp?svg=true
 [appv-url]: https://ci.appveyor.com/project/overdrivenpotato/rust-vst2
+[crates-img]: https://img.shields.io/crates/v/vst2.svg
+[crates-url]: https://crates.io/crates/vst2
 [sdl2]: https://github.com/AngryLawyer/rust-sdl2
 [conrod]: https://github.com/PistonDevelopers/conrod
