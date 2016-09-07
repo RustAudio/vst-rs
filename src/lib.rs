@@ -92,7 +92,7 @@
 
 extern crate libc;
 extern crate num;
-extern crate dylib;
+extern crate libloading;
 #[macro_use] extern crate log;
 #[macro_use] extern crate bitflags;
 

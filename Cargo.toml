@@ -16,5 +16,5 @@ keywords = ["vst", "vst2", "plugin"]
 log = "*"
 num = "*"
 libc = "*"
-dylib = { git="https://github.com/Earlz/rust-dylib" } # For hosts
 bitflags = "*"
+libloading = "*"
