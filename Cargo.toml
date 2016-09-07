@@ -13,8 +13,8 @@ license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
 
 [dependencies]
-log = "*"
-num = "*"
-libc = "*"
-bitflags = "*"
-libloading = "*"
+log = "0.3"
+num = "0.1"
+libc = "0.2"
+bitflags = "0.7"
+libloading = "0.3"
