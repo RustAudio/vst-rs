@@ -59,8 +59,8 @@ name = "basic_vst"
 version = "0.0.1"
 authors = ["Author <author@example.com>"]
 
-[dependencies.vst2]
-git = "https://github.com/overdrivenpotato/rust-vst2"
+[dependencies]
+vst2 = "0.0.1"
 
 [lib]
 name = "basicvst"
