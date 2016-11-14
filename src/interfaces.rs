@@ -62,7 +62,7 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the vst plugin.
 pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
-    use plugin::{CanDo, OpCode, Plugin};
+    use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
     let opcode = OpCode::from(opcode);

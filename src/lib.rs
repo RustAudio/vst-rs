@@ -250,7 +250,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
 #[cfg(test)]
 #[allow(private_no_mangle_fns)] // For `plugin_main!`
 mod tests {
-    use std::{mem, ptr};
+    use std::ptr;
 
     use libc::c_void;
 
@@ -357,12 +357,7 @@ mod tests {
         // Assert that 2 function pointers are equal.
         macro_rules! assert_fn_eq {
             ($a:expr, $b:expr) => {
-                unsafe {
-                    assert_eq!(
-                        mem::transmute::<_, usize>($a),
-                        mem::transmute::<_, usize>($b)
-                    );
-                }
+                assert_eq!($a as usize, $b as usize);
             }
         }
 
