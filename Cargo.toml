@@ -3,9 +3,18 @@ name = "vst2"
 version = "0.0.1"
 authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 
+description = "VST 2.4 API implementation in rust. Create plugins or hosts."
+
+readme = "README.md"
+repository = "https://github.com/overdrivenpotato/rust-vst2"
+documentation = "http://overdrivenpotato.github.io/rust-vst2"
+
+license = "MIT"
+keywords = ["vst", "vst2", "plugin"]
+
 [dependencies]
-log = "*"
-num = "*"
-libc = "*"
-dylib = { git="https://github.com/Earlz/rust-dylib" } # For hosts
-bitflags = "*"
+log = "0.3"
+num = "0.1"
+libc = "0.2"
+bitflags = "0.7"
+libloading = "0.3"

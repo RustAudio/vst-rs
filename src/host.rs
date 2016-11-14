@@ -6,7 +6,7 @@ use std::error::Error;
 use std::{fmt, mem, ptr, slice};
 use std::ffi::CString;
 
-use dylib::DynamicLibrary;
+use libloading::Library;
 use libc::c_void;
 
 use interfaces;
@@ -253,7 +253,7 @@ impl Error for PluginLoadError {
 /// [`load`](#method.load) method.
 pub struct PluginLoader<T: Host> {
     main: PluginMain,
-    lib: Arc<DynamicLibrary>,
+    lib: Arc<Library>,
     host: Arc<Mutex<T>>,
 }
 
@@ -261,7 +261,7 @@ pub struct PluginLoader<T: Host> {
 #[allow(dead_code)] // To keep `lib` around.
 pub struct PluginInstance {
     effect: *mut AEffect,
-    lib: Arc<DynamicLibrary>,
+    lib: Arc<Library>,
     info: Info,
 }
 
@@ -316,7 +316,7 @@ impl<T: Host> PluginLoader<T> {
     ///     `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst/Contents/MacOS/PluginHooksVST`
     pub fn load(path: &Path, host: Arc<Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
         // Try loading the library at the given path
-        let lib = match DynamicLibrary::open(Some(&path)) {
+        let lib = match Library::new(path) {
             Ok(l) => l,
             Err(_) => return Err(PluginLoadError::InvalidPath)
         };
@@ -324,9 +324,8 @@ impl<T: Host> PluginLoader<T> {
         Ok(PluginLoader {
             main: unsafe {
                       // Search the library for the VSTAPI entry point
-                      match lib.symbol("VSTPluginMain") {
-                          // Use `fn(...)` instead of `*mut Fn(...)`.
-                          Ok(s) => mem::transmute::<*mut (), PluginMain>(s),
+                      match lib.get(b"VSTPluginMain") {
+                          Ok(s) => *s,
                           _ => return Err(PluginLoadError::NotAPlugin)
                       }
                   },
@@ -375,7 +374,7 @@ impl<T: Host> PluginLoader<T> {
 }
 
 impl PluginInstance {
-    fn new(effect: *mut AEffect, lib: Arc<DynamicLibrary>) -> PluginInstance {
+    fn new(effect: *mut AEffect, lib: Arc<Library>) -> PluginInstance {
         use plugin::OpCode as op;
 
         let mut plug = PluginInstance {
