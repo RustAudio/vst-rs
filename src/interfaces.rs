@@ -78,13 +78,6 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         }
     };
 
-    // Read a string from the `ptr` buffer
-    let read_string = || -> String {
-        String::from_utf8_lossy(
-            unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
-        ).into_owned()
-    };
-
     match opcode {
         OpCode::Initialize => plugin.init(),
         OpCode::Shutdown => unsafe {
@@ -94,7 +87,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         OpCode::ChangePreset => plugin.change_preset(value as i32),
         OpCode::GetCurrentPresetNum => return plugin.get_preset_num() as isize,
-        OpCode::SetCurrentPresetName => plugin.set_preset_name(read_string()),
+        OpCode::SetCurrentPresetName => plugin.set_preset_name(read_string(ptr)),
         OpCode::GetCurrentPresetName => {
             let num = plugin.get_preset_num();
             copy_string(&plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
@@ -189,7 +182,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             plugin.process_events(events);
         }
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
-        OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string()) as isize,
+        OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string(ptr)) as isize,
 
         OpCode::GetPresetName => copy_string(&plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
@@ -218,7 +211,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
-            let can_do: CanDo = match read_string().parse() {
+            let can_do: CanDo = match read_string(ptr).parse() {
                 Ok(c) => c,
                 Err(e) => { warn!("{}", e); return 0; }
             };
@@ -289,6 +282,10 @@ pub fn host_dispatch(host: &mut Host,
 
         // ...
 
+        OpCode::CanDo => {
+            info!("Plugin is asking if host can: {}.", read_string(ptr));
+        }
+
         OpCode::GetVendorVersion => return host.get_info().0,
         OpCode::GetVendorString => copy_string(&host.get_info().1, MAX_VENDOR_STR_LEN),
         OpCode::GetProductString => copy_string(&host.get_info().2, MAX_PRODUCT_STR_LEN),
@@ -300,4 +297,11 @@ pub fn host_dispatch(host: &mut Host,
         }
     }
     0
+}
+
+// Read a string from the `ptr` buffer
+fn read_string(ptr: *mut c_void) -> String {
+    String::from_utf8_lossy(
+        unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
+    ).into_owned()
 }
