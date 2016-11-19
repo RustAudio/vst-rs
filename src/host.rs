@@ -207,6 +207,9 @@ pub trait Host {
     fn get_info(&self) -> (isize, String, String) {
         (1, "vendor string".to_owned(), "product string".to_owned())
     }
+
+    /// Send MIDI events to the host (for VST plugins with MIDI output).
+    fn process_events(&mut self, events: Vec<Event>) {}
 }
 
 /// All possible errors that can occur when loading a VST plugin.

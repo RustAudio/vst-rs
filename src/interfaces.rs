@@ -289,6 +289,18 @@ pub fn host_dispatch(host: &mut Host,
         OpCode::GetVendorVersion => return host.get_info().0,
         OpCode::GetVendorString => copy_string(&host.get_info().1, MAX_VENDOR_STR_LEN),
         OpCode::GetProductString => copy_string(&host.get_info().2, MAX_PRODUCT_STR_LEN),
+        OpCode::ProcessEvents => {
+            let events: *const api::Events = ptr as *const api::Events;
+
+            let events: Vec<Event> = unsafe {
+                // Create a slice of type &mut [*mut Event]
+                slice::from_raw_parts((*events).events, (*events).num_events as usize)
+                // Deref and clone each event to get a slice
+                .iter().map(|item| Event::from(**item)).collect()
+            };
+
+            host.process_events(events);
+        }
 
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
