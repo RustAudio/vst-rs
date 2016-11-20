@@ -174,7 +174,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
             let events: Vec<Event> = unsafe {
                 // Create a slice of type &mut [*mut Event]
-                slice::from_raw_parts(&(*events).events, (*events).num_events as usize)
+                slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
                 // Deref and clone each event to get a slice
                 .iter().map(|item| Event::from(**item)).collect()
             };
@@ -294,7 +294,7 @@ pub fn host_dispatch(host: &mut Host,
 
             let events: Vec<Event> = unsafe {
                 // Create a slice of type &mut [*mut Event]
-                slice::from_raw_parts(&(*events).events, (*events).num_events as usize)
+                slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
                 // Deref and clone each event to get a slice
                 .iter().map(|item| Event::from(**item)).collect()
             };

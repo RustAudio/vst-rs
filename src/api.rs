@@ -393,8 +393,8 @@ pub struct Events {
     /// Reserved for future use. Should be 0.
     pub _reserved: isize,
 
-    /// Array of pointers to `api::Event` objects.
-    pub events: *mut Event,
+    /// Variable-length array of pointers to `api::Event` objects.
+    pub events: [*mut Event; 2],
 }
 
 /// The type of event that has occured. See `api::Event.event_type`.

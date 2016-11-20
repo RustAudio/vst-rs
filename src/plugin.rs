@@ -1,6 +1,7 @@
 //! Plugin specific structures.
 
 use std::{mem, ptr, slice};
+use std::cmp::max;
 
 use libc::c_void;
 
@@ -819,12 +820,12 @@ impl Host for HostCallback {
 
         let len = events.len();
 
-        let mut send = vec![0u8; 2 * mem::size_of::<i32>() + len * mem::size_of::<usize>()];
+        let mut send = vec![0usize; mem::size_of::<api::Events>() / mem::size_of::<usize>() + (max(2, len) - 2)];
 
         let send_events: &mut [*mut api::Event] = unsafe {
             let header = &mut *(send.as_mut_ptr() as *mut api::Events);
             header.num_events = len as i32;
-            slice::from_raw_parts_mut(&mut header.events, len)
+            slice::from_raw_parts_mut(&mut header.events[0], len)
         };
 
         // To send this array to the plugin, we need to convert events to the equivalent VST
