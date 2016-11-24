@@ -56,7 +56,7 @@ pub struct AEffect {
     /// Host to plug-in dispatcher.
     pub dispatcher: DispatcherProc,
 
-	/// Accumulating process mode is deprecated in VST 2.4! Use `processReplacing` instead!
+    /// Accumulating process mode is deprecated in VST 2.4! Use `processReplacing` instead!
     pub _process: ProcessProc,
 
     /// Set value of automatable parameter.
@@ -393,8 +393,11 @@ pub struct Events {
     /// Reserved for future use. Should be 0.
     pub _reserved: isize,
 
-    /// Array of pointers to `api::Event` objects.
-    pub events: *mut *mut Event,
+    /// Variable-length array of pointers to `api::Event` objects.
+    ///
+    /// The VST standard specifies a variable length array of initial size 2. If there are more
+    /// than 2 elements a larger array must be stored in this structure.
+    pub events: [*mut Event; 2],
 }
 
 /// The type of event that has occured. See `api::Event.event_type`.

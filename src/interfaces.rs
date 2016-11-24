@@ -174,7 +174,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
             let events: Vec<Event> = unsafe {
                 // Create a slice of type &mut [*mut Event]
-                slice::from_raw_parts((*events).events, (*events).num_events as usize)
+                slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
                 // Deref and clone each event to get a slice
                 .iter().map(|item| Event::from(**item)).collect()
             };
@@ -289,6 +289,18 @@ pub fn host_dispatch(host: &mut Host,
         OpCode::GetVendorVersion => return host.get_info().0,
         OpCode::GetVendorString => copy_string(&host.get_info().1, MAX_VENDOR_STR_LEN),
         OpCode::GetProductString => copy_string(&host.get_info().2, MAX_PRODUCT_STR_LEN),
+        OpCode::ProcessEvents => {
+            let events: *const api::Events = ptr as *const api::Events;
+
+            let events: Vec<Event> = unsafe {
+                // Create a slice of type &mut [*mut Event]
+                slice::from_raw_parts(&(*events).events[0], (*events).num_events as usize)
+                // Deref and clone each event to get a slice
+                .iter().map(|item| Event::from(**item)).collect()
+            };
+
+            host.process_events(events);
+        }
 
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
@@ -304,4 +316,95 @@ fn read_string(ptr: *mut c_void) -> String {
     String::from_utf8_lossy(
         unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
     ).into_owned()
+}
+
+/// Translate `Vec<Event>` into `&api::Events` and use via a callback.
+///
+/// Both plugins and hosts can receive VST events, this simply translates the rust structure into
+/// the equivalent API structure and takes care of cleanup.
+pub fn process_events<F>(events: Vec<Event>, callback: F)
+    where F: FnOnce(*mut c_void)
+{
+    use api::flags::REALTIME_EVENT;
+
+    let len = events.len();
+
+    // The `api::Events` structure uses a variable length array which is difficult to represent in
+    // rust. We begin by creating a vector with the appropriate byte size by calculating the header
+    // and the variable length body seperately.
+    let header_size = mem::size_of::<api::Events>() - (mem::size_of::<*mut api::Event>() * 2);
+    let body_size = mem::size_of::<*mut api::Event>() * len;
+
+    let mut send = vec![0u8; header_size + body_size];
+
+    let send_events: &mut [*mut api::Event] = unsafe {
+        // The header is updated by casting the array to the `api::Events` type and specifying the
+        // required fields. We create a slice from the position of the first event and the length
+        // of the array.
+        let ptr = send.as_mut_ptr() as *mut api::Events;
+        (*ptr).num_events = len as i32;
+
+        // A slice view of the body
+        slice::from_raw_parts_mut(&mut (*ptr).events[0], len)
+    };
+
+    // Each event is zipped with the target body array slot. Most of what's happening here is just
+    // copying data but the key thing to notice is that each event is boxed and cast to
+    // (*mut api::Event). This way we can let the callback handle the event, and then later create
+    // the box again from the raw pointer so that it can be properly dropped.
+    for (event, out) in events.iter().zip(send_events.iter_mut()) {
+        *out = match *event {
+            Event::Midi { data, delta_frames, live,
+                          note_length, note_offset,
+                          detune, note_off_velocity } => {
+                Box::into_raw(Box::new(api::MidiEvent {
+                    event_type: api::EventType::Midi,
+                    byte_size: mem::size_of::<api::MidiEvent>() as i32,
+                    delta_frames: delta_frames,
+                    flags: if live { REALTIME_EVENT.bits() } else { 0 },
+                    note_length: note_length.unwrap_or(0),
+                    note_offset: note_offset.unwrap_or(0),
+                    midi_data: data,
+                    _midi_reserved: 0,
+                    detune: detune,
+                    note_off_velocity: note_off_velocity,
+                    _reserved1: 0,
+                    _reserved2: 0
+                })) as *mut api::Event
+            }
+            Event::SysEx { payload, delta_frames } => {
+                Box::into_raw(Box::new(api::SysExEvent {
+                    event_type: api::EventType::SysEx,
+                    byte_size: mem::size_of::<api::SysExEvent>() as i32,
+                    delta_frames: delta_frames,
+                    _flags: 0,
+                    data_size: payload.len() as i32,
+                    _reserved1: 0,
+                    system_data: payload.as_ptr() as *const u8 as *mut u8,
+                    _reserved2: 0,
+                })) as *mut api::Event
+            }
+            Event::Deprecated(e) => Box::into_raw(Box::new(e))
+        };
+    }
+
+    // Allow the callback to use the pointer
+    callback(send.as_mut_ptr() as *mut c_void);
+
+    // Clean up the created events
+    unsafe {
+        for &mut event in send_events {
+            match (*event).event_type {
+                api::EventType::Midi => {
+                    drop(Box::from_raw(event as *mut api::MidiEvent));
+                }
+                api::EventType::SysEx => {
+                    drop(Box::from_raw(event as *mut api::SysExEvent));
+                }
+                _ => {
+                    drop(Box::from_raw(event));
+                }
+            }
+        }
+    }
 }

@@ -812,6 +812,24 @@ impl Host for HostCallback {
         let product_name = self.read_string(host::OpCode::GetProductString, MAX_PRODUCT_STR_LEN);
         (version, vendor_name, product_name)
     }
+
+    fn process_events(&mut self, events: Vec<Event>) {
+        use interfaces;
+
+        interfaces::process_events(
+            events,
+            |ptr| {
+                self.callback(
+                    self.effect,
+                    host::OpCode::ProcessEvents,
+                    0,
+                    0,
+                    ptr,
+                    0.0
+                 );
+            }
+        );
+    }
 }
 
 #[cfg(test)]
