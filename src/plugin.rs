@@ -1,7 +1,6 @@
 //! Plugin specific structures.
 
-use std::{mem, ptr, slice};
-use std::cmp::max;
+use std::{mem, ptr};
 
 use libc::c_void;
 
@@ -815,78 +814,21 @@ impl Host for HostCallback {
     }
 
     fn process_events(&mut self, events: Vec<Event>) {
-        use api::flags::REALTIME_EVENT;
-        use api;
+        use interfaces;
 
-        let len = events.len();
-
-        let mut send = vec![0usize; mem::size_of::<api::Events>() / mem::size_of::<usize>() + (max(2, len) - 2)];
-
-        let send_events: &mut [*mut api::Event] = unsafe {
-            let header = &mut *(send.as_mut_ptr() as *mut api::Events);
-            header.num_events = len as i32;
-            slice::from_raw_parts_mut(&mut header.events[0], len)
-        };
-
-        // To send this array to the plugin, we need to convert events to the equivalent VST
-        // structures. Most of what's happening here is just copying data but the key thing to
-        // notice is that each event is boxed and casted to (*mut api::Event). This way we can let
-        // the plugin handle the event, and then later create the box again from the raw pointer so
-        // that it can be properly dropped.
-        for (event, out) in events.iter().zip(send_events.iter_mut()) {
-            *out = match *event {
-                Event::Midi { data, delta_frames, live,
-                              note_length, note_offset,
-                              detune, note_off_velocity } => {
-                    Box::into_raw(Box::new(api::MidiEvent {
-                        event_type: api::EventType::Midi,
-                        byte_size: mem::size_of::<api::MidiEvent>() as i32,
-                        delta_frames: delta_frames,
-                        flags: if live { REALTIME_EVENT.bits() } else { 0 },
-                        note_length: note_length.unwrap_or(0),
-                        note_offset: note_offset.unwrap_or(0),
-                        midi_data: data,
-                        _midi_reserved: 0,
-                        detune: detune,
-                        note_off_velocity: note_off_velocity,
-                        _reserved1: 0,
-                        _reserved2: 0
-                    })) as *mut api::Event
-                }
-                Event::SysEx { payload, delta_frames } => {
-                    Box::into_raw(Box::new(api::SysExEvent {
-                        event_type: api::EventType::SysEx,
-                        byte_size: mem::size_of::<api::SysExEvent>() as i32,
-                        delta_frames: delta_frames,
-                        _flags: 0,
-                        data_size: payload.len() as i32,
-                        _reserved1: 0,
-                        system_data: payload.as_ptr() as *const u8 as *mut u8,
-                        _reserved2: 0,
-                    })) as *mut api::Event
-                }
-                Event::Deprecated(e) => Box::into_raw(Box::new(e))
+        interfaces::process_events(
+            events,
+            |ptr| {
+                self.callback(
+                    self.effect,
+                    host::OpCode::ProcessEvents,
+                    0,
+                    0,
+                    ptr,
+                    0.0
+                 );
             }
-        }
-
-        self.callback(self.effect, host::OpCode::ProcessEvents, 0, 0, send.as_mut_ptr() as *mut api::Events as *mut c_void, 0.0);
-
-        // Clean up the created events
-        unsafe {
-            for &mut event in send_events {
-                match (*event).event_type {
-                    api::EventType::Midi => {
-                        drop(Box::from_raw(event as *mut api::MidiEvent));
-                    }
-                    api::EventType::SysEx => {
-                        drop(Box::from_raw(event as *mut api::SysExEvent));
-                    }
-                    _ => {
-                        drop(Box::from_raw(event));
-                    }
-                }
-            }
-        }
+        );
     }
 }
 
