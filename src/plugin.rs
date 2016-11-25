@@ -813,6 +813,13 @@ impl Host for HostCallback {
         (version, vendor_name, product_name)
     }
 
+    /// Send events to the host.
+    ///
+    /// This should only be called within [`process`] or [`process_f64`]. Calling `process_events`
+    /// anywhere else is undefined behaviour and may crash some hosts.
+    ///
+    /// [`process`]: trait.Plugin.html#method.process
+    /// [`process_f64`]: trait.Plugin.html#method.process_f64
     fn process_events(&mut self, events: Vec<Event>) {
         use interfaces;
 
