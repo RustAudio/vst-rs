@@ -4,7 +4,7 @@ use std::iter::{Zip, IntoIterator};
 use std::vec::IntoIter;
 use std::slice;
 
-use num::Float;
+use num_traits::Float;
 
 /// A buffer containing `ChannelBuffer` buffers for each input/output.
 pub struct AudioBuffer<'a, T: 'a + Float> {
