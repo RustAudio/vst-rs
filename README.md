@@ -78,3 +78,16 @@ crate-type = ["dylib"]
 [crates-url]: https://crates.io/crates/vst2
 [sdl2]: https://github.com/AngryLawyer/rust-sdl2
 [conrod]: https://github.com/PistonDevelopers/conrod
+
+
+#### Packaging on OS X
+
+On OS X VST plugins are packaged inside of loadable bundles. 
+To package your VST as a loadable bundle you may use the `osx_vst_bundler.sh` script this library provides. 
+
+Example: 
+
+```
+./osx_vst_bundler.sh Plugin target/release/plugin.dylib
+Creates a Plugin.vst bundle
+```
