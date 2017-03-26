@@ -22,7 +22,7 @@ else
     <string>English</string>
 
     <key>CFBundleExecutable</key>
-    <string>vst</string>
+    <string>$1</string>
 
     <key>CFBundleGetInfoString</key>
     <string>vst</string>
