@@ -18,6 +18,7 @@ fn sample_count<'a>(buff: &Vec<&'a mut [f32]>) -> Option<usize> {
 struct SineSynth {
     sample_rate: f64,
     time: f64,
+    note_duration: f64,
     note: Option<u8>,
 }
 
@@ -39,6 +40,7 @@ impl SineSynth {
     }
 
     fn note_on(&mut self, note: u8) {
+        self.note_duration = 0.0;
         self.note = Some(note)
     }
 
@@ -55,6 +57,7 @@ impl Default for SineSynth {
     fn default() -> SineSynth {
         SineSynth {
             sample_rate: 44100.0,
+            note_duration: 0.0,
             time: 0.0,
             note: None,
         }
@@ -104,7 +107,18 @@ impl Plugin for SineSynth {
             for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
 
                 if let Some(current_note) = self.note {
-                    *output_sample = (t * midi_note_to_hz(current_note) * TAU).sin() as f32;
+                    let signal = (t * midi_note_to_hz(current_note) * TAU).sin();
+
+                    // apply a quick envelope to the attack of the signal to avoid popping.
+                    let attack = 0.5;
+                    let alpha = if self.note_duration < attack {
+                        self.note_duration / attack
+                    } else {
+                        1.0
+                    };
+
+                    *output_sample = (signal * alpha) as f32;
+
                     t += per_sample;
                 } else {
                     *output_sample = 0.0;
@@ -113,6 +127,7 @@ impl Plugin for SineSynth {
         }
 
         self.time += samples as f64 * per_sample;
+        self.note_duration += samples as f64 * per_sample;
     }
 }
 
