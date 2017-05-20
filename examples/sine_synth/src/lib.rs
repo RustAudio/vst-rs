@@ -6,13 +6,13 @@ use vst2::event::{Event};
 
 use std::f64::consts::PI;
 
+/// Convert the midi note into the equivalent frequency.
+///
+/// This function assumes A4 is 440hz.
 fn midi_note_to_hz(note: u8) -> f64 {
-    let a = 440.0; // a0 is 440 hz...
-    (a / 32.0) * ((note as f64 - 9.0) / 12.0).exp2()
-}
+    const A4: f64 = 440.0;
 
-fn sample_count<'a>(buff: &Vec<&'a mut [f32]>) -> Option<usize> {
-    buff.first().map(|b| b.len() )
+    (A4 / 32.0) * ((note as f64 - 9.0) / 12.0).exp2()
 }
 
 struct SineSynth {
@@ -27,10 +27,16 @@ impl SineSynth {
         1.0 / self.sample_rate
     }
 
-    // midiData[0] : Contains the status and the channel http://www.midimountain.com/midi/midi_status.htm
-    // midiData[1] : Contains the supplemental data for the message - so, if this was a NoteOn then this would contain the note.
-    // midiData[2] : Further supplemental data. Would be velocity in the case of a NoteOn message.
-    // midiData[3] : Reserved.
+    /// Process an incoming midi event.
+    ///
+    /// The midi data is split up like so:
+    ///
+    /// `data[0]`: Contains the status and the channel. Source: [source]
+    /// `data[1]`: Contains the supplemental data for the message - so, if this was a NoteOn then
+    ///            this would contain the note.
+    /// `data[2]`: Further supplemental data. Would be velocity in the case of a NoteOn message.
+    ///
+    /// [source]: http://www.midimountain.com/midi/midi_status.htm
     fn process_midi_event(&mut self, data: [u8; 3]) {
         match data[0] {
             128 => self.note_off(data[1]),
@@ -65,7 +71,6 @@ impl Default for SineSynth {
 }
 
 impl Plugin for SineSynth {
-
     fn get_info(&self) -> Info {
         Info {
             name: "SineSynth".to_string(),
@@ -84,32 +89,35 @@ impl Plugin for SineSynth {
     fn process_events(&mut self, events: Vec<Event>) {
         for event in events {
             match event {
-                Event::Midi { data, delta_frames, live,
-                          note_length, note_offset,
-                          detune, note_off_velocity } => self.process_midi_event(data),
-                _ => ()
+                Event::Midi { data, ..  } => self.process_midi_event(data),
+                // More events can be handled here.
+                _ => {}
             }
         }
     }
 
-    fn set_sample_rate(&mut self, rate: f32) { 
+    fn set_sample_rate(&mut self, rate: f32) {
         self.sample_rate = rate as f64;
     }
 
     fn process(&mut self, buffer: AudioBuffer<f32>) {
         let (inputs, outputs) = buffer.split();
 
-        let samples = sample_count(&inputs).expect("some damn samples once in a while");
+        let samples = inputs
+            .first()
+            .map(|channel| channel.len())
+            .unwrap_or(0);
+
         let per_sample = self.time_per_sample();
 
         for (input_buffer, output_buffer) in inputs.iter().zip(outputs) {
             let mut t = self.time;
-            for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
 
+            for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
                 if let Some(current_note) = self.note {
                     let signal = (t * midi_note_to_hz(current_note) * TAU).sin();
 
-                    // apply a quick envelope to the attack of the signal to avoid popping.
+                    // Apply a quick envelope to the attack of the signal to avoid popping.
                     let attack = 0.5;
                     let alpha = if self.note_duration < attack {
                         self.note_duration / attack
