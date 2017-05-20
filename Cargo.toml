@@ -16,5 +16,5 @@ keywords = ["vst", "vst2", "plugin"]
 log = "0.3"
 num-traits = "0.1"
 libc = "0.2"
-bitflags = "0.7"
-libloading = "0.3"
+bitflags = "0.8"
+libloading = "0.4"
