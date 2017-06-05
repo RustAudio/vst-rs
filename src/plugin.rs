@@ -850,7 +850,7 @@ mod tests {
     /// This is a macro to allow you to specify attributes on the created struct.
     macro_rules! make_plugin {
         ($($attr:meta) *) => {
-            use libc::c_void;
+            use std::os::raw::c_void;
 
             use main;
             use api::AEffect;
