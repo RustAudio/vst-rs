@@ -7,7 +7,7 @@ use std::{fmt, mem, ptr, slice};
 use std::ffi::CString;
 
 use libloading::Library;
-use libc::c_void;
+use std::os::raw::c_void;
 
 use interfaces;
 use plugin::{self, Plugin, Info, Category};
@@ -339,7 +339,7 @@ impl<T: Host> PluginLoader<T> {
 
     /// Call the VST entry point and retrieve a (possibly null) pointer.
     unsafe fn call_main(&mut self) -> *mut AEffect {
-        load_pointer = Box::into_raw(Box::new(self.host.clone())) as *mut c_void;
+        LOAD_POINTER = Box::into_raw(Box::new(self.host.clone())) as *mut c_void;
         (self.main)(callback_wrapper::<T>)
     }
 
@@ -666,7 +666,7 @@ impl Plugin for PluginInstance {
 /// this is a rare situation as you normally won't have 2 seperate host instances loading at once.
 ///
 /// [reserved field]: ../api/struct.AEffect.html#structfield.reserved1
-static mut load_pointer: *mut c_void = 0 as *mut c_void;
+static mut LOAD_POINTER: *mut c_void = 0 as *mut c_void;
 
 /// Function passed to plugin to handle dispatching host opcodes.
 fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
@@ -681,11 +681,11 @@ fn callback_wrapper<T: Host>(effect: *mut AEffect, opcode: i32, index: i32,
             let host = &mut *host.lock().unwrap();
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
-        // In this case, the plugin is still undergoing initialization and so `load_pointer` is
+        // In this case, the plugin is still undergoing initialization and so `LOAD_POINTER` is
         // dereferenced
         } else {
             // Used only during the plugin initialization
-            let host = load_pointer as *const Arc<Mutex<T>>;
+            let host = LOAD_POINTER as *const Arc<Mutex<T>>;
             let host = &*host;
             let host = &mut *host.lock().unwrap();
 

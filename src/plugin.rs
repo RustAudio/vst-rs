@@ -2,7 +2,7 @@
 
 use std::{mem, ptr};
 
-use libc::c_void;
+use std::os::raw::c_void;
 
 use channels::ChannelInfo;
 use host::{self, Host};

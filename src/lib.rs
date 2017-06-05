@@ -252,7 +252,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
 mod tests {
     use std::ptr;
 
-    use libc::c_void;
+    use std::os::raw::c_void;
 
     use interfaces;
     use api::AEffect;
