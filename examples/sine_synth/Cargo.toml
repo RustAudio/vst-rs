@@ -8,4 +8,4 @@ vst2 = { git = "https://github.com/overdrivenpotato/rust-vst2" }
 
 [lib]
 name = "sine_synth"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]

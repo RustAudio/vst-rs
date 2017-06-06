@@ -1,8 +1,9 @@
 #[macro_use] extern crate vst2;
 
 use vst2::buffer::AudioBuffer;
-use vst2::plugin::{Category, Plugin, Info};
-use vst2::event::{Event};
+use vst2::plugin::{Category, Plugin, Info, CanDo};
+use vst2::event::Event;
+use vst2::api::Supported;
 
 use std::f64::consts::PI;
 
@@ -136,6 +137,13 @@ impl Plugin for SineSynth {
 
         self.time += samples as f64 * per_sample;
         self.note_duration += samples as f64 * per_sample;
+    }
+
+    fn can_do(&self, can_do: CanDo) -> Supported {
+        match can_do {
+            CanDo::ReceiveMidiEvent => Supported::Yes,
+            _ => Supported::Maybe
+        }
     }
 }
 
