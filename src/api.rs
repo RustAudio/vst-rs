@@ -1,5 +1,4 @@
 //! Structures and types for interfacing with the VST 2.4 API.
-use std::mem;
 
 use std::os::raw::c_void;
 
@@ -34,10 +33,10 @@ pub type HostCallbackProc = fn(effect: *mut AEffect, opcode: i32, index: i32, va
 pub type DispatcherProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
-pub type ProcessProc = fn(effect: *mut AEffect, inputs: *mut *mut f32, outputs: *mut *mut f32, sample_frames: i32);
+pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
 
 /// Process function used to process 64 bit floating point samples. Called by host.
-pub type ProcessProcF64 = fn(effect: *mut AEffect, inputs: *mut *mut f64, outputs: *mut *mut f64, sample_frames: i32);
+pub type ProcessProcF64 = fn(effect: *mut AEffect, inputs: *const *const f64, outputs: *mut *mut f64, sample_frames: i32);
 
 /// Callback function used to set parameter values. Called by host.
 pub type SetParameterProc = fn(effect: *mut AEffect, index: i32, parameter: f32);
@@ -135,13 +134,17 @@ pub struct AEffect {
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
     pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
-        mem::transmute::<_, &mut Box<Plugin>>(self.object)
+        &mut *(self.object as *mut Box<Plugin>)
     }
 
     /// Drop the Plugin object. Only works for plugins created using this library.
     pub unsafe fn drop_plugin(&mut self) {
-        // Possibly a simpler way of doing this..?
-        drop(mem::transmute::<_, Box<Box<Plugin>>>(self.object))
+        drop(Box::from_raw(self.object as *mut Box<Plugin>));
+        drop(Box::from_raw(self.user as *mut super::PluginCache));
+    }
+
+    pub(crate) unsafe fn get_cache(&mut self) -> &mut super::PluginCache {
+        &mut *(self.user as *mut _)
     }
 }
 
@@ -397,6 +400,46 @@ pub struct Events {
     /// The VST standard specifies a variable length array of initial size 2. If there are more
     /// than 2 elements a larger array must be stored in this structure.
     pub events: [*mut Event; 2],
+}
+
+use event;
+
+impl Events {
+    #[inline(always)]
+    fn events_raw(&self) -> &[*const Event] {
+        use std::slice;
+        unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
+    }
+
+    /// Use this in your impl of process_events() to process the incoming midi events.
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use vst2::plugin::{Info, Plugin, HostCallback};
+    /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
+    /// # use vst2::host::Host;
+    /// # use vst2::api;
+    /// # use vst2::event::Event;
+    /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
+    /// # impl Plugin for ExamplePlugin {
+    /// #     fn get_info(&self) -> Info { Default::default() }
+    /// #
+    /// fn process_events(&mut self, events: &api::Events) {
+    ///     for e in events.events() {
+    ///         match e {
+    ///             Event::Midi { data, .. } => {
+    ///                 // ...
+    ///             }
+    ///             _ => ()
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// ```
+    #[inline(always)]
+    pub fn events<'a>(&'a self) -> impl Iterator<Item = event::Event> + 'a {
+        self.events_raw().into_iter().map(|&e| event::Event::from(unsafe { *e }))
+    }
 }
 
 /// The type of event that has occured. See `api::Event.event_type`.

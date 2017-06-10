@@ -7,6 +7,7 @@ use api::flags::*;
 use api::{self, flags};
 
 /// A VST event.
+#[derive(Copy, Clone)]
 pub enum Event<'a> {
     /// A midi event.
     ///
