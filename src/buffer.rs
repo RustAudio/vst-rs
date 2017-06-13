@@ -222,6 +222,7 @@ use std::mem;
 /// This buffer is used for sending midi events through the VST interface.
 /// The purpose of this is to convert outgoing midi events from event::Event to api::Events.
 /// It only allocates memory in new() and reuses the memory between calls.
+#[derive(Default)]
 pub struct SendEventBuffer {
     buf: Vec<u8>,
 }
