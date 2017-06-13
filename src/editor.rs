@@ -1,6 +1,6 @@
 //! All VST plugin editor related functionality.
 
-use libc::c_void;
+use std::os::raw::c_void;
 
 /// Implemented by plugin editors.
 #[allow(unused_variables)]

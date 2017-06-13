@@ -1,7 +1,7 @@
 //! Structures and types for interfacing with the VST 2.4 API.
 use std::mem;
 
-use libc::c_void;
+use std::os::raw::c_void;
 
 use plugin::Plugin;
 use self::consts::*;
@@ -9,14 +9,13 @@ use self::consts::*;
 /// Constant values
 #[allow(missing_docs)] // For obvious constants
 pub mod consts {
-    use libc::size_t;
 
-    pub const MAX_PRESET_NAME_LEN: size_t = 24;
-    pub const MAX_PARAM_STR_LEN: size_t = 32;
+    pub const MAX_PRESET_NAME_LEN: usize = 24;
+    pub const MAX_PARAM_STR_LEN: usize = 32;
     pub const MAX_LABEL: usize = 64;
     pub const MAX_SHORT_LABEL: usize = 8;
-    pub const MAX_PRODUCT_STR_LEN: size_t = 64;
-    pub const MAX_VENDOR_STR_LEN: size_t = 64;
+    pub const MAX_PRODUCT_STR_LEN: usize = 64;
+    pub const MAX_VENDOR_STR_LEN: usize = 64;
 
     /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
     pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
