@@ -260,7 +260,7 @@ impl SendEventBuffer {
     /// }
     /// # }
     /// ```
-    pub fn send<F: FnOnce(&api::Events)>(&mut self, events: Vec<Event>, callback: F) {
+    pub fn send<F: FnOnce(&api::Events)>(&mut self, events: &[Event], callback: F) {
         use std::cmp::min;
         use api::flags::REALTIME_EVENT;
 
@@ -285,7 +285,7 @@ impl SendEventBuffer {
         // copying data but the key thing to notice is that each event is boxed and cast to
         // (*mut api::Event). This way we can let the callback handle the event, and then later create
         // the box again from the raw pointer so that it can be properly dropped.
-        for (event, out) in events.into_iter().zip(send_events.iter_mut()) {
+        for (&event, out) in events.into_iter().zip(send_events.iter_mut()) {
             *out = match event {
                 Event::Midi { data, delta_frames, live,
                               note_length, note_offset,
