@@ -402,16 +402,40 @@ pub struct Events {
     pub events: [*mut Event; 2],
 }
 
-use event;
-
 impl Events {
+    /// Use this in your impl of process_events() to process the incoming midi events (on stable).
+    ///
+    /// # Example
+    /// ```no_run
+    /// # use vst2::plugin::{Info, Plugin, HostCallback};
+    /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
+    /// # use vst2::host::Host;
+    /// # use vst2::api;
+    /// # use vst2::event::Event;
+    /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
+    /// # impl Plugin for ExamplePlugin {
+    /// #     fn get_info(&self) -> Info { Default::default() }
+    /// #
+    /// fn process_events(&mut self, events: &api::Events) {
+    ///     for &e in events.events_raw() {
+    ///         let event: Event = Event::from(unsafe { *e });
+    ///         match event {
+    ///             Event::Midi { data, .. } => {
+    ///                 // ...
+    ///             }
+    ///             _ => ()
+    ///         }
+    ///     }
+    /// }
+    /// # }
+    /// ```
     #[inline(always)]
-    fn events_raw(&self) -> &[*const Event] {
+    pub fn events_raw(&self) -> &[*const Event] {
         use std::slice;
         unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
     }
 
-    /// Use this in your impl of process_events() to process the incoming midi events.
+    /// Use this in your impl of process_events() to process the incoming midi events (on nightly).
     ///
     /// # Example
     /// ```no_run
@@ -436,9 +460,10 @@ impl Events {
     /// }
     /// # }
     /// ```
+    #[cfg(feature = "nightly")]
     #[inline(always)]
-    pub fn events<'a>(&'a self) -> impl Iterator<Item = event::Event> + 'a {
-        self.events_raw().into_iter().map(|&e| event::Event::from(unsafe { *e }))
+    pub fn events<'a>(&'a self) -> impl Iterator<Item = ::event::Event> + 'a {
+        self.events_raw().into_iter().map(|&e| ::event::Event::from(unsafe { *e }))
     }
 }
 
