@@ -59,7 +59,9 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
     unsafe { (*effect).get_plugin() }.get_parameter(index)
 }
 
-// Copy a string into the `ptr` buffer
+/// Copy a string into a destination buffer.
+///
+/// String will be cut at `max` characters.
 fn copy_string(dst: *mut c_void, src: &str, max: usize) {
     unsafe {
         use std::cmp::min;
