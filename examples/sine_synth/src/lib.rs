@@ -92,7 +92,7 @@ impl Plugin for SineSynth {
         for &e in events.events_raw() {
             let event: Event = Event::from(unsafe { *e });
             match event {
-                Event::Midi { data, .. } => self.process_midi_event(data),
+                Event::Midi(ev) => self.process_midi_event(ev.data),
                 // More events can be handled here.
                 _ => ()
             }

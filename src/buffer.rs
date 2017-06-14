@@ -215,7 +215,7 @@ impl<'a, T: Sized> IntoIterator for Outputs<'a, T> {
     }
 }
 
-use event::Event;
+use event::{Event, MidiEvent};
 use api;
 use std::mem;
 
@@ -266,7 +266,7 @@ impl SendEventBuffer {
         unsafe { &mut *(buf.as_mut_ptr() as *mut api::Events) }
     }
 
-    /// Use this for sending midi events to a host or plugin.
+    /// Use this for sending events to a host or plugin.
     ///
     /// # Example
     /// ```no_run
@@ -288,47 +288,25 @@ impl SendEventBuffer {
     /// # }
     /// ```
     pub fn store(&mut self, events: &[Event]) {
-        {
-            use std::cmp::min;
-            let e = Self::buf_as_api_events(&mut self.buf);
-            e.num_events = min(self.capacity, events.len()) as i32;
-        }
-
-        use api::flags::REALTIME_EVENT;
+        self.set_num_events(events.len());
 
         for (event, out) in events.iter().zip(self.api_events.iter_mut()) {
             let (event, out): (&Event, &mut api::SysExEvent) = (event, out);
             match *event {
-                Event::Midi { data, delta_frames, live,
-                              note_length, note_offset,
-                              detune, note_off_velocity } => {
-                    let out = unsafe { &mut *(out as *mut _ as *mut _) };
-                    *out = api::MidiEvent {
-                        event_type: api::EventType::Midi,
-                        byte_size: mem::size_of::<api::MidiEvent>() as i32,
-                        delta_frames: delta_frames,
-                        flags: if live { REALTIME_EVENT.bits() } else { 0 },
-                        note_length: note_length.unwrap_or(0),
-                        note_offset: note_offset.unwrap_or(0),
-                        midi_data: data,
-                        _midi_reserved: 0,
-                        detune: detune,
-                        note_off_velocity: note_off_velocity,
-                        _reserved1: 0,
-                        _reserved2: 0
-                    }
+                Event::Midi(ev) => {
+                    Self::store_midi_impl(out, &ev);
                 }
-                Event::SysEx { payload, delta_frames } => {
+                Event::SysEx(ev) => {
                     *out = api::SysExEvent {
                         event_type: api::EventType::SysEx,
                         byte_size: mem::size_of::<api::SysExEvent>() as i32,
-                        delta_frames: delta_frames,
+                        delta_frames: ev.delta_frames,
                         _flags: 0,
-                        data_size: payload.len() as i32,
+                        data_size: ev.payload.len() as i32,
                         _reserved1: 0,
-                        system_data: payload.as_ptr() as *const u8 as *mut u8,
+                        system_data: ev.payload.as_ptr() as *const u8 as *mut u8,
                         _reserved2: 0,
-                    }
+                    };
                 }
                 Event::Deprecated(e) => {
                     let out = unsafe { &mut *(out as *mut _ as *mut _) };
@@ -336,6 +314,42 @@ impl SendEventBuffer {
                 }
             };
         }
+    }
+
+    /// Use this for sending midi events to a host or plugin.
+    /// Like store() but for when you're not sending any SysExEvents, only MidiEvents.
+    pub fn store_midi(&mut self, events: &[MidiEvent]) {
+        self.set_num_events(events.len());
+
+        for (event, out) in events.iter().zip(self.api_events.iter_mut()) {
+            let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event, out);
+            Self::store_midi_impl(out, ev);
+        }
+    }
+
+    fn store_midi_impl(out: &mut api::SysExEvent, ev: &MidiEvent) {
+        use api::flags::REALTIME_EVENT;
+        let out = unsafe { &mut *(out as *mut _ as *mut _) };
+        *out = api::MidiEvent {
+            event_type: api::EventType::Midi,
+            byte_size: mem::size_of::<api::MidiEvent>() as i32,
+            delta_frames: ev.delta_frames,
+            flags: if ev.live { REALTIME_EVENT.bits() } else { 0 },
+            note_length: ev.note_length.unwrap_or(0),
+            note_offset: ev.note_offset.unwrap_or(0),
+            midi_data: ev.data,
+            _midi_reserved: 0,
+            detune: ev.detune,
+            note_off_velocity: ev.note_off_velocity,
+            _reserved1: 0,
+            _reserved2: 0
+        };
+    }
+
+    fn set_num_events(&mut self, events_len: usize) {
+        use std::cmp::min;
+        let e = Self::buf_as_api_events(&mut self.buf);
+        e.num_events = min(self.capacity, events_len) as i32;
     }
 
     /// Use this for sending midi events to a host or plugin.

@@ -420,7 +420,7 @@ impl Events {
     ///     for &e in events.events_raw() {
     ///         let event: Event = Event::from(unsafe { *e });
     ///         match event {
-    ///             Event::Midi { data, .. } => {
+    ///             Event::Midi(ev) => {
     ///                 // ...
     ///             }
     ///             _ => ()
