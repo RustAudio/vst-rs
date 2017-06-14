@@ -224,7 +224,6 @@ use std::mem;
 /// It only allocates memory in new() and reuses the memory between calls.
 pub struct SendEventBuffer {
     buf: Vec<u8>,
-    capacity: usize,
     api_events: Vec<api::SysExEvent>,
 }
 
@@ -256,7 +255,6 @@ impl SendEventBuffer {
         }
         Self {
             buf: buf,
-            capacity: capacity,
             api_events: api_events,
         }
     }
@@ -349,7 +347,7 @@ impl SendEventBuffer {
     fn set_num_events(&mut self, events_len: usize) {
         use std::cmp::min;
         let e = Self::buf_as_api_events(&mut self.buf);
-        e.num_events = min(self.capacity, events_len) as i32;
+        e.num_events = min(self.api_events.len(), events_len) as i32;
     }
 
     /// Use this for sending midi events to a host or plugin.
