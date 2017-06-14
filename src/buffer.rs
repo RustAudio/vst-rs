@@ -218,6 +218,7 @@ impl<'a, T: Sized> IntoIterator for Outputs<'a, T> {
 use event::{Event, MidiEvent};
 use api;
 use std::mem;
+use std::borrow::Borrow;
 
 /// This buffer is used for sending midi events through the VST interface.
 /// The purpose of this is to convert outgoing midi events from event::Event to api::Events.
@@ -285,11 +286,9 @@ impl SendEventBuffer {
     /// }
     /// # }
     /// ```
-    pub fn store(&mut self, events: &[Event]) {
-        self.set_num_events(events.len());
-
-        for (event, out) in events.iter().zip(self.api_events.iter_mut()) {
-            let (event, out): (&Event, &mut api::SysExEvent) = (event, out);
+    pub fn store<'a, T: IntoIterator<Item = U>, U: Borrow<Event<'a>>>(&mut self, events: T) {
+        let count = events.into_iter().zip(self.api_events.iter_mut()).map(|(event, out)| {
+            let (event, out): (&Event, &mut api::SysExEvent) = (event.borrow(), out);
             match *event {
                 Event::Midi(ev) => {
                     Self::store_midi_impl(out, &ev);
@@ -311,18 +310,18 @@ impl SendEventBuffer {
                     *out = e;
                 }
             };
-        }
+        }).count();
+        self.set_num_events(count);
     }
 
     /// Use this for sending midi events to a host or plugin.
     /// Like store() but for when you're not sending any SysExEvents, only MidiEvents.
-    pub fn store_midi(&mut self, events: &[MidiEvent]) {
-        self.set_num_events(events.len());
-
-        for (event, out) in events.iter().zip(self.api_events.iter_mut()) {
-            let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event, out);
+    pub fn store_midi<T: IntoIterator<Item = U>, U: Borrow<MidiEvent>>(&mut self, events: T) {
+        let count = events.into_iter().zip(self.api_events.iter_mut()).map(|(event, out)| {
+            let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event.borrow(), out);
             Self::store_midi_impl(out, ev);
-        }
+        }).count();
+        self.set_num_events(count);
     }
 
     fn store_midi_impl(out: &mut api::SysExEvent, ev: &MidiEvent) {
