@@ -89,6 +89,15 @@ impl Plugin for SineSynth {
 
     #[allow(unused_variables)]
     fn process_events(&mut self, events: &Events) {
+        for &e in events.events_raw() {
+            let event: Event = Event::from(unsafe { *e });
+            match event {
+                Event::Midi { data, .. } => self.process_midi_event(data),
+                // More events can be handled here.
+                _ => ()
+            }
+        }
+        /* on nightly you can just enable the "nightly" feature and then do:
         for event in events.events() {
             match event {
                 Event::Midi { data, ..  } => self.process_midi_event(data),
@@ -96,6 +105,7 @@ impl Plugin for SineSynth {
                 _ => {}
             }
         }
+        */
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
