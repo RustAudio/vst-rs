@@ -222,21 +222,48 @@ use std::mem;
 /// This buffer is used for sending midi events through the VST interface.
 /// The purpose of this is to convert outgoing midi events from event::Event to api::Events.
 /// It only allocates memory in new() and reuses the memory between calls.
-#[derive(Default)]
 pub struct SendEventBuffer {
     buf: Vec<u8>,
+    capacity: usize,
+    api_events: Vec<api::SysExEvent>,
+}
+
+impl Default for SendEventBuffer {
+    fn default() -> Self {
+        SendEventBuffer::new(1024)
+    }
 }
 
 impl SendEventBuffer {
 
     /// Creates a buffer for sending up to the given number of midi events per frame
     #[inline(always)]
-    pub fn new(len: usize) -> Self {
+    pub fn new(capacity: usize) -> Self {
         let header_size = mem::size_of::<api::Events>() - (mem::size_of::<*mut api::Event>() * 2);
-        let body_size = mem::size_of::<*mut api::Event>() * len;
-        Self {
-            buf: vec![0u8; header_size + body_size]
+        let body_size = mem::size_of::<*mut api::Event>() * capacity;
+        let mut buf = vec![0u8; header_size + body_size];
+        let api_events = vec![unsafe { mem::zeroed::<api::SysExEvent>() }; capacity];
+        {
+            let ptrs = {
+                let e = Self::buf_as_api_events(&mut buf);
+                e.num_events = capacity as i32;
+                e.events_raw_mut()
+            };
+            for (ptr, event) in ptrs.iter_mut().zip(&api_events) {
+                let (ptr, event): (&mut *const api::SysExEvent, &api::SysExEvent) = (ptr, event);
+                *ptr = event;
+            }
         }
+        Self {
+            buf: buf,
+            capacity: capacity,
+            api_events: api_events,
+        }
+    }
+
+    #[inline(always)]
+    fn buf_as_api_events(buf: &mut [u8]) -> &mut api::Events {
+        unsafe { &mut *(buf.as_mut_ptr() as *mut api::Events) }
     }
 
     /// Use this for sending midi events to a host or plugin.
@@ -246,7 +273,7 @@ impl SendEventBuffer {
     /// # use vst2::plugin::{Info, Plugin, HostCallback};
     /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
     /// # use vst2::host::Host;
-    /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
+    /// # struct ExamplePlugin { host: HostCallback, send_buffer: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
@@ -255,42 +282,28 @@ impl SendEventBuffer {
     ///     let events = vec![
     ///         // ...
     ///     ];
-    ///     let host = &mut self.host;
-    ///     self.send_buf.send(events, |events| host.process_events(events));
+    ///     self.send_buffer.store(&events);
+    ///     self.host.process_events(self.send_buffer.events());
     /// }
     /// # }
     /// ```
-    pub fn send<F: FnOnce(&api::Events)>(&mut self, events: &[Event], callback: F) {
-        use std::cmp::min;
+    pub fn store(&mut self, events: &[Event]) {
+        {
+            use std::cmp::min;
+            let e = Self::buf_as_api_events(&mut self.buf);
+            e.num_events = min(self.capacity, events.len()) as i32;
+        }
+
         use api::flags::REALTIME_EVENT;
 
-        let len = min(self.buf.len(), events.len());
-
-        // The `api::Events` structure uses a variable length array which is difficult to represent in
-        // rust. We begin by creating a vector with the appropriate byte size by calculating the header
-        // and the variable length body seperately.
-
-        let send_events: &mut [*mut api::Event] = unsafe {
-            // The header is updated by casting the array to the `api::Events` type and specifying the
-            // required fields. We create a slice from the position of the first event and the length
-            // of the array.
-            let ptr = self.buf.as_mut_ptr() as *mut api::Events;
-            (*ptr).num_events = len as i32;
-
-            // A slice view of the body
-            slice::from_raw_parts_mut(&mut (*ptr).events[0], len)
-        };
-
-        // Each event is zipped with the target body array slot. Most of what's happening here is just
-        // copying data but the key thing to notice is that each event is boxed and cast to
-        // (*mut api::Event). This way we can let the callback handle the event, and then later create
-        // the box again from the raw pointer so that it can be properly dropped.
-        for (&event, out) in events.into_iter().zip(send_events.iter_mut()) {
-            *out = match event {
+        for (event, out) in events.iter().zip(self.api_events.iter_mut()) {
+            let (event, out): (&Event, &mut api::SysExEvent) = (event, out);
+            match *event {
                 Event::Midi { data, delta_frames, live,
                               note_length, note_offset,
                               detune, note_off_velocity } => {
-                    Box::into_raw(Box::new(api::MidiEvent {
+                    let out = unsafe { &mut *(out as *mut _ as *mut _) };
+                    *out = api::MidiEvent {
                         event_type: api::EventType::Midi,
                         byte_size: mem::size_of::<api::MidiEvent>() as i32,
                         delta_frames: delta_frames,
@@ -303,10 +316,10 @@ impl SendEventBuffer {
                         note_off_velocity: note_off_velocity,
                         _reserved1: 0,
                         _reserved2: 0
-                    })) as *mut api::Event
+                    }
                 }
                 Event::SysEx { payload, delta_frames } => {
-                    Box::into_raw(Box::new(api::SysExEvent {
+                    *out = api::SysExEvent {
                         event_type: api::EventType::SysEx,
                         byte_size: mem::size_of::<api::SysExEvent>() as i32,
                         delta_frames: delta_frames,
@@ -315,31 +328,21 @@ impl SendEventBuffer {
                         _reserved1: 0,
                         system_data: payload.as_ptr() as *const u8 as *mut u8,
                         _reserved2: 0,
-                    })) as *mut api::Event
+                    }
                 }
-                Event::Deprecated(e) => Box::into_raw(Box::new(e))
+                Event::Deprecated(e) => {
+                    let out = unsafe { &mut *(out as *mut _ as *mut _) };
+                    *out = e;
+                }
             };
         }
+    }
 
-        // Allow the callback to use the pointer
-        callback(unsafe { &*(self.buf.as_ptr() as *const api::Events) });
-
-        // Clean up the created events
-        unsafe {
-            for &mut event in send_events {
-                match (*event).event_type {
-                    api::EventType::Midi => {
-                        drop(Box::from_raw(event as *mut api::MidiEvent));
-                    }
-                    api::EventType::SysEx => {
-                        drop(Box::from_raw(event as *mut api::SysExEvent));
-                    }
-                    _ => {
-                        drop(Box::from_raw(event));
-                    }
-                }
-            }
-        }
+    /// Use this for sending midi events to a host or plugin.
+    /// See `store()`
+    #[inline(always)]
+    pub fn events(&self) -> &api::Events {
+        unsafe { &*(self.buf.as_ptr() as *const api::Events) }
     }
 }
 

@@ -435,6 +435,12 @@ impl Events {
         unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
     }
 
+    #[inline(always)]
+    pub(crate) fn events_raw_mut(&mut self) -> &mut [*const SysExEvent] {
+        use std::slice;
+        unsafe { slice::from_raw_parts_mut(&mut self.events[0] as *mut *mut _ as *mut *const _, self.num_events as usize) }
+    }
+
     /// Use this in your impl of process_events() to process the incoming midi events (on nightly).
     ///
     /// # Example
@@ -601,6 +607,7 @@ pub struct MidiEvent {
 /// `plugin::CanDo` has a `ReceiveSysExEvent` variant which lets the host query the plugin as to
 /// whether this event is supported.
 #[repr(C)]
+#[derive(Clone)]
 pub struct SysExEvent {
     /// Should be `EventType::SysEx`.
     pub event_type: EventType,
