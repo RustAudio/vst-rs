@@ -291,6 +291,10 @@ pub fn dispatch(
             }
         }
 
+        OpCode::StartProcess => plugin.start_process(),
+        OpCode::StopProcess => plugin.stop_process(),
+
+
         _ => {
             warn!("Unimplemented opcode ({:?})", opcode);
             trace!(

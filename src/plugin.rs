@@ -717,6 +717,13 @@ pub trait Plugin {
             None,
         )
     }
+
+    /// Called one time before the start of process call.
+    /// This indicates that the process call will be interrupted (due to Host reconfiguration or bypass state when the plug-in doesn't support softBypass).
+    fn start_process(&self) {}
+
+    /// Called after the stop of process call.
+    fn stop_process(&self) {}
 }
 
 /// A reference to the host which allows the plugin to call back and access information.
