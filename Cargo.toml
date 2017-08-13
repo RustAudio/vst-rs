@@ -18,3 +18,6 @@ num-traits = "0.1"
 libc = "0.2"
 bitflags = "0.8"
 libloading = "0.4"
+
+[features]
+nightly = []

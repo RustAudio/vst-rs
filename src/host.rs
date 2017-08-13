@@ -14,7 +14,6 @@ use plugin::{self, Plugin, Info, Category};
 use api::{self, AEffect, PluginMain, Supported};
 use api::consts::*;
 use buffer::AudioBuffer;
-use event::Event;
 use channels::ChannelInfo;
 
 #[repr(usize)]
@@ -209,7 +208,7 @@ pub trait Host {
     }
 
     /// Handle incoming events from the plugin.
-    fn process_events(&mut self, events: Vec<Event>) {}
+    fn process_events(&mut self, events: &api::Events) {}
 }
 
 /// All possible errors that can occur when loading a VST plugin.
@@ -563,42 +562,27 @@ impl Plugin for PluginInstance {
     }
 
 
-    fn process(&mut self, buffer: AudioBuffer<f32>) {
-        let (inputs, outputs) = buffer.split();
-        let frames = inputs[0].len();
-        let mut inputs: Vec<*mut f32> = inputs.into_iter().map(|s| s.as_mut_ptr()).collect();
-        let mut outputs: Vec<*mut f32> = outputs.into_iter().map(|s| s.as_mut_ptr()).collect();
-
+    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         unsafe {
             ((*self.effect).processReplacing)
-                (self.effect, inputs.as_mut_ptr(), outputs.as_mut_ptr(), frames as i32)
+                (self.effect, buffer.raw_inputs().as_ptr() as *const *const _, buffer.raw_outputs().as_mut_ptr() as *mut *mut _, buffer.samples() as i32)
         }
     }
 
-    fn process_f64(&mut self, buffer: AudioBuffer<f64>) {
-        let (inputs, outputs) = buffer.split();
-        let frames = inputs[0].len();
-        let mut inputs: Vec<*mut f64> = inputs.into_iter().map(|s| s.as_mut_ptr()).collect();
-        let mut outputs: Vec<*mut f64> = outputs.into_iter().map(|s| s.as_mut_ptr()).collect();
-
+    fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>) {
         unsafe {
             ((*self.effect).processReplacingF64)
-                (self.effect, inputs.as_mut_ptr(), outputs.as_mut_ptr(), frames as i32)
+                (self.effect, buffer.raw_inputs().as_ptr() as *const *const _, buffer.raw_outputs().as_mut_ptr() as *mut *mut _, buffer.samples() as i32)
         }
     }
 
-    fn process_events(&mut self, events: Vec<Event>) {
-        interfaces::process_events(
-            events,
-            |ptr| {
-                self.dispatch(
-                    plugin::OpCode::ProcessEvents,
-                    0,
-                    0,
-                    ptr,
-                    0.0
-                );
-            }
+    fn process_events(&mut self, events: &api::Events) {
+        self.dispatch(
+            plugin::OpCode::ProcessEvents,
+            0,
+            0,
+            events as *const _ as *mut _,
+            0.0
         );
     }
 

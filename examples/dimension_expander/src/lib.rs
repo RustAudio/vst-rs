@@ -139,8 +139,7 @@ impl Plugin for DimensionExpander {
             _ => (),
         }
     }
-
-    fn process(&mut self, buffer: AudioBuffer<f32>) {
+    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let (inputs, mut outputs) = buffer.split();
 
         // Assume 2 channels
@@ -149,14 +148,12 @@ impl Plugin for DimensionExpander {
         }
 
         // Iterate over inputs as (&f32, &f32)
-        let stereo_in = match inputs.split_at(1) {
-            (l, r) => l[0].iter().zip(r[0].iter())
-        };
+        let (l, r) = inputs.split_at(1);
+        let stereo_in = l[0].iter().zip(r[0].iter());
 
         // Iterate over outputs as (&mut f32, &mut f32)
-        let stereo_out = match outputs.split_at_mut(1) {
-            (l, r) => l[0].iter_mut().zip(r[0].iter_mut())
-        };
+        let (mut l, mut r) = outputs.split_at_mut(1);
+        let stereo_out = l[0].iter_mut().zip(r[0].iter_mut());
 
         // Zip and process
         for ((left_in, right_in), (left_out, right_out)) in stereo_in.zip(stereo_out) {

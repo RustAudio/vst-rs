@@ -10,7 +10,7 @@ use api::{AEffect, HostCallbackProc, Supported};
 use api::consts::VST_MAGIC;
 use buffer::AudioBuffer;
 use editor::Editor;
-use event::Event;
+use api;
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -582,24 +582,24 @@ pub trait Plugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
-    /// fn process(&mut self, buffer: AudioBuffer<f32>){
-    ///     let (inputs, mut outputs) = buffer.split();
-    ///
-    ///     for (channel, ibuf) in inputs.iter().enumerate() {
-    ///         for (i, sample) in ibuf.iter().enumerate() {
-    ///             outputs[channel][i] = if *sample > 0.4 {
+    /// fn process(&mut self, buffer: &mut AudioBuffer<f32>){
+    ///     // For each input and output
+    ///     for (input, output) in buffer.zip() {
+    ///         // For each input sample and output sample in buffer
+    ///         for (in_sample, out_sample) in input.into_iter().zip(output.into_iter()) {
+    ///             *out_sample = if *in_sample > 0.4 {
     ///                 0.4
-    ///             } else if *sample < -0.4 {
+    ///             } else if *in_sample < -0.4 {
     ///                 -0.4
     ///             } else {
-    ///                 *sample
+    ///                 *in_sample
     ///             };
     ///         }
     ///     }
     /// }
     /// # }
     /// ```
-    fn process(&mut self, buffer: AudioBuffer<f32>) {
+    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
@@ -621,24 +621,24 @@ pub trait Plugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
-    /// fn process_f64(&mut self, buffer: AudioBuffer<f64>){
-    ///     let (inputs, mut outputs) = buffer.split();
-    ///
-    ///     for (channel, ibuf) in inputs.iter().enumerate() {
-    ///         for (i, sample) in ibuf.iter().enumerate() {
-    ///             outputs[channel][i] = if *sample > 0.4 {
+    /// fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>){
+    ///     // For each input and output
+    ///     for (input, output) in buffer.zip() {
+    ///         // For each input sample and output sample in buffer
+    ///         for (in_sample, out_sample) in input.into_iter().zip(output.into_iter()) {
+    ///             *out_sample = if *in_sample > 0.4 {
     ///                 0.4
-    ///             } else if *sample < -0.4 {
+    ///             } else if *in_sample < -0.4 {
     ///                 -0.4
     ///             } else {
-    ///                 *sample
+    ///                 *in_sample
     ///             };
     ///         }
     ///     }
     /// }
     /// # }
     /// ```
-    fn process_f64(&mut self, buffer: AudioBuffer<f64>) {
+    fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>) {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
@@ -651,7 +651,7 @@ pub trait Plugin {
     /// Handle incoming events sent from the host.
     ///
     /// This is always called before the start of `process` or `process_f64`.
-    fn process_events(&mut self, events: Vec<Event>) {}
+    fn process_events(&mut self, events: &api::Events) {}
 
     /// Return handle to plugin editor if supported.
     fn get_editor(&mut self) -> Option<&mut Editor> { None }
@@ -820,21 +820,14 @@ impl Host for HostCallback {
     ///
     /// [`process`]: trait.Plugin.html#method.process
     /// [`process_f64`]: trait.Plugin.html#method.process_f64
-    fn process_events(&mut self, events: Vec<Event>) {
-        use interfaces;
-
-        interfaces::process_events(
-            events,
-            |ptr| {
-                self.callback(
-                    self.effect,
-                    host::OpCode::ProcessEvents,
-                    0,
-                    0,
-                    ptr,
-                    0.0
-                 );
-            }
+    fn process_events(&mut self, events: &api::Events) {
+        self.callback(
+            self.effect,
+            host::OpCode::ProcessEvents,
+            0,
+            0,
+            events as *const _ as *mut _,
+            0.0
         );
     }
 }
