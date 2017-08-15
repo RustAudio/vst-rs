@@ -1,22 +1,19 @@
-# rust-vst2
-[![Travis Build][trav-img]][trav-url]
-[![Appveyor Build][appv-img]][appv-url]
-[![crates.io][crates-img]][crates-url]
+# rust-vst
+<!--- [![Travis Build][trav-img]][trav-url] --->
+<!--- [![Appveyor Build][appv-img]][appv-url] --->
+<!--- [![crates.io][crates-img]][crates-url] --->
 
 A library to help facilitate creating VST plugins in rust.
 
 This library is a work in progress and as such does not yet implement all
 opcodes. It is enough to create basic VST plugins without an editor interface.
 
-*Please note: This api may be subject to rapid changes and the current state of
-this library is not final.*
-
 ## Library Documentation
-  * http://overdrivenpotato.github.io/rust-vst2
+  * https://rust-dsp.github.io/rust-vst
 
 ## TODO
   - Implement all opcodes
-  - Proper editor support (possibly [conrod] + [sdl2]?)
+  - Proper editor support
   - Write more tests
   - Provide better examples
 
@@ -67,7 +64,7 @@ vst2 = "0.0.1"
 
 [lib]
 name = "basicvst"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]
 ```
 
 [trav-img]: https://travis-ci.org/overdrivenpotato/rust-vst2.svg?branch=master
@@ -76,9 +73,6 @@ crate-type = ["dylib"]
 [appv-url]: https://ci.appveyor.com/project/overdrivenpotato/rust-vst2
 [crates-img]: https://img.shields.io/crates/v/vst2.svg
 [crates-url]: https://crates.io/crates/vst2
-[sdl2]: https://github.com/AngryLawyer/rust-sdl2
-[conrod]: https://github.com/PistonDevelopers/conrod
-
 
 #### Packaging on OS X
 
@@ -91,3 +85,6 @@ Example: 
 ./osx_vst_bundler.sh Plugin target/release/plugin.dylib
 Creates a Plugin.vst bundle
 ```
+
+## Special Thanks
+[Marko Mijalkovic](https://github.com/overdrivenpotato) for [initiating this project](https://github.com/overdrivenpotato/rust-vst2)
