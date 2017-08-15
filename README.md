@@ -72,8 +72,8 @@ crate-type = ["dylib"]
 
 [trav-img]: https://travis-ci.org/overdrivenpotato/rust-vst2.svg?branch=master
 [trav-url]: https://travis-ci.org/overdrivenpotato/rust-vst2
-[appv-img]: https://ci.appveyor.com/api/projects/status/4kg8efxas08b72bp?svg=true
-[appv-url]: https://ci.appveyor.com/project/overdrivenpotato/rust-vst2
+[appv-img]: https://ci.appveyor.com/api/projects/status/x25bmbwxqnsvy3ql?svg=true
+[appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
 [crates-img]: https://img.shields.io/crates/v/vst2.svg
 [crates-url]: https://crates.io/crates/vst2
 [sdl2]: https://github.com/AngryLawyer/rust-sdl2
