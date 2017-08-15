@@ -1,6 +1,6 @@
 # rust-vst
-<!--- [![Travis Build][trav-img]][trav-url] --->
-<!--- [![Appveyor Build][appv-img]][appv-url] --->
+[![Travis Build][trav-img]][trav-url]
+[![Appveyor Build][appv-img]][appv-url]
 <!--- [![crates.io][crates-img]][crates-url] --->
 
 A library to help facilitate creating VST plugins in rust.
