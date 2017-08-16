@@ -4,9 +4,9 @@ version = "0.1.0"
 authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 
 [dependencies]
-vst2 = { git = "https://github.com/overdrivenpotato/rust-vst2" }
+vst2 = { path = "../.." }
 time = "0.1"
 
 [lib]
 name = "dimension_expander"
-crate-type = ["dylib"]
+crate-type = ["cdylib"]

@@ -90,6 +90,8 @@
 //! [`PluginLoader::load`]: host/struct.PluginLoader.html#method.load
 //!
 
+#![cfg_attr(feature = "nightly", feature(conservative_impl_trait))]
+
 extern crate libc;
 extern crate num_traits;
 extern crate libloading;
@@ -131,10 +133,12 @@ pub mod event;
 pub mod host;
 pub mod plugin;
 mod interfaces;
+mod cache;
 
 use api::{HostCallbackProc, AEffect};
 use api::consts::VST_MAGIC;
 use plugin::{HostCallback, Plugin};
+use cache::PluginCache;
 
 /// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
@@ -170,7 +174,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it
     // can be passed into the HostCallback `wrap` method. The AEffect is then updated after the vst
     // object is created so that the host still contains a raw pointer to the AEffect struct.
-    let effect = unsafe { mem::transmute(Box::new(mem::zeroed::<AEffect>())) };
+    let effect = unsafe { Box::into_raw(Box::new(mem::zeroed::<AEffect>())) };
 
     let host = HostCallback::wrap(callback, effect);
     if host.vst_version() == 0 { // TODO: Better criteria would probably be useful here...
@@ -233,8 +237,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
         _offQualities: 0,
         _ioRatio: 0.0,
 
-        object: mem::transmute(Box::new(Box::new(plugin) as Box<Plugin>)),
-        user: ptr::null_mut(),
+        object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
+        user: Box::into_raw(Box::new(PluginCache::new(&info))) as *mut _,
 
         uniqueId: info.unique_id,
         version: info.version,
@@ -316,11 +320,11 @@ mod tests {
 
     #[test]
     fn plugin_drop() {
-        static mut drop_test: bool = false;
+        static mut DROP_TEST: bool = false;
 
         impl Drop for TestPlugin {
             fn drop(&mut self) {
-                unsafe { drop_test = true; }
+                unsafe { DROP_TEST = true; }
             }
         }
 
@@ -330,7 +334,7 @@ mod tests {
         unsafe { (*aeffect).drop_plugin() };
 
         // Assert that the VST is shut down and dropped.
-        assert!(unsafe { drop_test });
+        assert!(unsafe { DROP_TEST });
     }
 
     #[test]

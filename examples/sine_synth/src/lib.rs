@@ -3,17 +3,18 @@
 use vst2::buffer::AudioBuffer;
 use vst2::plugin::{Category, Plugin, Info, CanDo};
 use vst2::event::Event;
-use vst2::api::Supported;
+use vst2::api::{Supported, Events};
 
 use std::f64::consts::PI;
 
-/// Convert the midi note into the equivalent frequency.
+/// Convert the midi note's pitch into the equivalent frequency.
 ///
 /// This function assumes A4 is 440hz.
-fn midi_note_to_hz(note: u8) -> f64 {
-    const A4: f64 = 440.0;
+fn midi_pitch_to_freq(pitch: u8) -> f64 {
+    const A4_PITCH: u8 = 69;
+    const A4_FREQ: f64 = 440.0;
 
-    (A4 / 32.0) * ((note as f64 - 9.0) / 12.0).exp2()
+    (((pitch - A4_PITCH) as f64) / 12.).exp2() * A4_FREQ
 }
 
 struct SineSynth {
@@ -87,36 +88,41 @@ impl Plugin for SineSynth {
     }
 
     #[allow(unused_variables)]
-    fn process_events(&mut self, events: Vec<Event>) {
-        for event in events {
+    fn process_events(&mut self, events: &Events) {
+        for &e in events.events_raw() {
+            let event: Event = Event::from(unsafe { *e });
+            match event {
+                Event::Midi(ev) => self.process_midi_event(ev.data),
+                // More events can be handled here.
+                _ => ()
+            }
+        }
+        /* on nightly you can just enable the "nightly" feature and then do:
+        for event in events.events() {
             match event {
                 Event::Midi { data, ..  } => self.process_midi_event(data),
                 // More events can be handled here.
                 _ => {}
             }
         }
+        */
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
         self.sample_rate = rate as f64;
     }
 
-    fn process(&mut self, buffer: AudioBuffer<f32>) {
-        let (inputs, outputs) = buffer.split();
-
-        let samples = inputs
-            .first()
-            .map(|channel| channel.len())
-            .unwrap_or(0);
+    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
+        let samples = buffer.samples();
 
         let per_sample = self.time_per_sample();
 
-        for (input_buffer, output_buffer) in inputs.iter().zip(outputs) {
+        for (input_buffer, output_buffer) in buffer.zip() {
             let mut t = self.time;
 
             for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
                 if let Some(current_note) = self.note {
-                    let signal = (t * midi_note_to_hz(current_note) * TAU).sin();
+                    let signal = (t * midi_pitch_to_freq(current_note) * TAU).sin();
 
                     // Apply a quick envelope to the attack of the signal to avoid popping.
                     let attack = 0.5;
