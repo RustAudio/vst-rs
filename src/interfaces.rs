@@ -134,25 +134,25 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         }
 
         OpCode::GetData => {
-            let chunks = if index == 0 {
+            let mut chunks = if index == 0 {
                 plugin.get_bank_data()
             } else {
                 plugin.get_preset_data()
             };
 
-            let len = chunks.len() as isize;
+            chunks.shrink_to_fit();
+            let len = chunks.len() as isize; // eventually we should be using ffi::size_t
 
-            // u8 array to **void ptr
-            // TODO: Release the allocated memory for the chunk in resume / suspend event
             unsafe {
-                *(ptr as *mut *mut c_void) =
-                    chunks.into_boxed_slice().as_ptr() as *mut c_void;
+                *(ptr as *mut *mut c_void) = chunks.as_ptr() as *mut c_void;
             }
 
+            mem::forget(chunks);
             return len;
         }
         OpCode::SetData => {
             let chunks = unsafe { slice::from_raw_parts(ptr as *mut u8, value as usize) };
+
             if index == 0 {
                 plugin.load_bank_data(chunks);
             } else {
