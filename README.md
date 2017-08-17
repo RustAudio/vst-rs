@@ -69,7 +69,7 @@ crate-type = ["cdylib"]
 
 [trav-img]: https://travis-ci.org/rust-dsp/rust-vst.svg?branch=master
 [trav-url]: https://travis-ci.org/rust-dsp/rust-vst
-[appv-img]: https://ci.appveyor.com/api/projects/status/x25bmbwxqnsvy3ql?svg=true
+[appv-img]: https://ci.appveyor.com/api/projects/status/npiyjfithlx50hfs?svg=true
 [appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
 [crates-img]: https://img.shields.io/crates/v/vst2.svg
 [crates-url]: https://crates.io/crates/vst2
