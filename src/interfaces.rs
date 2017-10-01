@@ -49,7 +49,7 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 /// Copy a string into a destination buffer.
 ///
 /// String will be cut at `max` characters.
-fn copy_string(dst: *mut c_void, src: &str, max: usize) {
+fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
     unsafe {
         use std::cmp::min;
         use libc::{c_void, memset, memcpy};
@@ -58,6 +58,8 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) {
         memset(dst, 0, max);
         memcpy(dst, src.as_ptr() as *const c_void, min(max, src.len()));
     }
+
+    1 // Success
 }
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the vst plugin.
@@ -81,12 +83,12 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::SetCurrentPresetName => plugin.set_preset_name(read_string(ptr)),
         OpCode::GetCurrentPresetName => {
             let num = plugin.get_preset_num();
-            copy_string(ptr, &plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
+            return copy_string(ptr, &plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => copy_string(ptr, &plugin.get_parameter_label(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterDisplay => copy_string(ptr, &plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterName => copy_string(ptr, &plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterLabel => return copy_string(ptr, &plugin.get_parameter_label(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterDisplay => return copy_string(ptr, &plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterName => return copy_string(ptr, &plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
@@ -166,7 +168,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
         OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string(ptr)) as isize,
 
-        OpCode::GetPresetName => copy_string(ptr, &plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
+        OpCode::GetPresetName => return copy_string(ptr, &plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
@@ -188,8 +190,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             return plugin.get_info().category.into();
         }
 
-        OpCode::GetVendorName => copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductName => copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN),
+        OpCode::GetVendorName => return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
+        OpCode::GetProductName => return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN),
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
@@ -260,8 +262,8 @@ pub fn host_dispatch(host: &mut Host,
         }
 
         OpCode::GetVendorVersion => return host.get_info().0,
-        OpCode::GetVendorString => copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductString => copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
+        OpCode::GetVendorString => return copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
+        OpCode::GetProductString => return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
         OpCode::ProcessEvents => {
             host.process_events(unsafe { &*(ptr as *const api::Events) });
         }
