@@ -423,7 +423,7 @@ impl Events {
     /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
     /// # use vst2::host::Host;
     /// # use vst2::api;
-    /// # use vst2::event::Event;
+    /// # use vst2::event::{Event, MidiEvent};
     /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
@@ -431,7 +431,7 @@ impl Events {
     /// fn process_events(&mut self, events: &api::Events) {
     ///     for e in events.events() {
     ///         match e {
-    ///             Event::Midi { data, .. } => {
+    ///             Event::Midi(MidiEvent { data, .. }) => {
     ///                 // ...
     ///             }
     ///             _ => ()
