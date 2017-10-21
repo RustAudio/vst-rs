@@ -1,3 +1,5 @@
+// author: Rob Saunders <hello@robsaunders.io>
+
 #[macro_use] extern crate vst2;
 
 use vst2::buffer::AudioBuffer;

@@ -1,3 +1,5 @@
+// author: Marko Mijalkovic <marko.mijalkovic97@gmail.com>
+
 #[macro_use] extern crate vst2;
 extern crate time;
 
