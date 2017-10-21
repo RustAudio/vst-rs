@@ -403,34 +403,8 @@ pub struct Events {
 }
 
 impl Events {
-    /// Use this in your impl of process_events() to process the incoming midi events (on stable).
-    ///
-    /// # Example
-    /// ```no_run
-    /// # use vst2::plugin::{Info, Plugin, HostCallback};
-    /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
-    /// # use vst2::host::Host;
-    /// # use vst2::api;
-    /// # use vst2::event::Event;
-    /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
-    /// # impl Plugin for ExamplePlugin {
-    /// #     fn get_info(&self) -> Info { Default::default() }
-    /// #
-    /// fn process_events(&mut self, events: &api::Events) {
-    ///     for &e in events.events_raw() {
-    ///         let event: Event = Event::from(unsafe { *e });
-    ///         match event {
-    ///             Event::Midi(ev) => {
-    ///                 // ...
-    ///             }
-    ///             _ => ()
-    ///         }
-    ///     }
-    /// }
-    /// # }
-    /// ```
     #[inline(always)]
-    pub fn events_raw(&self) -> &[*const Event] {
+    pub(crate) fn events_raw(&self) -> &[*const Event] {
         use std::slice;
         unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
     }
@@ -441,7 +415,7 @@ impl Events {
         unsafe { slice::from_raw_parts_mut(&mut self.events[0] as *mut *mut _ as *mut *const _, self.num_events as usize) }
     }
 
-    /// Use this in your impl of process_events() to process the incoming midi events (on nightly).
+    /// Use this in your impl of process_events() to process the incoming midi events.
     ///
     /// # Example
     /// ```no_run
@@ -449,7 +423,7 @@ impl Events {
     /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
     /// # use vst2::host::Host;
     /// # use vst2::api;
-    /// # use vst2::event::Event;
+    /// # use vst2::event::{Event, MidiEvent};
     /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
@@ -457,7 +431,7 @@ impl Events {
     /// fn process_events(&mut self, events: &api::Events) {
     ///     for e in events.events() {
     ///         match e {
-    ///             Event::Midi { data, .. } => {
+    ///             Event::Midi(MidiEvent { data, .. }) => {
     ///                 // ...
     ///             }
     ///             _ => ()
@@ -466,10 +440,29 @@ impl Events {
     /// }
     /// # }
     /// ```
-    #[cfg(feature = "nightly")]
     #[inline(always)]
-    pub fn events<'a>(&'a self) -> impl Iterator<Item = ::event::Event> + 'a {
-        self.events_raw().into_iter().map(|&e| ::event::Event::from(unsafe { *e }))
+    pub fn events<'a>(&'a self) -> EventIterator<'a> {
+        return EventIterator { events: self.events_raw(), index: 0 }
+    }
+}
+
+/// An iterator over events, returned by `api::Events::events`
+pub struct EventIterator<'a> {
+    events: &'a [*const Event],
+    index: usize,
+}
+
+impl<'a> Iterator for EventIterator<'a> {
+    type Item = ::event::Event<'a>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        let index = self.index;
+        if index < self.events.len() {
+            self.index += 1;
+            Some(::event::Event::from(unsafe { *self.events[index] }))
+        } else {
+            None
+        }
     }
 }
 
