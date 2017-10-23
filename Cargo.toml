@@ -19,5 +19,20 @@ libc = "0.2"
 bitflags = "0.8"
 libloading = "0.4"
 
+[dev-dependencies]
+time = "0.1"
+
 [features]
 nightly = []
+
+[[example]]
+name = "dimension_expander"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "simple_host"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "sine_synth"
+crate-type = ["cdylib"]
