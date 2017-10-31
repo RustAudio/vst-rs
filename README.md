@@ -3,7 +3,7 @@
 [![Appveyor Build][appv-img]][appv-url]
 <!--- [![crates.io][crates-img]][crates-url] --->
 
-[Join the Telegram chat](https://t.me/joinchat/BfEhnw0l4386Uzi5elmGrQ) (for web users, make sure you're [registered/logged in](https://web.telegram.org))
+[Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org))
 
 A library to help facilitate creating VST plugins in rust.
 
