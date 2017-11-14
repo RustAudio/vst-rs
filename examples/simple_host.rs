@@ -16,7 +16,6 @@ impl Host for SampleHost {
     }
 }
 
-#[allow(dead_code)]
 fn main() {
     // This is an example of a plugin being loaded. Change this to the appropriate path.
     let path = Path::new(
