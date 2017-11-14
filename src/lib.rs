@@ -3,8 +3,9 @@
 //! rust-vst2 is a rust implementation of the VST2.4 API
 //!
 //! # Plugins
-//! All Plugins must implement the `Plugin` trait and `std::default::Default`. The `plugin_main!`
-//! macro must also be called in order to export the necessary functions for the plugin to function.
+//! All Plugins must implement the `Plugin` trait and `std::default::Default`.
+//! The `plugin_main!` macro must also be called in order to export the necessary functions
+//! for the plugin to function.
 //!
 //! ## `Plugin` Trait
 //! All methods in this trait have a default implementation except for the `get_info` method which
@@ -95,8 +96,10 @@
 extern crate libc;
 extern crate num_traits;
 extern crate libloading;
-#[macro_use] extern crate log;
-#[macro_use] extern crate bitflags;
+#[macro_use]
+extern crate log;
+#[macro_use]
+extern crate bitflags;
 
 use std::{ptr, mem};
 
@@ -149,20 +152,23 @@ macro_rules! plugin_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
-        pub extern "system" fn main_macho(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho(callback: $crate::api::HostCallbackProc) ->
+        *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn MAIN(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN(callback: $crate::api::HostCallbackProc) ->
+        *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "C" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
+        pub extern "C" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) ->
+        *mut $crate::api::AEffect {
             $crate::main::<$t>(callback)
         }
     }
@@ -177,7 +183,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let effect = unsafe { Box::into_raw(Box::new(mem::zeroed::<AEffect>())) };
 
     let host = HostCallback::wrap(callback, effect);
-    if host.vst_version() == 0 { // TODO: Better criteria would probably be useful here...
+    if host.vst_version() == 0 {
+        // TODO: Better criteria would probably be useful here...
         return ptr::null_mut();
     }
 
@@ -186,68 +193,70 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let info = plugin.get_info().clone();
 
     // Update AEffect in place
-    unsafe { *effect = AEffect {
-        magic: VST_MAGIC,
-        dispatcher: interfaces::dispatch, // fn pointer
+    unsafe {
+        *effect = AEffect {
+            magic: VST_MAGIC,
+            dispatcher: interfaces::dispatch, // fn pointer
 
-        _process: interfaces::process_deprecated, // fn pointer
+            _process: interfaces::process_deprecated, // fn pointer
 
-        setParameter: interfaces::set_parameter, // fn pointer
-        getParameter: interfaces::get_parameter, // fn pointer
+            setParameter: interfaces::set_parameter, // fn pointer
+            getParameter: interfaces::get_parameter, // fn pointer
 
-        numPrograms: info.presets,
-        numParams: info.parameters,
-        numInputs: info.inputs,
-        numOutputs: info.outputs,
+            numPrograms: info.presets,
+            numParams: info.parameters,
+            numInputs: info.inputs,
+            numOutputs: info.outputs,
 
-        flags: {
-            use api::flags::*;
+            flags: {
+                use api::flags::*;
 
-            let mut flag = CAN_REPLACING;
+                let mut flag = CAN_REPLACING;
 
-            if info.f64_precision {
-                flag |= CAN_DOUBLE_REPLACING;
-            }
+                if info.f64_precision {
+                    flag |= CAN_DOUBLE_REPLACING;
+                }
 
-            if plugin.get_editor().is_some() {
-                flag |= HAS_EDITOR;
-            }
+                if plugin.get_editor().is_some() {
+                    flag |= HAS_EDITOR;
+                }
 
-            if info.preset_chunks {
-                flag |= PROGRAM_CHUNKS;
-            }
+                if info.preset_chunks {
+                    flag |= PROGRAM_CHUNKS;
+                }
 
-            if let plugin::Category::Synth = info.category {
-                flag |= IS_SYNTH;
-            }
+                if let plugin::Category::Synth = info.category {
+                    flag |= IS_SYNTH;
+                }
 
-            if info.silent_when_stopped {
-                flag |= NO_SOUND_IN_STOP;
-            }
+                if info.silent_when_stopped {
+                    flag |= NO_SOUND_IN_STOP;
+                }
 
-            flag.bits()
-        },
+                flag.bits()
+            },
 
-        reserved1: 0,
-        reserved2: 0,
+            reserved1: 0,
+            reserved2: 0,
 
-        initialDelay: info.initial_delay,
+            initialDelay: info.initial_delay,
 
-        _realQualities: 0,
-        _offQualities: 0,
-        _ioRatio: 0.0,
+            _realQualities: 0,
+            _offQualities: 0,
+            _ioRatio: 0.0,
 
-        object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
-        user: Box::into_raw(Box::new(PluginCache::new(&info))) as *mut _,
+            object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
+            user: Box::into_raw(Box::new(PluginCache::new(&info))) as *mut _,
 
-        uniqueId: info.unique_id,
-        version: info.version,
+            uniqueId: info.unique_id,
+            version: info.version,
 
-        processReplacing: interfaces::process_replacing, // fn pointer
-        processReplacingF64: interfaces::process_replacing_f64, //fn pointer
+            processReplacing: interfaces::process_replacing, // fn pointer
+            processReplacingF64: interfaces::process_replacing_f64, //fn pointer
 
-        future: [0u8; 56]
-    }};
+            future: [0u8; 56],
+        }
+    };
     effect
 }
 
@@ -287,11 +296,25 @@ mod tests {
 
     plugin_main!(TestPlugin);
 
-    fn pass_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
+    fn pass_callback(
+        _effect: *mut AEffect,
+        _opcode: i32,
+        _index: i32,
+        _value: isize,
+        _ptr: *mut c_void,
+        _opt: f32,
+    ) -> isize {
         1
     }
 
-    fn fail_callback(_effect: *mut AEffect, _opcode: i32, _index: i32, _value: isize, _ptr: *mut c_void, _opt: f32) -> isize {
+    fn fail_callback(
+        _effect: *mut AEffect,
+        _opcode: i32,
+        _index: i32,
+        _value: isize,
+        _ptr: *mut c_void,
+        _opt: f32,
+    ) -> isize {
         0
     }
 
@@ -324,7 +347,9 @@ mod tests {
 
         impl Drop for TestPlugin {
             fn drop(&mut self) {
-                unsafe { DROP_TEST = true; }
+                unsafe {
+                    DROP_TEST = true;
+                }
             }
         }
 
@@ -382,6 +407,9 @@ mod tests {
         assert_eq!(aeffect.uniqueId, 5678);
         assert_eq!(aeffect.version, 1234);
         assert_fn_eq!(aeffect.processReplacing, interfaces::process_replacing);
-        assert_fn_eq!(aeffect.processReplacingF64, interfaces::process_replacing_f64);
+        assert_fn_eq!(
+            aeffect.processReplacingF64,
+            interfaces::process_replacing_f64
+        );
     }
 }

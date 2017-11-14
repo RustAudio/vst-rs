@@ -13,7 +13,6 @@ pub struct AudioBuffer<'a, T: 'a + Float> {
 }
 
 impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
-
     /// Create an `AudioBuffer` from slices of raw pointers. Useful in a Rust VST host.
     #[inline]
     pub fn new(inputs: &'a [*const T], outputs: &'a mut [*mut T], samples: usize) -> Self {
@@ -24,10 +23,16 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
         }
     }
 
-    /// Create an `AudioBuffer` from raw pointers. Only really useful for interacting with the VST API.
+    /// Create an `AudioBuffer` from raw pointers.
+    /// Only really useful for interacting with the VST API.
     #[inline]
-    pub unsafe fn from_raw(input_count: usize, output_count: usize,
-                    inputs_raw: *const *const T, outputs_raw: *mut *mut T, samples: usize) -> Self {
+    pub unsafe fn from_raw(
+        input_count: usize,
+        output_count: usize,
+        inputs_raw: *const *const T,
+        outputs_raw: *mut *mut T,
+        samples: usize,
+    ) -> Self {
         Self {
             inputs: slice::from_raw_parts(inputs_raw, input_count),
             outputs: slice::from_raw_parts_mut(outputs_raw, output_count),
@@ -37,36 +42,58 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
 
     /// The number of input channels that this buffer was created for
     #[inline]
-    pub fn input_count(&self) -> usize { self.inputs.len() }
+    pub fn input_count(&self) -> usize {
+        self.inputs.len()
+    }
 
     /// The number of output channels that this buffer was created for
     #[inline]
-    pub fn output_count(&self) -> usize { self.outputs.len() }
+    pub fn output_count(&self) -> usize {
+        self.outputs.len()
+    }
 
     /// The number of samples in this buffer (same for all channels)
     #[inline]
-    pub fn samples(&self) -> usize { self.samples }
+    pub fn samples(&self) -> usize {
+        self.samples
+    }
 
     /// The raw inputs to pass to processReplacing
     #[inline]
-    pub(crate) fn raw_inputs(&self) -> &[*const T] { self.inputs }
+    pub(crate) fn raw_inputs(&self) -> &[*const T] {
+        self.inputs
+    }
 
     /// The raw outputs to pass to processReplacing
     #[inline]
-    pub(crate) fn raw_outputs(&mut self) -> &mut [*mut T] { &mut self.outputs }
+    pub(crate) fn raw_outputs(&mut self) -> &mut [*mut T] {
+        &mut self.outputs
+    }
 
     /// Split this buffer into separate inputs and outputs.
     #[inline]
-    pub fn split<'b>(&'b mut self) -> (Inputs<'b, T>, Outputs<'b, T>) where 'a: 'b {
+    pub fn split<'b>(&'b mut self) -> (Inputs<'b, T>, Outputs<'b, T>)
+    where
+        'a: 'b,
+    {
         (
-            Inputs { bufs: self.inputs, samples: self.samples },
-            Outputs { bufs: self.outputs, samples: self.samples }
+            Inputs {
+                bufs: self.inputs,
+                samples: self.samples,
+            },
+            Outputs {
+                bufs: self.outputs,
+                samples: self.samples,
+            },
         )
     }
 
     /// Zip together buffers.
     #[inline]
-    pub fn zip<'b>(&'b mut self) -> Zip<InputIterator<'b, T>, OutputIterator<'b, T>> where 'a: 'b {
+    pub fn zip<'b>(&'b mut self) -> Zip<InputIterator<'b, T>, OutputIterator<'b, T>>
+    where
+        'a: 'b,
+    {
         let (inputs, outputs) = self.split();
         inputs.into_iter().zip(outputs)
     }
@@ -83,12 +110,15 @@ pub struct Inputs<'a, T: 'a> {
 }
 
 impl<'a, T> Inputs<'a, T> {
-
     /// Number of channels
-    pub fn len(&self) -> usize { self.bufs.len() }
+    pub fn len(&self) -> usize {
+        self.bufs.len()
+    }
 
     /// Returns true if the buffer is empty
-    pub fn is_empty(&self) -> bool { self.len() == 0 }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 
     /// Access channel at the given index, unchecked
     pub fn get(&self, i: usize) -> &'a [T] {
@@ -99,8 +129,14 @@ impl<'a, T> Inputs<'a, T> {
     pub fn split_at(&self, i: usize) -> (Inputs<'a, T>, Inputs<'a, T>) {
         let (l, r) = self.bufs.split_at(i);
         (
-            Inputs { bufs: l, samples: self.samples },
-            Inputs { bufs: r, samples: self.samples }
+            Inputs {
+                bufs: l,
+                samples: self.samples,
+            },
+            Inputs {
+                bufs: r,
+                samples: self.samples,
+            },
         )
     }
 }
@@ -151,12 +187,15 @@ pub struct Outputs<'a, T: 'a> {
 }
 
 impl<'a, T> Outputs<'a, T> {
-
     /// Number of channels
-    pub fn len(&self) -> usize { self.bufs.len() }
+    pub fn len(&self) -> usize {
+        self.bufs.len()
+    }
 
     /// Returns true if the buffer is empty
-    pub fn is_empty(&self) -> bool { self.len() == 0 }
+    pub fn is_empty(&self) -> bool {
+        self.len() == 0
+    }
 
     /// Access channel at the given index, unchecked
     pub fn get(&self, i: usize) -> &'a [T] {
@@ -172,8 +211,14 @@ impl<'a, T> Outputs<'a, T> {
     pub fn split_at_mut(&mut self, i: usize) -> (Outputs<'a, T>, Outputs<'a, T>) {
         let (l, r) = self.bufs.split_at(i);
         (
-            Outputs { bufs: l, samples: self.samples },
-            Outputs { bufs: r, samples: self.samples }
+            Outputs {
+                bufs: l,
+                samples: self.samples,
+            },
+            Outputs {
+                bufs: r,
+                samples: self.samples,
+            },
         )
     }
 }
@@ -241,7 +286,6 @@ impl Default for SendEventBuffer {
 }
 
 impl SendEventBuffer {
-
     /// Creates a buffer for sending up to the given number of midi events per frame
     #[inline]
     pub fn new(capacity: usize) -> Self {
@@ -293,40 +337,48 @@ impl SendEventBuffer {
     /// # }
     /// ```
     pub fn store<'a, T: IntoIterator<Item = U>, U: Borrow<Event<'a>>>(&mut self, events: T) {
-        let count = events.into_iter().zip(self.api_events.iter_mut()).map(|(event, out)| {
-            let (event, out): (&Event, &mut api::SysExEvent) = (event.borrow(), out);
-            match *event {
-                Event::Midi(ev) => {
-                    Self::store_midi_impl(out, &ev);
-                }
-                Event::SysEx(ev) => {
-                    *out = api::SysExEvent {
-                        event_type: api::EventType::SysEx,
-                        byte_size: mem::size_of::<api::SysExEvent>() as i32,
-                        delta_frames: ev.delta_frames,
-                        _flags: 0,
-                        data_size: ev.payload.len() as i32,
-                        _reserved1: 0,
-                        system_data: ev.payload.as_ptr() as *const u8 as *mut u8,
-                        _reserved2: 0,
-                    };
-                }
-                Event::Deprecated(e) => {
-                    let out = unsafe { &mut *(out as *mut _ as *mut _) };
-                    *out = e;
-                }
-            };
-        }).count();
+        let count = events
+            .into_iter()
+            .zip(self.api_events.iter_mut())
+            .map(|(event, out)| {
+                let (event, out): (&Event, &mut api::SysExEvent) = (event.borrow(), out);
+                match *event {
+                    Event::Midi(ev) => {
+                        Self::store_midi_impl(out, &ev);
+                    }
+                    Event::SysEx(ev) => {
+                        *out = api::SysExEvent {
+                            event_type: api::EventType::SysEx,
+                            byte_size: mem::size_of::<api::SysExEvent>() as i32,
+                            delta_frames: ev.delta_frames,
+                            _flags: 0,
+                            data_size: ev.payload.len() as i32,
+                            _reserved1: 0,
+                            system_data: ev.payload.as_ptr() as *const u8 as *mut u8,
+                            _reserved2: 0,
+                        };
+                    }
+                    Event::Deprecated(e) => {
+                        let out = unsafe { &mut *(out as *mut _ as *mut _) };
+                        *out = e;
+                    }
+                };
+            })
+            .count();
         self.set_num_events(count);
     }
 
     /// Use this for sending midi events to a host or plugin.
     /// Like store() but for when you're not sending any SysExEvents, only MidiEvents.
     pub fn store_midi<T: IntoIterator<Item = U>, U: Borrow<MidiEvent>>(&mut self, events: T) {
-        let count = events.into_iter().zip(self.api_events.iter_mut()).map(|(event, out)| {
-            let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event.borrow(), out);
-            Self::store_midi_impl(out, ev);
-        }).count();
+        let count = events
+            .into_iter()
+            .zip(self.api_events.iter_mut())
+            .map(|(event, out)| {
+                let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event.borrow(), out);
+                Self::store_midi_impl(out, ev);
+            })
+            .count();
         self.set_num_events(count);
     }
 
@@ -345,7 +397,7 @@ impl SendEventBuffer {
             detune: ev.detune,
             note_off_velocity: ev.note_off_velocity,
             _reserved1: 0,
-            _reserved2: 0
+            _reserved2: 0,
         };
     }
 
@@ -372,9 +424,12 @@ mod tests {
 
     /// Test that creating and zipping buffers works.
     ///
-    /// This test creates a channel for 2 inputs and 2 outputs. The input channels are simply values
-    /// from 0 to `SIZE-1` (e.g. [0, 1, 2, 3, 4, .. , SIZE - 1]) and the output channels are just 0.
-    /// This test assures that when the buffers are zipped together, the input values do not change.
+    /// This test creates a channel for 2 inputs and 2 outputs.
+    /// The input channels are simply values
+    /// from 0 to `SIZE-1` (e.g. [0, 1, 2, 3, 4, .. , SIZE - 1])
+    /// and the output channels are just 0.
+    /// This test assures that when the buffers are zipped together,
+    /// the input values do not change.
     #[test]
     fn buffer_zip() {
         let in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
@@ -388,8 +443,9 @@ mod tests {
         let mut buffer = AudioBuffer::new(&inputs, &mut outputs, SIZE);
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter())
-            .fold(0, |acc, (input, output)| {
+            input.into_iter().zip(output.into_iter()).fold(0, |acc,
+             (input,
+              output)| {
                 assert_eq!(*input - acc as f32, 0.0);
                 assert_eq!(*output, 0.0);
                 acc + 1
@@ -408,13 +464,13 @@ mod tests {
 
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer = unsafe {
-            AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
-        };
+        let mut buffer =
+            unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter())
-            .fold(0, |acc, (input, output)| {
+            input.into_iter().zip(output.into_iter()).fold(0, |acc,
+             (input,
+              output)| {
                 assert_eq!(*input - acc as f32, 0.0);
                 assert_eq!(*output, 0.0);
                 acc + 1

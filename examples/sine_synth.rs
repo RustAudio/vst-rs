@@ -90,6 +90,7 @@ impl Plugin for SineSynth {
         }
     }
 
+    // Supresses warning about match statment onlt having one arm
     #[allow(unknown_lints)]
     #[allow(unused_variables)]
     #[allow(single_match)]
