@@ -28,7 +28,7 @@ pub fn process_replacing(
     raw_outputs: *mut *mut f32,
     samples: i32,
 ) {
-    // Handle to the vst
+    // Handle to the VST
     let plugin = unsafe { (*effect).get_plugin() };
     let cache = unsafe { (*effect).get_cache() };
     let info = &mut cache.info;
@@ -94,7 +94,7 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
     1 // Success
 }
 
-/// VST2.4 dispatch function. This function handles dispatching all opcodes to the vst plugin.
+/// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.
 pub fn dispatch(
     effect: *mut AEffect,
     opcode: i32,
