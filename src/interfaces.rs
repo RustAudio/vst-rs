@@ -13,26 +13,58 @@ use editor::{Rect, KeyCode, Key, KnobMode};
 use host::Host;
 
 /// Deprecated process function.
-pub fn process_deprecated(_effect: *mut AEffect, _raw_inputs: *const *const f32, _raw_outputs: *mut *mut f32, _samples: i32) { }
+pub fn process_deprecated(
+    _effect: *mut AEffect,
+    _raw_inputs: *const *const f32,
+    _raw_outputs: *mut *mut f32,
+    _samples: i32,
+) {
+}
 
 /// VST2.4 replacing function.
-pub fn process_replacing(effect: *mut AEffect, raw_inputs: *const *const f32, raw_outputs: *mut *mut f32, samples: i32) {
+pub fn process_replacing(
+    effect: *mut AEffect,
+    raw_inputs: *const *const f32,
+    raw_outputs: *mut *mut f32,
+    samples: i32,
+) {
     // Handle to the vst
-    let mut plugin = unsafe { (*effect).get_plugin() };
+    let plugin = unsafe { (*effect).get_plugin() };
     let cache = unsafe { (*effect).get_cache() };
     let info = &mut cache.info;
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
-    let mut buffer = AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize);
+    let mut buffer = unsafe {
+        AudioBuffer::from_raw(
+            input_count,
+            output_count,
+            raw_inputs,
+            raw_outputs,
+            samples as usize,
+        )
+    };
     plugin.process(&mut buffer);
 }
 
 /// VST2.4 replacing function with `f64` values.
-pub fn process_replacing_f64(effect: *mut AEffect, raw_inputs: *const *const f64, raw_outputs: *mut *mut f64, samples: i32) {
-    let mut plugin = unsafe { (*effect).get_plugin() };
+pub fn process_replacing_f64(
+    effect: *mut AEffect,
+    raw_inputs: *const *const f64,
+    raw_outputs: *mut *mut f64,
+    samples: i32,
+) {
+    let plugin = unsafe { (*effect).get_plugin() };
     let cache = unsafe { (*effect).get_cache() };
     let info = &mut cache.info;
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
-    let mut buffer = AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize);
+    let mut buffer = unsafe {
+        AudioBuffer::from_raw(
+            input_count,
+            output_count,
+            raw_inputs,
+            raw_outputs,
+            samples as usize,
+        )
+    };
     plugin.process_f64(&mut buffer);
 }
 
@@ -63,13 +95,20 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 }
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the vst plugin.
-pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+pub fn dispatch(
+    effect: *mut AEffect,
+    opcode: i32,
+    index: i32,
+    value: isize,
+    ptr: *mut c_void,
+    opt: f32,
+) -> isize {
     use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
     let opcode = OpCode::from(opcode);
     // Plugin handle
-    let mut plugin = unsafe { (*effect).get_plugin() };
+    let plugin = unsafe { (*effect).get_plugin() };
 
     match opcode {
         OpCode::Initialize => plugin.init(),
@@ -86,9 +125,15 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             return copy_string(ptr, &plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => return copy_string(ptr, &plugin.get_parameter_label(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterDisplay => return copy_string(ptr, &plugin.get_parameter_text(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterName => return copy_string(ptr, &plugin.get_parameter_name(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterLabel => {
+            return copy_string(ptr, &plugin.get_parameter_label(index), MAX_PARAM_STR_LEN)
+        }
+        OpCode::GetParameterDisplay => {
+            return copy_string(ptr, &plugin.get_parameter_text(index), MAX_PARAM_STR_LEN)
+        }
+        OpCode::GetParameterName => {
+            return copy_string(ptr, &plugin.get_parameter_name(index), MAX_PARAM_STR_LEN)
+        }
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
@@ -108,13 +153,12 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 unsafe {
                     // Given a Rect** structure
                     // TODO: Investigate whether we are given a valid Rect** pointer already
-                    *(ptr as *mut *mut c_void) =
-                        Box::into_raw(Box::new(Rect {
-                            left: pos.0 as i16, // x coord of position
-                            top: pos.1 as i16, // y coord of position
-                            right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
-                            bottom: (pos.1 + size.1) as i16 // y coord of pos + y coord of size
-                        })) as *mut _; // TODO: free memory
+                    *(ptr as *mut *mut c_void) = Box::into_raw(Box::new(Rect {
+                        left: pos.0 as i16, // x coord of position
+                        top: pos.1 as i16, // y coord of position
+                        right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
+                        bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
+                    })) as *mut _; // TODO: free memory
                 }
             }
         }
@@ -166,9 +210,13 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             plugin.process_events(unsafe { &*(ptr as *const api::Events) });
         }
         OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
-        OpCode::StringToParameter => return plugin.string_to_parameter(index, read_string(ptr)) as isize,
+        OpCode::StringToParameter => {
+            return plugin.string_to_parameter(index, read_string(ptr)) as isize
+        }
 
-        OpCode::GetPresetName => return copy_string(ptr, &plugin.get_preset_name(index), MAX_PRESET_NAME_LEN),
+        OpCode::GetPresetName => {
+            return copy_string(ptr, &plugin.get_preset_name(index), MAX_PRESET_NAME_LEN)
+        }
 
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
@@ -190,21 +238,33 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             return plugin.get_info().category.into();
         }
 
-        OpCode::GetVendorName => return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductName => return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN),
+        OpCode::GetVendorName => {
+            return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN)
+        }
+        OpCode::GetProductName => {
+            return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN)
+        }
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
             let can_do: CanDo = match read_string(ptr).parse() {
                 Ok(c) => c,
-                Err(e) => { warn!("{}", e); return 0; }
+                Err(e) => {
+                    warn!("{}", e);
+                    return 0;
+                }
             };
             return plugin.can_do(can_do).into();
         }
-        OpCode::GetTailSize => if plugin.get_tail_size() == 0 { return 1; } else { return plugin.get_tail_size() },
+        OpCode::GetTailSize => {
+            if plugin.get_tail_size() == 0 {
+                return 1;
+            } else {
+                return plugin.get_tail_size();
+            }
+        }
 
         //OpCode::GetParamInfo => { /*TODO*/ }
-
         OpCode::GetApiVersion => return 2400,
 
         OpCode::EditorKeyDown => {
@@ -212,7 +272,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
+                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
                 });
             }
         }
@@ -221,7 +281,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8
+                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
                 });
             }
         }
@@ -233,20 +293,28 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         _ => {
             warn!("Unimplemented opcode ({:?})", opcode);
-            trace!("Arguments; index: {}, value: {}, ptr: {:?}, opt: {}", index, value, ptr, opt);
+            trace!(
+                "Arguments; index: {}, value: {}, ptr: {:?}, opt: {}",
+                index,
+                value,
+                ptr,
+                opt
+            );
         }
     }
 
     0
 }
 
-pub fn host_dispatch(host: &mut Host,
-                     effect: *mut AEffect,
-                     opcode: i32,
-                     index: i32,
-                     value: isize,
-                     ptr: *mut c_void,
-                     opt: f32) -> isize {
+pub fn host_dispatch(
+    host: &mut Host,
+    effect: *mut AEffect,
+    opcode: i32,
+    index: i32,
+    value: isize,
+    ptr: *mut c_void,
+    opt: f32,
+) -> isize {
     use host::OpCode;
 
     match OpCode::from(opcode) {
@@ -256,22 +324,29 @@ pub fn host_dispatch(host: &mut Host,
         OpCode::Idle => host.idle(),
 
         // ...
-
         OpCode::CanDo => {
             info!("Plugin is asking if host can: {}.", read_string(ptr));
         }
 
         OpCode::GetVendorVersion => return host.get_info().0,
         OpCode::GetVendorString => return copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductString => return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
+        OpCode::GetProductString => {
+            return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN)
+        }
         OpCode::ProcessEvents => {
             host.process_events(unsafe { &*(ptr as *const api::Events) });
         }
 
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
-            trace!("Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",
-                    effect, index, value, ptr, opt);
+            trace!(
+                "Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",
+                effect,
+                index,
+                value,
+                ptr,
+                opt
+            );
         }
     }
     0
@@ -281,7 +356,5 @@ pub fn host_dispatch(host: &mut Host,
 fn read_string(ptr: *mut c_void) -> String {
     use std::ffi::CStr;
 
-    String::from_utf8_lossy(
-        unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }
-    ).into_owned()
+    String::from_utf8_lossy(unsafe { CStr::from_ptr(ptr as *mut c_char).to_bytes() }).into_owned()
 }

@@ -20,7 +20,7 @@ pub mod consts {
     pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
                                ('s' as i32) << 16 |
                                ('t' as i32) << 8  |
-                               ('P' as i32) << 0  ;
+                               ('P' as i32);
 }
 
 /// `VSTPluginMain` function signature.
@@ -133,6 +133,8 @@ pub struct AEffect {
 
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
+    #[allow(unknown_lints)]
+    #[allow(borrowed_box)]
     pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
         &mut *(self.object as *mut Box<Plugin>)
     }
@@ -403,13 +405,13 @@ pub struct Events {
 }
 
 impl Events {
-    #[inline(always)]
+    #[inline]
     pub(crate) fn events_raw(&self) -> &[*const Event] {
         use std::slice;
         unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
     }
 
-    #[inline(always)]
+    #[inline]
     pub(crate) fn events_raw_mut(&mut self) -> &mut [*const SysExEvent] {
         use std::slice;
         unsafe { slice::from_raw_parts_mut(&mut self.events[0] as *mut *mut _ as *mut *const _, self.num_events as usize) }
@@ -440,9 +442,9 @@ impl Events {
     /// }
     /// # }
     /// ```
-    #[inline(always)]
-    pub fn events<'a>(&'a self) -> EventIterator<'a> {
-        return EventIterator { events: self.events_raw(), index: 0 }
+    #[inline]
+    pub fn events(&self) -> EventIterator {
+        EventIterator { events: self.events_raw(), index: 0 }
     }
 }
 
@@ -649,7 +651,7 @@ pub mod flags {
         /// Flags for VST plugins.
         pub flags Plugin: i32 {
             /// Plugin has an editor.
-            const HAS_EDITOR = 1 << 0,
+            const HAS_EDITOR = 1,
             /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
             const CAN_REPLACING = 1 << 4,
             /// Plugin preset data is handled in formatless chunks.
@@ -667,7 +669,7 @@ pub mod flags {
         /// Cross platform modifier key flags.
         pub flags ModifierKey: u8 {
             /// Shift key.
-            const SHIFT = 1 << 0,
+            const SHIFT = 1,
             /// Alt key.
             const ALT = 1 << 1,
             /// Control on mac.
@@ -683,7 +685,7 @@ pub mod flags {
             /// This event is played live (not in playback from a sequencer track). This allows the
             /// plugin to handle these flagged events with higher priority, especially when the
             /// plugin has a big latency as per `plugin::Info::initial_delay`.
-            const REALTIME_EVENT = 1 << 0,
+            const REALTIME_EVENT = 1,
         }
     }
 }

@@ -206,23 +206,23 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
             let mut flag = CAN_REPLACING;
 
             if info.f64_precision {
-                flag = flag | CAN_DOUBLE_REPLACING;
+                flag |= CAN_DOUBLE_REPLACING;
             }
 
             if plugin.get_editor().is_some() {
-                flag = flag | HAS_EDITOR;
+                flag |= HAS_EDITOR;
             }
 
             if info.preset_chunks {
-                flag = flag | PROGRAM_CHUNKS;
+                flag |= PROGRAM_CHUNKS;
             }
 
             if let plugin::Category::Synth = info.category {
-                flag = flag | IS_SYNTH;
+                flag |= IS_SYNTH;
             }
 
             if info.silent_when_stopped {
-                flag = flag | NO_SOUND_IN_STOP;
+                flag |= NO_SOUND_IN_STOP;
             }
 
             flag.bits()
