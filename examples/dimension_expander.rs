@@ -100,8 +100,8 @@ impl Plugin for DimensionExpander {
         Info {
             name: "Dimension Expander".to_string(),
             vendor: "overdrivenpotato".to_string(),
-            unique_id: 243_723_071,
-            version: 1,
+            unique_id: 243723071,
+            version: 0001,
             inputs: 2,
             outputs: 2,
             parameters: 2,
