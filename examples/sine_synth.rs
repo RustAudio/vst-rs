@@ -14,10 +14,11 @@ use std::f64::consts::PI;
 ///
 /// This function assumes A4 is 440hz.
 fn midi_pitch_to_freq(pitch: u8) -> f64 {
-    const A4_PITCH: u8 = 69;
+    const A4_PITCH: i8 = 69;
     const A4_FREQ: f64 = 440.0;
 
-    (f64::from(pitch - A4_PITCH) / 12.).exp2() * A4_FREQ
+    // Midi notes can be 0-127
+    ((f64::from(pitch as i8 - A4_PITCH)) / 12.).exp2() * A4_FREQ
 }
 
 struct SineSynth {
@@ -150,3 +151,16 @@ impl Plugin for SineSynth {
 }
 
 plugin_main!(SineSynth);
+
+#[cfg(test)]
+mod tests {
+    use midi_pitch_to_freq;
+
+    #[test]
+    fn test_midi_pitch_to_freq() {
+        for i in 0..127 {
+            // expect no panics
+            midi_pitch_to_freq(i);
+        }
+    }
+}

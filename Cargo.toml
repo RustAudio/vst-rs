@@ -31,7 +31,7 @@ crate-type = ["cdylib"]
 
 [[example]]
 name = "simple_host"
-crate-type = ["cdylib"]
+crate-type = ["bin"]
 
 [[example]]
 name = "sine_synth"

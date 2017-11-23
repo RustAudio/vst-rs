@@ -62,7 +62,7 @@ version = "0.0.1"
 authors = ["Author <author@example.com>"]
 
 [dependencies]
-vst2 = "0.0.1"
+vst2 = { git = "https://github.com/rust-dsp/rust-vst" }
 
 [lib]
 name = "basicvst"
