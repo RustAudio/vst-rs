@@ -29,13 +29,19 @@ pub trait Editor {
     /// Set the knob mode for this editor (if supported by host).
     ///
     /// Return true if the knob mode was set.
-    fn set_knob_mode(&mut self, mode: KnobMode) -> bool { false }
+    fn set_knob_mode(&mut self, mode: KnobMode) -> bool {
+        false
+    }
 
     /// Recieve key up event. Return true if the key was used.
-    fn key_up(&mut self, keycode: KeyCode) -> bool { false }
+    fn key_up(&mut self, keycode: KeyCode) -> bool {
+        false
+    }
 
     /// Receive key down event. Return true if the key was used.
-    fn key_down(&mut self, keycode: KeyCode) -> bool { false }
+    fn key_down(&mut self, keycode: KeyCode) -> bool {
+        false
+    }
 }
 
 /// Rectangle used to specify dimensions of editor window.
@@ -49,7 +55,7 @@ pub struct Rect {
     /// Y value in pixels of bottom side.
     pub bottom: i16,
     /// X value in pixels of right side.
-    pub right: i16
+    pub right: i16,
 }
 
 /// A platform independent key code. Includes modifier keys.
@@ -60,7 +66,7 @@ pub struct KeyCode {
     /// Key pressed. See `enums::Key`.
     pub key: Key,
     /// Modifier key bitflags. See `enums::flags::modifier_key`.
-    pub modifier: u8
+    pub modifier: u8,
 }
 
 /// Allows host to set how a parameter knob works.
@@ -70,7 +76,7 @@ pub struct KeyCode {
 pub enum KnobMode {
     Circular,
     CircularRelative,
-    Linear
+    Linear,
 }
 impl_clike!(KnobMode);
 
@@ -79,62 +85,62 @@ impl_clike!(KnobMode);
 #[repr(usize)]
 #[derive(Debug, Copy, Clone)]
 pub enum Key {
-	Back = 1,
-	Tab,
-	Clear,
-	Return,
-	Pause,
-	Escape,
-	Space,
-	Next,
-	End,
-	Home,
-	Left,
-	Up,
-	Right,
-	Down,
-	PageUp,
-	PageDown,
-	Select,
-	Print,
-	Enter,
-	Snapshot,
-	Insert,
-	Delete,
-	Help,
-	Numpad0,
-	Numpad1,
-	Numpad2,
-	Numpad3,
-	Numpad4,
-	Numpad5,
-	Numpad6,
-	Numpad7,
-	Numpad8,
-	Numpad9,
-	Multiply,
-	Add,
-	Separator,
-	Subtract,
-	Decimal,
-	Divide,
-	F1,
-	F2,
-	F3,
-	F4,
-	F5,
-	F6,
-	F7,
-	F8,
-	F9,
-	F10,
-	F11,
-	F12,
-	Numlock,
-	Scroll,
-	Shift,
-	Control,
-	Alt,
-	Equals
+    Back = 1,
+    Tab,
+    Clear,
+    Return,
+    Pause,
+    Escape,
+    Space,
+    Next,
+    End,
+    Home,
+    Left,
+    Up,
+    Right,
+    Down,
+    PageUp,
+    PageDown,
+    Select,
+    Print,
+    Enter,
+    Snapshot,
+    Insert,
+    Delete,
+    Help,
+    Numpad0,
+    Numpad1,
+    Numpad2,
+    Numpad3,
+    Numpad4,
+    Numpad5,
+    Numpad6,
+    Numpad7,
+    Numpad8,
+    Numpad9,
+    Multiply,
+    Add,
+    Separator,
+    Subtract,
+    Decimal,
+    Divide,
+    F1,
+    F2,
+    F3,
+    F4,
+    F5,
+    F6,
+    F7,
+    F8,
+    F9,
+    F10,
+    F11,
+    F12,
+    Numlock,
+    Scroll,
+    Shift,
+    Control,
+    Alt,
+    Equals,
 }
 impl_clike!(Key);

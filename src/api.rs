@@ -17,26 +17,43 @@ pub mod consts {
     pub const MAX_VENDOR_STR_LEN: usize = 64;
 
     /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
-    pub const VST_MAGIC: i32 = ('V' as i32) << 24 |
-                               ('s' as i32) << 16 |
-                               ('t' as i32) << 8  |
-                               ('P' as i32) << 0  ;
+    pub const VST_MAGIC: i32 = ('V' as i32) << 24 | ('s' as i32) << 16 | ('t' as i32) << 8 |
+        ('P' as i32);
 }
 
 /// `VSTPluginMain` function signature.
 pub type PluginMain = fn(callback: HostCallbackProc) -> *mut AEffect;
 
-/// Host callback function passed to plugin. Can be used to query host information from plugin side.
-pub type HostCallbackProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+/// Host callback function passed to plugin.
+/// Can be used to query host information from plugin side.
+pub type HostCallbackProc = fn(effect: *mut AEffect,
+                               opcode: i32,
+                               index: i32,
+                               value: isize,
+                               ptr: *mut c_void,
+                               opt: f32)
+                               -> isize;
 
 /// Dispatcher function used to process opcodes. Called by host.
-pub type DispatcherProc = fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+pub type DispatcherProc = fn(effect: *mut AEffect,
+                             opcode: i32,
+                             index: i32,
+                             value: isize,
+                             ptr: *mut c_void,
+                             opt: f32)
+                             -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
-pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
+pub type ProcessProc = fn(effect: *mut AEffect,
+                          inputs: *const *const f32,
+                          outputs: *mut *mut f32,
+                          sample_frames: i32);
 
 /// Process function used to process 64 bit floating point samples. Called by host.
-pub type ProcessProcF64 = fn(effect: *mut AEffect, inputs: *const *const f64, outputs: *mut *mut f64, sample_frames: i32);
+pub type ProcessProcF64 = fn(effect: *mut AEffect,
+                             inputs: *const *const f64,
+                             outputs: *mut *mut f64,
+                             sample_frames: i32);
 
 /// Callback function used to set parameter values. Called by host.
 pub type SetParameterProc = fn(effect: *mut AEffect, index: i32, parameter: f32);
@@ -63,7 +80,6 @@ pub struct AEffect {
     /// Get value of automatable parameter.
     pub getParameter: GetParameterProc,
 
-
     /// Number of programs (Presets).
     pub numPrograms: i32,
 
@@ -75,7 +91,6 @@ pub struct AEffect {
 
     /// Number of audio outputs.
     pub numOutputs: i32,
-
 
     /// Bitmask made of values from api::flags.
     ///
@@ -97,7 +112,6 @@ pub struct AEffect {
     /// This value should be initially in a resume state.
     pub initialDelay: i32,
 
-
     /// Deprecated unused member.
     pub _realQualities: i32,
 
@@ -107,15 +121,14 @@ pub struct AEffect {
     /// Deprecated unused member.
     pub _ioRatio: f32,
 
-
     /// Void pointer usable by api to store object data.
     pub object: *mut c_void,
 
     /// User defined pointer.
     pub user: *mut c_void,
 
-    /// Registered unique identifier (register it at Steinberg 3rd party support Web). This is used
-    /// to identify a plug-in during save+load of preset and project.
+    /// Registered unique identifier (register it at Steinberg 3rd party support Web).
+    /// This is used to identify a plug-in during save+load of preset and project.
     pub uniqueId: i32,
 
     /// Plug-in version (e.g. 1100 for v1.1.0.0).
@@ -128,12 +141,16 @@ pub struct AEffect {
     pub processReplacingF64: ProcessProcF64,
 
     /// Reserved for future use (please zero).
-    pub future: [u8; 56]
+    pub future: [u8; 56],
 }
 
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
+    // Supresses warning about returning a reference to a box
+    #[allow(unknown_lints)]
+    #[allow(borrowed_box)]
     pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
+        //FIXME: find a way to do this without resorting to transmuting via a box
         &mut *(self.object as *mut Box<Plugin>)
     }
 
@@ -164,7 +181,7 @@ pub struct ChannelProperties {
     pub short_name: [u8; MAX_SHORT_LABEL as usize],
 
     /// Reserved for future use.
-    pub future: [u8; 48]
+    pub future: [u8; 48],
 }
 
 /// Tells the host how the channels are intended to be used in the plugin. Only useful for some
@@ -255,7 +272,7 @@ pub enum SpeakerArrangementType {
 pub enum Supported {
     Yes,
     Maybe,
-    No
+    No,
 }
 
 impl Supported {
@@ -264,10 +281,10 @@ impl Supported {
         use self::Supported::*;
 
         match val {
-             1 => Some(Yes),
-             0 => Some(Maybe),
+            1 => Some(Yes),
+            0 => Some(Maybe),
             -1 => Some(No),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -280,7 +297,7 @@ impl Into<isize> for Supported {
         match self {
             Yes => 1,
             Maybe => 0,
-            No => -1
+            No => -1,
         }
     }
 }
@@ -330,7 +347,7 @@ pub enum FileSelectCommand {
 /// Format to select files.
 pub enum FileSelectType {
     /// Regular file selector.
-    Regular
+    Regular,
 }
 
 /// File type descriptor.
@@ -383,7 +400,7 @@ pub struct FileSelect {
     /// Reserved by host.
     pub reserved: isize,
     /// Reserved for future use.
-    pub future: [u8; 116]
+    pub future: [u8; 116],
 }
 
 /// A struct which contains events.
@@ -403,16 +420,26 @@ pub struct Events {
 }
 
 impl Events {
-    #[inline(always)]
+    #[inline]
     pub(crate) fn events_raw(&self) -> &[*const Event] {
         use std::slice;
-        unsafe { slice::from_raw_parts(&self.events[0] as *const *mut _ as *const *const _, self.num_events as usize) }
+        unsafe {
+            slice::from_raw_parts(
+                &self.events[0] as *const *mut _ as *const *const _,
+                self.num_events as usize,
+            )
+        }
     }
 
-    #[inline(always)]
+    #[inline]
     pub(crate) fn events_raw_mut(&mut self) -> &mut [*const SysExEvent] {
         use std::slice;
-        unsafe { slice::from_raw_parts_mut(&mut self.events[0] as *mut *mut _ as *mut *const _, self.num_events as usize) }
+        unsafe {
+            slice::from_raw_parts_mut(
+                &mut self.events[0] as *mut *mut _ as *mut *const _,
+                self.num_events as usize,
+            )
+        }
     }
 
     /// Use this in your impl of process_events() to process the incoming midi events.
@@ -440,9 +467,12 @@ impl Events {
     /// }
     /// # }
     /// ```
-    #[inline(always)]
-    pub fn events<'a>(&'a self) -> EventIterator<'a> {
-        return EventIterator { events: self.events_raw(), index: 0 }
+    #[inline]
+    pub fn events(&self) -> EventIterator {
+        EventIterator {
+            events: self.events_raw(),
+            index: 0,
+        }
     }
 }
 
@@ -488,7 +518,8 @@ pub enum EventType {
 
 /// A VST event intended to be casted to a corresponding type.
 ///
-/// The event types are not all guaranteed to be the same size, so casting between them can be done
+/// The event types are not all guaranteed to be the same size,
+/// so casting between them can be done
 /// via `mem::transmute()` while leveraging pointers, e.g.
 ///
 /// ```
@@ -546,9 +577,9 @@ pub struct Event {
 
     /// The `Event` type is cast appropriately, so this acts as reserved space.
     ///
-    /// The actual size of the data may vary as this type is not guaranteed to be the same size as
-    /// the other event types.
-    pub _reserved: [u8; 16]
+    /// The actual size of the data may vary
+    ///as this type is not guaranteed to be the same size as the other event types.
+    pub _reserved: [u8; 16],
 }
 
 /// A midi event.
@@ -569,7 +600,6 @@ pub struct MidiEvent {
     /// See `flags::MidiFlags`.
     pub flags: i32,
 
-
     /// Length in sample frames of entire note if available, otherwise 0.
     pub note_length: i32,
 
@@ -582,7 +612,8 @@ pub struct MidiEvent {
     /// Reserved midi byte (0).
     pub _midi_reserved: u8,
 
-    /// Detuning between -63 and +64 cents, for scales other than 'well-tempered'. e.g. 'microtuning'
+    /// Detuning between -63 and +64 cents,
+    /// for scales other than 'well-tempered'. e.g. 'microtuning'
     pub detune: i8,
 
     /// Note off velocity between 0 and 127.
@@ -617,7 +648,6 @@ pub struct SysExEvent {
     /// Generic flags, none defined in VST api yet.
     pub _flags: i32,
 
-
     /// Size of payload in bytes.
     pub data_size: i32,
 
@@ -649,7 +679,7 @@ pub mod flags {
         /// Flags for VST plugins.
         pub flags Plugin: i32 {
             /// Plugin has an editor.
-            const HAS_EDITOR = 1 << 0,
+            const HAS_EDITOR = 1,
             /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
             const CAN_REPLACING = 1 << 4,
             /// Plugin preset data is handled in formatless chunks.
@@ -667,7 +697,7 @@ pub mod flags {
         /// Cross platform modifier key flags.
         pub flags ModifierKey: u8 {
             /// Shift key.
-            const SHIFT = 1 << 0,
+            const SHIFT = 1,
             /// Alt key.
             const ALT = 1 << 1,
             /// Control on mac.
@@ -683,7 +713,7 @@ pub mod flags {
             /// This event is played live (not in playback from a sequencer track). This allows the
             /// plugin to handle these flagged events with higher priority, especially when the
             /// plugin has a big latency as per `plugin::Info::initial_delay`.
-            const REALTIME_EVENT = 1 << 0,
+            const REALTIME_EVENT = 1,
         }
     }
 }

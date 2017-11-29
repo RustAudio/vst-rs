@@ -42,7 +42,7 @@ pub enum Category {
     /// Contains other plugins.
     Shell,
     /// Tone generator, etc.
-    Generator
+    Generator,
 }
 impl_clike!(Category);
 
@@ -303,20 +303,17 @@ pub struct Info {
     /// Plugin Vendor.
     pub vendor: String,
 
-
     /// Number of different presets.
     pub presets: i32,
 
     /// Number of parameters.
     pub parameters: i32,
 
-
     /// Number of inputs.
     pub inputs: i32,
 
     /// Number of outputs.
     pub outputs: i32,
-
 
     /// Unique plugin ID. Can be registered with Steinberg to prevent conflicts with other plugins.
     ///
@@ -364,7 +361,7 @@ impl Default for Info {
             outputs: 2,
 
             unique_id: 0, // This must be changed.
-            version: 0001, // v0.0.0.1
+            version: 1, // v0.0.0.1
 
             category: Category::Effect,
 
@@ -395,7 +392,7 @@ pub enum CanDo {
     MidiSingleNoteTuningChange,
     MidiKeyBasedInstrumentControl,
 
-    Other(String)
+    Other(String),
 }
 
 use std::str::FromStr;
@@ -418,7 +415,7 @@ impl FromStr for CanDo {
             "receiveVstSysexEvent" => ReceiveSysExEvent,
             "midiSingleNoteTuningChange" => MidiSingleNoteTuningChange,
             "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
-            otherwise => Other(otherwise.to_string())
+            otherwise => Other(otherwise.to_string()),
         })
     }
 }
@@ -440,10 +437,9 @@ impl Into<String> for CanDo {
             ReceiveSysExEvent => "receiveVstSysexEvent".to_string(),
             MidiSingleNoteTuningChange => "midiSingleNoteTuningChange".to_string(),
             MidiKeyBasedInstrumentControl => "midiKeyBasedInstrumentControl".to_string(),
-            Other(other) => other
+            Other(other) => other,
         }
     }
-
 }
 
 /// Must be implemented by all VST plugins.
@@ -495,29 +491,40 @@ pub trait Plugin {
     ///
     /// # fn main() {}
     /// ```
-    fn new(host: HostCallback) -> Self where Self: Sized + Default {
+    fn new(host: HostCallback) -> Self
+    where
+        Self: Sized + Default,
+    {
         Default::default()
     }
 
     /// Called when plugin is fully initialized.
-    fn init(&mut self) { trace!("Initialized vst plugin."); }
+    fn init(&mut self) {
+        trace!("Initialized vst plugin.");
+    }
 
 
     /// Set the current preset to the index specified by `preset`.
-    fn change_preset(&mut self, preset: i32) { }
+    fn change_preset(&mut self, preset: i32) {}
 
     /// Get the current preset index.
-    fn get_preset_num(&self) -> i32 { 0 }
+    fn get_preset_num(&self) -> i32 {
+        0
+    }
 
     /// Set the current preset name.
-    fn set_preset_name(&mut self, name: String) { }
+    fn set_preset_name(&mut self, name: String) {}
 
     /// Get the name of the preset at the index specified by `preset`.
-    fn get_preset_name(&self, preset: i32) -> String { "".to_string() }
+    fn get_preset_name(&self, preset: i32) -> String {
+        "".to_string()
+    }
 
 
     /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
-    fn get_parameter_label(&self, index: i32) -> String { "".to_string() }
+    fn get_parameter_label(&self, index: i32) -> String {
+        "".to_string()
+    }
 
     /// Get the parameter value for parameter at `index` (e.g. "1.0", "150", "Plate", "Off").
     fn get_parameter_text(&self, index: i32) -> String {
@@ -525,39 +532,49 @@ pub trait Plugin {
     }
 
     /// Get the name of parameter at `index`.
-    fn get_parameter_name(&self, index: i32) -> String { format!("Param {}", index) }
+    fn get_parameter_name(&self, index: i32) -> String {
+        format!("Param {}", index)
+    }
 
     /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
-    fn get_parameter(&self, index: i32) -> f32 { 0.0 }
+    fn get_parameter(&self, index: i32) -> f32 {
+        0.0
+    }
 
     /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
-    fn set_parameter(&mut self, index: i32, value: f32) { }
+    fn set_parameter(&mut self, index: i32, value: f32) {}
 
     /// Return whether parameter at `index` can be automated.
-    fn can_be_automated(&self, index: i32) -> bool { false }
+    fn can_be_automated(&self, index: i32) -> bool {
+        false
+    }
 
     /// Use String as input for parameter value. Used by host to provide an editable field to
     /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
     /// the input string was used.
-    fn string_to_parameter(&mut self, index: i32, text: String) -> bool { false }
+    fn string_to_parameter(&mut self, index: i32, text: String) -> bool {
+        false
+    }
 
 
     /// Called when sample rate is changed by host.
-    fn set_sample_rate(&mut self, rate: f32) { }
+    fn set_sample_rate(&mut self, rate: f32) {}
 
     /// Called when block size is changed by host.
-    fn set_block_size(&mut self, size: i64) { }
+    fn set_block_size(&mut self, size: i64) {}
 
 
     /// Called when plugin is turned on.
-    fn resume(&mut self) { }
+    fn resume(&mut self) {}
 
     /// Called when plugin is turned off.
-    fn suspend(&mut self) { }
+    fn suspend(&mut self) {}
 
 
     /// Vendor specific handling.
-    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize { 0 }
+    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+        0
+    }
 
 
     /// Return whether plugin supports specified action.
@@ -567,7 +584,9 @@ pub trait Plugin {
     }
 
     /// Get the tail size of plugin when it is stopped. Used in offline processing as well.
-    fn get_tail_size(&self) -> isize { 0 }
+    fn get_tail_size(&self) -> isize {
+        0
+    }
 
 
     /// Process an audio buffer containing `f32` values.
@@ -654,16 +673,22 @@ pub trait Plugin {
     fn process_events(&mut self, events: &api::Events) {}
 
     /// Return handle to plugin editor if supported.
-    fn get_editor(&mut self) -> Option<&mut Editor> { None }
+    fn get_editor(&mut self) -> Option<&mut Editor> {
+        None
+    }
 
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current preset.
-    fn get_preset_data(&mut self) -> Vec<u8> { Vec::new() }
+    fn get_preset_data(&mut self) -> Vec<u8> {
+        Vec::new()
+    }
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current plugin bank.
-    fn get_bank_data(&mut self) -> Vec<u8> { Vec::new() }
+    fn get_bank_data(&mut self) -> Vec<u8> {
+        Vec::new()
+    }
 
     /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
     /// chunk data.
@@ -675,16 +700,22 @@ pub trait Plugin {
 
     /// Get information about an input channel. Only used by some hosts.
     fn get_input_info(&self, input: i32) -> ChannelInfo {
-        ChannelInfo::new(format!("Input channel {}", input),
-                         Some(format!("In {}", input)),
-                         true, None)
+        ChannelInfo::new(
+            format!("Input channel {}", input),
+            Some(format!("In {}", input)),
+            true,
+            None,
+        )
     }
 
     /// Get information about an output channel. Only used by some hosts.
     fn get_output_info(&self, output: i32) -> ChannelInfo {
-        ChannelInfo::new(format!("Output channel {}", output),
-                         Some(format!("Out {}", output)),
-                         true, None)
+        ChannelInfo::new(
+            format!("Output channel {}", output),
+            Some(format!("Out {}", output)),
+            true,
+            None,
+        )
     }
 }
 
@@ -736,15 +767,18 @@ impl Default for HostCallback {
 impl HostCallback {
     /// Wrap callback in a function to avoid using fn pointer notation.
     #[doc(hidden)]
-    fn callback(&self,
-                effect: *mut AEffect,
-                opcode: host::OpCode,
-                index: i32,
-                value: isize,
-                ptr: *mut c_void,
-                opt: f32)
-                -> isize {
-        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
+    fn callback(
+        &self,
+        effect: *mut AEffect,
+        opcode: host::OpCode,
+        index: i32,
+        value: isize,
+        ptr: *mut c_void,
+        opt: f32,
+    ) -> isize {
+        let callback = self.callback.unwrap_or_else(
+            || panic!("Host not yet initialized."),
+        );
         callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
@@ -766,48 +800,84 @@ impl HostCallback {
 
     /// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.
     pub fn vst_version(&self) -> i32 {
-        self.callback(self.effect, host::OpCode::Version,
-                      0, 0, ptr::null_mut(), 0.0) as i32
+        self.callback(
+            self.effect,
+            host::OpCode::Version,
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        ) as i32
     }
 
     fn read_string(&self, opcode: host::OpCode, max: usize) -> String {
         self.read_string_param(opcode, 0, 0, 0.0, max)
     }
 
-    fn read_string_param(&self,
-                         opcode: host::OpCode,
-                         index: i32,
-                         value: isize,
-                         opt: f32,
-                         max: usize)
-                         -> String {
+    fn read_string_param(
+        &self,
+        opcode: host::OpCode,
+        index: i32,
+        value: isize,
+        opt: f32,
+        max: usize,
+    ) -> String {
         let mut buf = vec![0; max];
-        self.callback(self.effect, opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
-        String::from_utf8_lossy(&buf).chars().take_while(|c| *c != '\0').collect()
+        self.callback(
+            self.effect,
+            opcode,
+            index,
+            value,
+            buf.as_mut_ptr() as *mut c_void,
+            opt,
+        );
+        String::from_utf8_lossy(&buf)
+            .chars()
+            .take_while(|c| *c != '\0')
+            .collect()
     }
 }
 
 impl Host for HostCallback {
     fn automate(&mut self, index: i32, value: f32) {
-        if self.is_effect_valid() { // TODO: Investigate removing this check, should be up to host
-            self.callback(self.effect, host::OpCode::Automate,
-                          index, 0, ptr::null_mut(), value);
+        if self.is_effect_valid() {
+            // TODO: Investigate removing this check, should be up to host
+            self.callback(
+                self.effect,
+                host::OpCode::Automate,
+                index,
+                0,
+                ptr::null_mut(),
+                value,
+            );
         }
     }
 
     fn get_plugin_id(&self) -> i32 {
-        self.callback(self.effect, host::OpCode::CurrentId,
-                      0, 0, ptr::null_mut(), 0.0) as i32
+        self.callback(
+            self.effect,
+            host::OpCode::CurrentId,
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        ) as i32
     }
 
     fn idle(&self) {
-        self.callback(self.effect, host::OpCode::Idle,
-                      0, 0, ptr::null_mut(), 0.0);
+        self.callback(self.effect, host::OpCode::Idle, 0, 0, ptr::null_mut(), 0.0);
     }
 
     fn get_info(&self) -> (isize, String, String) {
         use api::consts::*;
-        let version = self.callback(self.effect, host::OpCode::CurrentId, 0, 0, ptr::null_mut(), 0.0) as isize;
+        let version = self.callback(
+            self.effect,
+            host::OpCode::CurrentId,
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        ) as isize;
         let vendor_name = self.read_string(host::OpCode::GetVendorString, MAX_VENDOR_STR_LEN);
         let product_name = self.read_string(host::OpCode::GetProductString, MAX_PRODUCT_STR_LEN);
         (version, vendor_name, product_name)
@@ -827,7 +897,7 @@ impl Host for HostCallback {
             0,
             0,
             events as *const _ as *mut _,
-            0.0
+            0.0,
         );
     }
 }
@@ -932,7 +1002,13 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(aeffect, plugin::OpCode::Initialize.into(),
-                                           0, 0, ptr::null_mut(), 0.0);
+        (unsafe { (*aeffect).dispatcher })(
+            aeffect,
+            plugin::OpCode::Initialize.into(),
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        );
     }
 }

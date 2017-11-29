@@ -6,8 +6,6 @@ pub(crate) struct PluginCache {
 
 impl PluginCache {
     pub fn new(info: &Info) -> Self {
-        Self {
-            info: info.clone(),
-        }
+        Self { info: info.clone() }
     }
 }

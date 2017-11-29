@@ -1,6 +1,7 @@
 // author: Rob Saunders <hello@robsaunders.io>
 
-#[macro_use] extern crate vst2;
+#[macro_use]
+extern crate vst2;
 
 use vst2::buffer::AudioBuffer;
 use vst2::plugin::{Category, Plugin, Info, CanDo};
@@ -17,7 +18,7 @@ fn midi_pitch_to_freq(pitch: u8) -> f64 {
     const A4_FREQ: f64 = 440.0;
 
     // Midi notes can be 0-127
-    (((pitch as i8 - A4_PITCH) as f64) / 12.).exp2() * A4_FREQ
+    ((f64::from(pitch as i8 - A4_PITCH)) / 12.).exp2() * A4_FREQ
 }
 
 struct SineSynth {
@@ -46,7 +47,7 @@ impl SineSynth {
         match data[0] {
             128 => self.note_off(data[1]),
             144 => self.note_on(data[1]),
-            _ => ()
+            _ => (),
         }
     }
 
@@ -62,7 +63,7 @@ impl SineSynth {
     }
 }
 
-pub const TAU : f64 = PI * 2.0;
+pub const TAU: f64 = PI * 2.0;
 
 impl Default for SineSynth {
     fn default() -> SineSynth {
@@ -90,19 +91,22 @@ impl Plugin for SineSynth {
         }
     }
 
+    // Supresses warning about match statment onlt having one arm
+    #[allow(unknown_lints)]
     #[allow(unused_variables)]
+    #[allow(single_match)]
     fn process_events(&mut self, events: &Events) {
         for event in events.events() {
             match event {
                 Event::Midi(ev) => self.process_midi_event(ev.data),
                 // More events can be handled here.
-                _ => ()
+                _ => (),
             }
         }
     }
 
     fn set_sample_rate(&mut self, rate: f32) {
-        self.sample_rate = rate as f64;
+        self.sample_rate = f64::from(rate);
     }
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
@@ -141,7 +145,7 @@ impl Plugin for SineSynth {
     fn can_do(&self, can_do: CanDo) -> Supported {
         match can_do {
             CanDo::ReceiveMidiEvent => Supported::Yes,
-            _ => Supported::Maybe
+            _ => Supported::Maybe,
         }
     }
 }

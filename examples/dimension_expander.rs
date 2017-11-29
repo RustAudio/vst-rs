@@ -1,6 +1,7 @@
 // author: Marko Mijalkovic <marko.mijalkovic97@gmail.com>
 
-#[macro_use] extern crate vst2;
+#[macro_use]
+extern crate vst2;
 extern crate time;
 
 use vst2::plugin::{Category, Info, Plugin};
@@ -122,7 +123,7 @@ impl Plugin for DimensionExpander {
         match index {
             0 => format!("{}", (self.size * 1000.0) as isize),
             1 => format!("{:.1}%", self.dry_wet * 100.0),
-            _ => "".to_string()
+            _ => "".to_string(),
         }
     }
 
@@ -160,7 +161,7 @@ impl Plugin for DimensionExpander {
         // Zip and process
         for ((left_in, right_in), (left_out, right_out)) in stereo_in.zip(stereo_out) {
             // Push the new samples into the delay buffers.
-            for buffer in self.buffers.iter_mut() {
+            for buffer in &mut self.buffers {
                 buffer.push_back((*left_in, *right_in));
             }
 
@@ -179,9 +180,7 @@ impl Plugin for DimensionExpander {
                     let offset = 0.25 * (n % 4) as f64;
 
                     // Sine wave volume LFO
-                    let lfo = (
-                        (time_s * LFO_FREQ + offset) * PI * 2.0
-                    ).sin() as f32;
+                    let lfo = ((time_s * LFO_FREQ + offset) * PI * 2.0).sin() as f32;
 
                     let wet = self.dry_wet * WET_MULT;
                     let mono = (left_old + right_old) / 2.0;
