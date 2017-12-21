@@ -319,9 +319,9 @@ impl SendEventBuffer {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst2::plugin::{Info, Plugin, HostCallback};
-    /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
-    /// # use vst2::host::Host;
+    /// # use vst::plugin::{Info, Plugin, HostCallback};
+    /// # use vst::buffer::{AudioBuffer, SendEventBuffer};
+    /// # use vst::host::Host;
     /// # struct ExamplePlugin { host: HostCallback, send_buffer: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }

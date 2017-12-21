@@ -1,11 +1,11 @@
 // author: Marko Mijalkovic <marko.mijalkovic97@gmail.com>
 
 #[macro_use]
-extern crate vst2;
+extern crate vst;
 extern crate time;
 
-use vst2::plugin::{Category, Info, Plugin};
-use vst2::buffer::AudioBuffer;
+use vst::plugin::{Category, Info, Plugin};
+use vst::buffer::AudioBuffer;
 
 use std::mem;
 use std::f64::consts::PI;

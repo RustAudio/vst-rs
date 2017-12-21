@@ -1,11 +1,11 @@
-extern crate vst2;
+extern crate vst;
 
 use std::sync::{Arc, Mutex};
 use std::path::Path;
 use std::error::Error;
 
-use vst2::host::{Host, PluginLoader};
-use vst2::plugin::Plugin;
+use vst::host::{Host, PluginLoader};
+use vst::plugin::Plugin;
 
 #[allow(dead_code)]
 struct SampleHost;

@@ -32,9 +32,9 @@ crate-type directive which builds a dynamic library, usable by any VST host.
 
 ```rust
 #[macro_use]
-extern crate vst2;
+extern crate vst;
 
-use vst2::plugin::{Info, Plugin};
+use vst::plugin::{Info, Plugin};
 
 #[derive(Default)]
 struct BasicPlugin;
@@ -62,7 +62,7 @@ version = "0.0.1"
 authors = ["Author <author@example.com>"]
 
 [dependencies]
-vst2 = { git = "https://github.com/rust-dsp/rust-vst" }
+vst = { git = "https://github.com/rust-dsp/rust-vst" }
 
 [lib]
 name = "basicvst"
@@ -73,8 +73,8 @@ crate-type = ["cdylib"]
 [trav-url]: https://travis-ci.org/rust-dsp/rust-vst
 [appv-img]: https://ci.appveyor.com/api/projects/status/npiyjfithlx50hfs?svg=true
 [appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
-[crates-img]: https://img.shields.io/crates/v/vst2.svg
-[crates-url]: https://crates.io/crates/vst2
+[crates-img]: https://img.shields.io/crates/v/vst.svg
+[crates-url]: https://crates.io/crates/vst
 
 #### Packaging on OS X
 
