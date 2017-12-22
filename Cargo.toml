@@ -1,6 +1,6 @@
 [package]
 name = "vst2"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."

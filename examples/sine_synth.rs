@@ -87,7 +87,6 @@ impl Plugin for SineSynth {
             outputs: 2,
             parameters: 0,
             initial_delay: 0,
-            f64_precision: false,
             ..Info::default()
         }
     }
