@@ -106,6 +106,7 @@ impl Plugin for DimensionExpander {
             outputs: 2,
             parameters: 2,
             category: Category::Effect,
+            f64_precision: false,
 
             ..Default::default()
         }
