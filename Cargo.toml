@@ -1,7 +1,21 @@
 [package]
 name = "vst"
 version = "0.0.1"
-authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
+authors = [
+	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
+	"Boscop",
+	"Alex Zywicki",
+	"doomy <alexander@resamplr.com>",
+	"Ms2ger",
+	"Rob Saunders",
+	"David Lu",
+	"Aske Simon Christensen",
+	"kykc",
+	"Jordan Earls",
+	"xnor104",
+	"Nathaniel Theis",
+	"Colin Wallace",
+	"Henrik Nordvik" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
