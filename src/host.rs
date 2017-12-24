@@ -404,6 +404,9 @@ impl PluginInstance {
                 inputs: effect.numInputs,
                 outputs: effect.numOutputs,
 
+                midi_inputs: 0,
+                midi_outputs: 0,
+
                 unique_id: effect.uniqueId,
                 version: effect.version,
 

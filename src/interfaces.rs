@@ -288,6 +288,12 @@ pub fn dispatch(
         OpCode::StartProcess => plugin.start_process(),
         OpCode::StopProcess => plugin.stop_process(),
 
+        OpCode::GetNumMidiInputs => {
+            return plugin.get_info().midi_inputs as isize;
+        }
+        OpCode::GetNumMidiOutputs => {
+            return plugin.get_info().midi_outputs as isize;
+        }
 
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);
