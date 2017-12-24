@@ -315,6 +315,12 @@ pub struct Info {
     /// Number of outputs.
     pub outputs: i32,
 
+    /// Number of MIDI input channels (1-16), or 0 for the default of 16 channels.
+    pub midi_inputs: i32,
+
+    /// Number of MIDI output channels (1-16), or 0 for the default of 16 channels.
+    pub midi_outputs: i32,
+
     /// Unique plugin ID. Can be registered with Steinberg to prevent conflicts with other plugins.
     ///
     /// This ID is used to identify a plugin during save and load of a preset and project.
@@ -359,6 +365,9 @@ impl Default for Info {
             parameters: 0,
             inputs: 2, // Stereo in,out
             outputs: 2,
+
+            midi_inputs: 0,
+            midi_outputs: 0,
 
             unique_id: 0, // This must be changed.
             version: 1, // v0.0.0.1
