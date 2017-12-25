@@ -1,5 +1,7 @@
 //! Host specific structures.
 
+use num_traits::Float;
+
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::error::Error;
@@ -607,6 +609,12 @@ impl Plugin for PluginInstance {
 
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
+        if buffer.input_count() < self.info.inputs as usize {
+            panic!("Too few inputs in AudioBuffer");
+        }
+        if buffer.output_count() < self.info.outputs as usize {
+            panic!("Too few outputs in AudioBuffer");
+        }
         unsafe {
             ((*self.effect).processReplacing)(
                 self.effect,
@@ -618,6 +626,12 @@ impl Plugin for PluginInstance {
     }
 
     fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>) {
+        if buffer.input_count() < self.info.inputs as usize {
+            panic!("Too few inputs in AudioBuffer");
+        }
+        if buffer.output_count() < self.info.outputs as usize {
+            panic!("Too few outputs in AudioBuffer");
+        }
         unsafe {
             ((*self.effect).processReplacingF64)(
                 self.effect,
@@ -707,6 +721,104 @@ impl Plugin for PluginInstance {
     }
 }
 
+/// Used for constructing `AudioBuffer` instances on the host.
+/// 
+/// This struct contains all necessary allocations for an `AudioBuffer` apart
+/// from the actual sample arrays. This way, the inner processing loop can
+/// be allocation free even if `AudioBuffer` instances are repeatedly created.
+/// 
+/// ```rust
+/// # use vst::host::HostBuffer;
+/// # use vst::plugin::Plugin;
+/// # fn test<P: Plugin>(plugin: &mut P) {
+/// let mut host_buffer: HostBuffer<f32> = HostBuffer::new(2, 2);
+/// let inputs = vec![vec![0.0; 1000]; 2];
+/// let mut outputs = vec![vec![0.0; 1000]; 2];
+/// let mut audio_buffer = host_buffer.bind(&inputs, &mut outputs);
+/// plugin.process(&mut audio_buffer);
+/// # }
+/// ```
+pub struct HostBuffer<T: Float> {
+    inputs: Vec<*const T>,
+    outputs: Vec<*mut T>,
+}
+
+impl<T: Float> HostBuffer<T> {
+    /// Create a `HostBuffer` for a given number of input and output channels.
+    pub fn new(input_count: usize, output_count: usize) -> HostBuffer<T> {
+        HostBuffer {
+            inputs: vec![ptr::null(); input_count],
+            outputs: vec![ptr::null_mut(); output_count],
+        }
+    }
+
+    /// Create a `HostBuffer` for the number of input and output channels
+    /// specified in an `Info` struct.
+    pub fn from_info(info: &Info) -> HostBuffer<T> {
+        HostBuffer::new(info.inputs as usize, info.outputs as usize)
+    }
+
+    /// Bind sample arrays to the `HostBuffer` to create an `AudioBuffer` to pass to a plugin.
+    /// 
+    /// # Panics
+    /// This function will panic if more inputs or outputs are supplied than the `HostBuffer`
+    /// was created for, or if the sample arrays do not all have the same length.
+    pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O])
+        -> AudioBuffer<'a, T>
+        where I: AsRef<[T]>, O: AsMut<[T]>, I: 'a, O: 'a
+    {
+        // Check that number of desired inputs and outputs fit in allocation
+        if input_arrays.len() > self.inputs.len() {
+            panic!("Too many inputs for HostBuffer");
+        }
+        if output_arrays.len() > self.outputs.len() {
+            panic!("Too many outputs for HostBuffer");
+        }
+
+        // Initialize raw pointers and find common length
+        let mut length = None;
+        for (i, input) in input_arrays.iter().map(|r| r.as_ref()).enumerate() {
+            self.inputs[i] = input.as_ptr();
+            match length {
+                None => length = Some(input.len()),
+                Some(old_length) => if input.len() != old_length {
+                    panic!("Mismatching lengths of input arrays");
+                }
+            }
+        }
+        for (i, output) in output_arrays.iter_mut().map(|r| r.as_mut()).enumerate() {
+            self.outputs[i] = output.as_mut_ptr();
+            match length {
+                None => length = Some(output.len()),
+                Some(old_length) => if output.len() != old_length {
+                    panic!("Mismatching lengths of output arrays");
+                }
+            }
+        }
+        let length = length.unwrap_or(0);
+
+        // Construct AudioBuffer
+        unsafe {
+            AudioBuffer::from_raw(
+                input_arrays.len(),
+                output_arrays.len(),
+                self.inputs.as_ptr(),
+                self.outputs.as_mut_ptr(),
+                length)
+        }
+    }
+
+    /// Number of input channels supported by this `HostBuffer`.
+    pub fn input_count(&self) -> usize {
+        self.inputs.len()
+    }
+
+    /// Number of output channels supported by this `HostBuffer`.
+    pub fn output_count(&self) -> usize {
+        self.outputs.len()
+    }
+}
+
 /// HACK: a pointer to store the host so that it can be accessed from the `callback_wrapper`
 /// function passed to the plugin.
 ///
@@ -751,5 +863,35 @@ fn callback_wrapper<T: Host>(
 
             interfaces::host_dispatch(host, effect, opcode, index, value, ptr, opt)
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use host::HostBuffer;
+
+    #[test]
+    fn host_buffer() {
+        const LENGTH: usize = 1000000;
+        let mut host_buffer: HostBuffer<f32> = HostBuffer::new(2, 2);
+        let input_left = vec![1.0; LENGTH];
+        let input_right = vec![1.0; LENGTH];
+        let mut output_left = vec![0.0; LENGTH];
+        let mut output_right = vec![0.0; LENGTH];
+        {
+            let mut audio_buffer = {
+                // Slices given to `bind` need not persist, but the sample arrays do.
+                let inputs = [&input_left, &input_right];
+                let mut outputs = [&mut output_left, &mut output_right];
+                host_buffer.bind(&inputs, &mut outputs)
+            };
+            for (input, output) in audio_buffer.zip() {
+                for (i, o) in input.iter().zip(output) {
+                    *o = *i * 2.0;
+                }
+            }
+        }
+        assert_eq!(output_left, vec![2.0; LENGTH]);
+        assert_eq!(output_right, vec![2.0; LENGTH]);
     }
 }

@@ -5,7 +5,9 @@ use num_traits::Float;
 use std::slice;
 use std::iter::Zip;
 
-/// `AudioBuffer` contains references to the audio buffers for all input and output channels
+/// `AudioBuffer` contains references to the audio buffers for all input and output channels.
+/// 
+/// To create an `AudioBuffer` in a host, use a [`HostBuffer`](../host/struct.HostBuffer.html).
 pub struct AudioBuffer<'a, T: 'a + Float> {
     inputs: &'a [*const T],
     outputs: &'a mut [*mut T],
@@ -13,16 +15,6 @@ pub struct AudioBuffer<'a, T: 'a + Float> {
 }
 
 impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
-    /// Create an `AudioBuffer` from slices of raw pointers. Useful in a Rust VST host.
-    #[inline]
-    pub fn new(inputs: &'a [*const T], outputs: &'a mut [*mut T], samples: usize) -> Self {
-        Self {
-            inputs: inputs,
-            outputs: outputs,
-            samples: samples,
-        }
-    }
-
     /// Create an `AudioBuffer` from raw pointers.
     /// Only really useful for interacting with the VST API.
     #[inline]
@@ -440,7 +432,9 @@ mod tests {
 
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer = AudioBuffer::new(&inputs, &mut outputs, SIZE);
+        let mut buffer = unsafe {
+            AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
+        };
 
         for (input, output) in buffer.zip() {
             input.into_iter().zip(output.into_iter()).fold(0, |acc,
