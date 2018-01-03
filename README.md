@@ -18,6 +18,19 @@ opcodes. It is enough to create basic VST plugins without an editor interface.
   - Proper editor support
   - Write more tests
   - Provide better examples
+  
+## Crate
+`VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
+include the crate directly from the official [Github repository](https://github.com/rust-dsp/rust-vst). 
+
+```toml
+# get from crates.io.
+vst = "0.0.1"
+```
+```toml
+# get directly from Github.  This might be unstable!
+vst = { git = "https://github.com/rust-dsp/rust-vst" }
+```
 
 ## Usage
 To create a plugin, simply create a type which implements `plugin::Plugin` and
