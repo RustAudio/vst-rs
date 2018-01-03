@@ -95,7 +95,7 @@ pub struct AEffect {
     /// Bitmask made of values from api::flags.
     ///
     /// ```no_run
-    /// use vst2::api::flags;
+    /// use vst::api::flags;
     /// let flags = flags::CAN_REPLACING | flags::CAN_DOUBLE_REPLACING;
     /// // ...
     /// ```
@@ -446,11 +446,11 @@ impl Events {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst2::plugin::{Info, Plugin, HostCallback};
-    /// # use vst2::buffer::{AudioBuffer, SendEventBuffer};
-    /// # use vst2::host::Host;
-    /// # use vst2::api;
-    /// # use vst2::event::{Event, MidiEvent};
+    /// # use vst::plugin::{Info, Plugin, HostCallback};
+    /// # use vst::buffer::{AudioBuffer, SendEventBuffer};
+    /// # use vst::host::Host;
+    /// # use vst::api;
+    /// # use vst::event::{Event, MidiEvent};
     /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
@@ -523,7 +523,7 @@ pub enum EventType {
 /// via `mem::transmute()` while leveraging pointers, e.g.
 ///
 /// ```
-/// # use vst2::api::{Event, EventType, MidiEvent, SysExEvent};
+/// # use vst::api::{Event, EventType, MidiEvent, SysExEvent};
 /// # let mut event: *mut Event = &mut unsafe { std::mem::zeroed() };
 /// // let event: *const Event = ...;
 /// let midi_event: &MidiEvent = unsafe { std::mem::transmute(event) };
@@ -536,7 +536,7 @@ pub struct Event {
     /// # Example
     ///
     /// ```
-    /// # use vst2::api::{Event, EventType, MidiEvent, SysExEvent};
+    /// # use vst::api::{Event, EventType, MidiEvent, SysExEvent};
     /// #
     /// # // Valid for test
     /// # let mut event: *mut Event = &mut unsafe { std::mem::zeroed() };

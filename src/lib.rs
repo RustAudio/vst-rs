@@ -1,6 +1,6 @@
 #![warn(missing_docs)]
 
-//! rust-vst2 is a rust implementation of the VST2.4 API
+//! rust-vst is a rust implementation of the VST2.4 API
 //!
 //! # Plugins
 //! All Plugins must implement the `Plugin` trait and `std::default::Default`.
@@ -21,9 +21,9 @@
 //!
 //! ```no_run
 //! #[macro_use]
-//! extern crate vst2;
+//! extern crate vst;
 //!
-//! use vst2::plugin::{Info, Plugin};
+//! use vst::plugin::{Info, Plugin};
 //!
 //! #[derive(Default)]
 //! struct BasicPlugin;
@@ -40,7 +40,7 @@
 //! }
 //!
 //! plugin_main!(BasicPlugin); // Important!
-//! # fn main() {} // For `extern crate vst2`
+//! # fn main() {} // For `extern crate vst`
 //! ```
 //!
 //! # Hosts
@@ -53,13 +53,13 @@
 //!
 //! ## Example Host
 //! ```no_run
-//! extern crate vst2;
+//! extern crate vst;
 //!
 //! use std::sync::{Arc, Mutex};
 //! use std::path::Path;
 //!
-//! use vst2::host::{Host, PluginLoader};
-//! use vst2::plugin::Plugin;
+//! use vst::host::{Host, PluginLoader};
+//! use vst::plugin::Plugin;
 //!
 //! struct SampleHost;
 //!

@@ -459,10 +459,10 @@ pub trait Plugin {
     ///
     /// ```
     /// // ...
-    /// # extern crate vst2;
+    /// # extern crate vst;
     /// # #[macro_use] extern crate log;
-    /// # use vst2::plugin::{Plugin, Info};
-    /// use vst2::plugin::HostCallback;
+    /// # use vst::plugin::{Plugin, Info};
+    /// use vst::plugin::HostCallback;
     ///
     /// # #[derive(Default)]
     /// struct ExamplePlugin {
@@ -593,8 +593,8 @@ pub trait Plugin {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst2::plugin::{Info, Plugin};
-    /// # use vst2::buffer::AudioBuffer;
+    /// # use vst::plugin::{Info, Plugin};
+    /// # use vst::buffer::AudioBuffer;
     /// #
     /// # struct ExamplePlugin;
     /// # impl Plugin for ExamplePlugin {
@@ -632,8 +632,8 @@ pub trait Plugin {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst2::plugin::{Info, Plugin};
-    /// # use vst2::buffer::AudioBuffer;
+    /// # use vst::plugin::{Info, Plugin};
+    /// # use vst::buffer::AudioBuffer;
     /// #
     /// # struct ExamplePlugin;
     /// # impl Plugin for ExamplePlugin {
@@ -728,7 +728,7 @@ pub trait Plugin {
 /// called.
 ///
 /// ```should_panic
-/// # use vst2::plugin::{Info, Plugin, HostCallback};
+/// # use vst::plugin::{Info, Plugin, HostCallback};
 /// struct ExamplePlugin;
 ///
 /// impl Default for ExamplePlugin {
