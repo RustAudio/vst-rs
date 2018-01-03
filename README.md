@@ -1,7 +1,7 @@
 # rust-vst
 [![Travis Build][trav-img]][trav-url]
 [![Appveyor Build][appv-img]][appv-url]
-<!--- [![crates.io][crates-img]][crates-url] --->
+[![crates.io][crates-img]][crates-url]
 
 [Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org))
 
