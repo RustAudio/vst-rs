@@ -1,12 +1,12 @@
 // author: Rob Saunders <hello@robsaunders.io>
 
 #[macro_use]
-extern crate vst2;
+extern crate vst;
 
-use vst2::buffer::AudioBuffer;
-use vst2::plugin::{Category, Plugin, Info, CanDo};
-use vst2::event::Event;
-use vst2::api::{Supported, Events};
+use vst::buffer::AudioBuffer;
+use vst::plugin::{Category, Plugin, Info, CanDo};
+use vst::event::Event;
+use vst::api::{Supported, Events};
 
 use std::f64::consts::PI;
 

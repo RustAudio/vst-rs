@@ -31,7 +31,7 @@ else
     <string></string>
 
     <key>CFBundleIdentifier</key>
-    <string>com.rust-vst2.$1</string>
+    <string>com.rust-vst.$1</string>
 
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>

@@ -1,13 +1,27 @@
 [package]
-name = "vst2"
-version = "0.0.2"
-authors = ["Marko Mijalkovic <marko.mijalkovic97@gmail.com>"]
+name = "vst"
+version = "0.0.1"
+authors = [
+	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
+	"Boscop",
+	"Alex Zywicki <alexander.zywicki@gmail.com>",
+	"doomy <alexander@resamplr.com>",
+	"Ms2ger",
+	"Rob Saunders",
+	"David Lu",
+	"Aske Simon Christensen",
+	"kykc",
+	"Jordan Earls",
+	"xnor104",
+	"Nathaniel Theis",
+	"Colin Wallace",
+	"Henrik Nordvik" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
 readme = "README.md"
-repository = "https://github.com/overdrivenpotato/rust-vst2"
-documentation = "http://overdrivenpotato.github.io/rust-vst2"
+repository = "https://github.com/rust-dsp/rust-vst"
+documentation = "https://rust-dsp.github.io/rust-vst/vst/"
 
 license = "MIT"
 keywords = ["vst", "vst2", "plugin"]

@@ -1,7 +1,7 @@
 # rust-vst
 [![Travis Build][trav-img]][trav-url]
 [![Appveyor Build][appv-img]][appv-url]
-<!--- [![crates.io][crates-img]][crates-url] --->
+[![crates.io][crates-img]][crates-url]
 
 [Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org))
 
@@ -18,6 +18,19 @@ opcodes. It is enough to create basic VST plugins without an editor interface.
   - Proper editor support
   - Write more tests
   - Provide better examples
+  
+## Crate
+`VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
+include the crate directly from the official [Github repository](https://github.com/rust-dsp/rust-vst). 
+
+```toml
+# get from crates.io.
+vst = "0.0.1"
+```
+```toml
+# get directly from Github.  This might be unstable!
+vst = { git = "https://github.com/rust-dsp/rust-vst" }
+```
 
 ## Usage
 To create a plugin, simply create a type which implements `plugin::Plugin` and
@@ -32,9 +45,9 @@ crate-type directive which builds a dynamic library, usable by any VST host.
 
 ```rust
 #[macro_use]
-extern crate vst2;
+extern crate vst;
 
-use vst2::plugin::{Info, Plugin};
+use vst::plugin::{Info, Plugin};
 
 #[derive(Default)]
 struct BasicPlugin;
@@ -62,7 +75,7 @@ version = "0.0.1"
 authors = ["Author <author@example.com>"]
 
 [dependencies]
-vst2 = { git = "https://github.com/rust-dsp/rust-vst" }
+vst = { git = "https://github.com/rust-dsp/rust-vst" }
 
 [lib]
 name = "basicvst"
@@ -73,8 +86,8 @@ crate-type = ["cdylib"]
 [trav-url]: https://travis-ci.org/rust-dsp/rust-vst
 [appv-img]: https://ci.appveyor.com/api/projects/status/npiyjfithlx50hfs?svg=true
 [appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
-[crates-img]: https://img.shields.io/crates/v/vst2.svg
-[crates-url]: https://crates.io/crates/vst2
+[crates-img]: https://img.shields.io/crates/v/vst.svg
+[crates-url]: https://crates.io/crates/vst
 
 #### Packaging on OS X
 

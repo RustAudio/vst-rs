@@ -289,7 +289,7 @@ impl<T: Host> PluginLoader<T> {
     /// ```no_run
     /// # use std::path::Path;
     /// # use std::sync::{Arc, Mutex};
-    /// # use vst2::host::{Host, PluginLoader};
+    /// # use vst::host::{Host, PluginLoader};
     /// # let path = Path::new(".");
     /// # struct MyHost;
     /// # impl MyHost { fn new() -> MyHost { MyHost } }
