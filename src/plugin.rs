@@ -340,7 +340,7 @@ pub struct Info {
 
     /// Indicates whether this plugin can process f64 based `AudioBuffer` buffers.
     ///
-    /// Default is `true`.
+    /// Default is `false`.
     pub f64_precision: bool,
 
     /// If this is true, the plugin will not produce sound when the input is silence.
@@ -368,7 +368,7 @@ impl Default for Info {
             initial_delay: 0,
 
             preset_chunks: false,
-            f64_precision: true,
+            f64_precision: false,
             silent_when_stopped: false,
         }
     }

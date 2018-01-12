@@ -91,7 +91,7 @@ impl Plugin for SineSynth {
         }
     }
 
-    // Supresses warning about match statment onlt having one arm
+    // Supresses warning about match statment only having one arm
     #[allow(unknown_lints)]
     #[allow(unused_variables)]
     #[allow(single_match)]
@@ -115,23 +115,25 @@ impl Plugin for SineSynth {
         let per_sample = self.time_per_sample();
 
         for (input_buffer, output_buffer) in buffer.zip() {
-            let mut t = self.time;
+            let mut time = self.time;
+            let mut note_duration = self.note_duration;
 
             for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
                 if let Some(current_note) = self.note {
-                    let signal = (t * midi_pitch_to_freq(current_note) * TAU).sin();
+                    let signal = (time * midi_pitch_to_freq(current_note) * TAU).sin();
 
                     // Apply a quick envelope to the attack of the signal to avoid popping.
                     let attack = 0.5;
-                    let alpha = if self.note_duration < attack {
-                        self.note_duration / attack
+                    let alpha = if note_duration < attack {
+                        note_duration / attack
                     } else {
                         1.0
                     };
 
                     *output_sample = (signal * alpha) as f32;
 
-                    t += per_sample;
+                    time += per_sample;
+                    note_duration += per_sample;
                 } else {
                     *output_sample = 0.0;
                 }
