@@ -356,6 +356,7 @@ pub fn host_dispatch(
                 }
             };
         }
+        OpCode::GetBlockSize => return host.get_block_size(),
 
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
