@@ -942,6 +942,11 @@ impl Host for HostCallback {
             ptr => Some(unsafe { (*(ptr as *const TimeInfo)).clone() }),
         }
     }
+
+    /// Get block size.
+    fn get_block_size(&self) -> isize {
+        self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
+    }
 }
 
 #[cfg(test)]

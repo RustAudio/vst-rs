@@ -214,6 +214,11 @@ pub trait Host {
     fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
         None
     }
+
+    /// Get block size.
+    fn get_block_size(&self) -> isize {
+        0
+    }
 }
 
 /// All possible errors that can occur when loading a VST plugin.
