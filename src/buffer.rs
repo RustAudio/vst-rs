@@ -374,12 +374,10 @@ impl SendEventBuffer {
                 *ptr = event;
             }
         }
-        let mut r = Self {
+        Self {
             buf: buf,
             api_events: api_events,
-        };
-        r.set_num_events(0);
-        r
+        }
     }
 
     /// Sends events to the host. See the `fwd_midi` example.
