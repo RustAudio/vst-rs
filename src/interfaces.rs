@@ -88,7 +88,7 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 
         let dst = dst as *mut c_void;
         memset(dst, 0, max);
-        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.len()));
+        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.as_bytes().len()));
     }
 
     1 // Success
@@ -292,7 +292,7 @@ pub fn dispatch(
         }
 
         _ => {
-            warn!("Unimplemented opcode ({:?})", opcode);
+            debug!("Unimplemented opcode ({:?})", opcode);
             trace!(
                 "Arguments; index: {}, value: {}, ptr: {:?}, opt: {}",
                 index,
