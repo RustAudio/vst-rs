@@ -266,17 +266,87 @@ impl<'a, T: Sized> IntoIterator for Outputs<'a, T> {
     }
 }
 
-use event::{Event, MidiEvent};
+use event::{Event, MidiEvent, SysExEvent};
+
+/// This is used as a placeholder to pre-allocate space for a fixed number of midi events in the re-useable `SendEventBuffer`, because `SysExEvent` is larger than `MidiEvent`, so either one can be stored in a `SysExEvent`.
+pub type PlaceholderEvent = api::SysExEvent;
+
+/// This trait is used by `SendEventBuffer::send_events` to accept iterators over midi events
+pub trait WriteIntoPlaceholder {
+    /// writes an event into the given placeholder memory location
+    fn write_into(&self, out: &mut PlaceholderEvent);
+}
+
+impl<'a, T: WriteIntoPlaceholder> WriteIntoPlaceholder for &'a T {
+    fn write_into(&self, out: &mut PlaceholderEvent) {
+        (*self).write_into(out);
+    }
+}
+
+impl WriteIntoPlaceholder for MidiEvent {
+    fn write_into(&self, out: &mut PlaceholderEvent) {
+        use api::flags::REALTIME_EVENT;
+        let out = unsafe { &mut *(out as *mut _ as *mut _) };
+        *out = api::MidiEvent {
+            event_type: api::EventType::Midi,
+            byte_size: mem::size_of::<api::MidiEvent>() as i32,
+            delta_frames: self.delta_frames,
+            flags: if self.live { REALTIME_EVENT.bits() } else { 0 },
+            note_length: self.note_length.unwrap_or(0),
+            note_offset: self.note_offset.unwrap_or(0),
+            midi_data: self.data,
+            _midi_reserved: 0,
+            detune: self.detune,
+            note_off_velocity: self.note_off_velocity,
+            _reserved1: 0,
+            _reserved2: 0,
+        };
+    }
+}
+
+impl<'a> WriteIntoPlaceholder for SysExEvent<'a> {
+    fn write_into(&self, out: &mut PlaceholderEvent) {
+        *out = PlaceholderEvent {
+            event_type: api::EventType::SysEx,
+            byte_size: mem::size_of::<PlaceholderEvent>() as i32,
+            delta_frames: self.delta_frames,
+            _flags: 0,
+            data_size: self.payload.len() as i32,
+            _reserved1: 0,
+            system_data: self.payload.as_ptr() as *const u8 as *mut u8,
+            _reserved2: 0,
+        };
+    }
+}
+
+impl<'a> WriteIntoPlaceholder for Event<'a> {
+    fn write_into(&self, out: &mut PlaceholderEvent) {
+        match self {
+            &Event::Midi(ref ev) => {
+                ev.write_into(out);
+            }
+            &Event::SysEx(ref ev) => {
+                ev.write_into(out);
+            }
+            &Event::Deprecated(e) => {
+                let out = unsafe { &mut *(out as *mut _ as *mut _) };
+                *out = e;
+            }
+        };
+    }
+}
+
 use api;
 use std::mem;
-use std::borrow::Borrow;
+use host::Host;
+use plugin::Plugin;
 
 /// This buffer is used for sending midi events through the VST interface.
 /// The purpose of this is to convert outgoing midi events from `event::Event` to `api::Events`.
 /// It only allocates memory in new() and reuses the memory between calls.
 pub struct SendEventBuffer {
     buf: Vec<u8>,
-    api_events: Vec<api::SysExEvent>,
+    api_events: Vec<PlaceholderEvent>, // using SysExEvent to store both because it's larger than MidiEvent
 }
 
 impl Default for SendEventBuffer {
@@ -287,12 +357,12 @@ impl Default for SendEventBuffer {
 
 impl SendEventBuffer {
     /// Creates a buffer for sending up to the given number of midi events per frame
-    #[inline]
+    #[inline(always)]
     pub fn new(capacity: usize) -> Self {
         let header_size = mem::size_of::<api::Events>() - (mem::size_of::<*mut api::Event>() * 2);
         let body_size = mem::size_of::<*mut api::Event>() * capacity;
         let mut buf = vec![0u8; header_size + body_size];
-        let api_events = vec![unsafe { mem::zeroed::<api::SysExEvent>() }; capacity];
+        let api_events = vec![unsafe { mem::zeroed::<PlaceholderEvent>() }; capacity];
         {
             let ptrs = {
                 let e = Self::buf_as_api_events(&mut buf);
@@ -300,118 +370,76 @@ impl SendEventBuffer {
                 e.events_raw_mut()
             };
             for (ptr, event) in ptrs.iter_mut().zip(&api_events) {
-                let (ptr, event): (&mut *const api::SysExEvent, &api::SysExEvent) = (ptr, event);
+                let (ptr, event): (&mut *const PlaceholderEvent, &PlaceholderEvent) = (ptr, event);
                 *ptr = event;
             }
         }
-        Self {
+        let mut r = Self {
             buf: buf,
             api_events: api_events,
-        }
+        };
+        r.set_num_events(0);
+        r
     }
 
-    #[inline]
-    fn buf_as_api_events(buf: &mut [u8]) -> &mut api::Events {
-        unsafe { &mut *(buf.as_mut_ptr() as *mut api::Events) }
-    }
-
-    /// Use this for sending events to a host or plugin.
+    /// Sends events to the host. See the `fwd_midi` example.
     ///
     /// # Example
     /// ```no_run
     /// # use vst::plugin::{Info, Plugin, HostCallback};
     /// # use vst::buffer::{AudioBuffer, SendEventBuffer};
     /// # use vst::host::Host;
+    /// # use vst::event::*;
     /// # struct ExamplePlugin { host: HostCallback, send_buffer: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
-    /// // Processor that clips samples above 0.4 or below -0.4:
     /// fn process(&mut self, buffer: &mut AudioBuffer<f32>){
-    ///     let events = vec![
+    ///     let events: Vec<MidiEvent> = vec![
     ///         // ...
     ///     ];
-    ///     self.send_buffer.store(&events);
-    ///     self.host.process_events(self.send_buffer.events());
+    ///     self.send_buffer.send_events(&events, &mut self.host);
     /// }
     /// # }
     /// ```
-    pub fn store<'a, T: IntoIterator<Item = U>, U: Borrow<Event<'a>>>(&mut self, events: T) {
+    #[inline(always)]
+    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, host: &mut Host) {
+        self.store_events(events);
+        host.process_events(self.events());
+    }
+
+    /// Sends events from the host to a plugin.
+    #[inline(always)]
+    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, plugin: &mut Plugin) {
+        self.store_events(events);
+        plugin.process_events(self.events());
+    }
+
+    #[inline(always)]
+    fn store_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T) {
         let count = events
             .into_iter()
             .zip(self.api_events.iter_mut())
-            .map(|(event, out)| {
-                let (event, out): (&Event, &mut api::SysExEvent) = (event.borrow(), out);
-                match *event {
-                    Event::Midi(ev) => {
-                        Self::store_midi_impl(out, &ev);
-                    }
-                    Event::SysEx(ev) => {
-                        *out = api::SysExEvent {
-                            event_type: api::EventType::SysEx,
-                            byte_size: mem::size_of::<api::SysExEvent>() as i32,
-                            delta_frames: ev.delta_frames,
-                            _flags: 0,
-                            data_size: ev.payload.len() as i32,
-                            _reserved1: 0,
-                            system_data: ev.payload.as_ptr() as *const u8 as *mut u8,
-                            _reserved2: 0,
-                        };
-                    }
-                    Event::Deprecated(e) => {
-                        let out = unsafe { &mut *(out as *mut _ as *mut _) };
-                        *out = e;
-                    }
-                };
-            })
+            .map(|(ev, out)| ev.write_into(out))
             .count();
         self.set_num_events(count);
     }
 
-    /// Use this for sending midi events to a host or plugin.
-    /// Like store() but for when you're not sending any SysExEvents, only MidiEvents.
-    pub fn store_midi<T: IntoIterator<Item = U>, U: Borrow<MidiEvent>>(&mut self, events: T) {
-        let count = events
-            .into_iter()
-            .zip(self.api_events.iter_mut())
-            .map(|(event, out)| {
-                let (ev, out): (&MidiEvent, &mut api::SysExEvent) = (event.borrow(), out);
-                Self::store_midi_impl(out, ev);
-            })
-            .count();
-        self.set_num_events(count);
+    #[inline(always)]
+    fn events(&self) -> &api::Events {
+        unsafe { &*(self.buf.as_ptr() as *const api::Events) }
     }
 
-    fn store_midi_impl(out: &mut api::SysExEvent, ev: &MidiEvent) {
-        use api::flags::REALTIME_EVENT;
-        let out = unsafe { &mut *(out as *mut _ as *mut _) };
-        *out = api::MidiEvent {
-            event_type: api::EventType::Midi,
-            byte_size: mem::size_of::<api::MidiEvent>() as i32,
-            delta_frames: ev.delta_frames,
-            flags: if ev.live { REALTIME_EVENT.bits() } else { 0 },
-            note_length: ev.note_length.unwrap_or(0),
-            note_offset: ev.note_offset.unwrap_or(0),
-            midi_data: ev.data,
-            _midi_reserved: 0,
-            detune: ev.detune,
-            note_off_velocity: ev.note_off_velocity,
-            _reserved1: 0,
-            _reserved2: 0,
-        };
+    #[inline(always)]
+    fn buf_as_api_events(buf: &mut [u8]) -> &mut api::Events {
+        unsafe { &mut *(buf.as_mut_ptr() as *mut api::Events) }
     }
 
+    #[inline(always)]
     fn set_num_events(&mut self, events_len: usize) {
         use std::cmp::min;
         let e = Self::buf_as_api_events(&mut self.buf);
         e.num_events = min(self.api_events.len(), events_len) as i32;
-    }
-
-    /// Use this for sending midi events to a host or plugin.
-    /// See `store()`
-    #[inline]
-    pub fn events(&self) -> &api::Events {
-        unsafe { &*(self.buf.as_ptr() as *const api::Events) }
     }
 }
 
