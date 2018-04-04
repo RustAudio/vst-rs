@@ -748,6 +748,7 @@ pub trait Plugin {
 /// # }
 /// # fn main() { let plugin: ExamplePlugin = Default::default(); }
 /// ```
+#[derive(Copy, Clone)]
 pub struct HostCallback {
     callback: Option<HostCallbackProc>,
     effect: *mut AEffect,
@@ -776,9 +777,7 @@ impl HostCallback {
         ptr: *mut c_void,
         opt: f32,
     ) -> isize {
-        let callback = self.callback.unwrap_or_else(
-            || panic!("Host not yet initialized."),
-        );
+        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
         callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
@@ -808,6 +807,18 @@ impl HostCallback {
             ptr::null_mut(),
             0.0,
         ) as i32
+    }
+
+    /// Get the callback for calling host-specific extensions
+    #[inline(always)]
+    pub fn raw_callback(&self) -> Option<HostCallbackProc> {
+        self.callback
+    }
+
+    /// Get the effect pointer for calling host-specific extensions
+    #[inline(always)]
+    pub fn raw_effect(&self) -> *mut AEffect {
+        self.effect
     }
 
     fn read_string(&self, opcode: host::OpCode, max: usize) -> String {
