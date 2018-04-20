@@ -765,6 +765,8 @@ impl Default for HostCallback {
     }
 }
 
+unsafe impl Send for HostCallback {}
+
 impl HostCallback {
     /// Wrap callback in a function to avoid using fn pointer notation.
     #[doc(hidden)]
