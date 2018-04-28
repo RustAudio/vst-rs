@@ -50,3 +50,7 @@ crate-type = ["bin"]
 [[example]]
 name = "sine_synth"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "fwd_midi"
+crate-type = ["cdylib"]
