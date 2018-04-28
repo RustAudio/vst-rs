@@ -91,8 +91,6 @@
 //! [`PluginLoader::load`]: host/struct.PluginLoader.html#method.load
 //!
 
-#![cfg_attr(feature = "nightly", feature(conservative_impl_trait))]
-
 extern crate libc;
 extern crate num_traits;
 extern crate libloading;
