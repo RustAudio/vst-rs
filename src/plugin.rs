@@ -395,14 +395,13 @@ pub enum CanDo {
     Other(String),
 }
 
-use std::str::FromStr;
-impl FromStr for CanDo {
-    type Err = String;
-
-    fn from_str(s: &str) -> Result<CanDo, String> {
+impl CanDo {
+    /// Converts a string to a `CanDo` instance. Any given string that does not match the predefined
+    /// values will return a `CanDo::Other` value.
+    pub fn from_str(s: &str) -> CanDo {
         use self::CanDo::*;
 
-        Ok(match s {
+        match s {
             "sendVstEvents" => SendEvents,
             "sendVstMidiEvent" => SendMidiEvent,
             "receiveVstEvents" => ReceiveEvents,
@@ -416,7 +415,7 @@ impl FromStr for CanDo {
             "midiSingleNoteTuningChange" => MidiSingleNoteTuningChange,
             "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
             otherwise => Other(otherwise.to_string()),
-        })
+        }
     }
 }
 
