@@ -247,13 +247,7 @@ pub fn dispatch(
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
-            let can_do: CanDo = match read_string(ptr).parse() {
-                Ok(c) => c,
-                Err(e) => {
-                    warn!("{}", e);
-                    return 0;
-                }
-            };
+            let can_do = CanDo::from_str(&read_string(ptr));
             return plugin.can_do(can_do).into();
         }
         OpCode::GetTailSize => {
