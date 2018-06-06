@@ -3,6 +3,8 @@ extern crate vst;
 use std::sync::{Arc, Mutex};
 use std::path::Path;
 use std::error::Error;
+use std::env;
+use std::process;
 
 use vst::host::{Host, PluginLoader};
 use vst::plugin::Plugin;
@@ -17,10 +19,13 @@ impl Host for SampleHost {
 }
 
 fn main() {
-    // This is an example of a plugin being loaded. Change this to the appropriate path.
-    let path = Path::new(
-        "/Library/Audio/Plug-Ins/VST/beyerdynamicVS.vst/Contents/MacOS/beyerdynamicVS",
-    );
+    let args: Vec<String> = env::args().collect();
+    if args.len() < 2 {
+        println!("usage: simple_host path/to/vst");
+        process::exit(1);
+    }
+
+    let path = Path::new(&args[1]);
 
     // Create the host
     let host = Arc::new(Mutex::new(SampleHost));
