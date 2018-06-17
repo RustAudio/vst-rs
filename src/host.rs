@@ -2,6 +2,7 @@
 
 use num_traits::Float;
 
+use std::cell::UnsafeCell;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::error::Error;
@@ -12,7 +13,7 @@ use libloading::Library;
 use std::os::raw::c_void;
 
 use interfaces;
-use plugin::{self, Plugin, Info, Category};
+use plugin::{self, Plugin, PluginParameters, Info, Category};
 use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use api::consts::*;
 use buffer::AudioBuffer;
@@ -274,10 +275,16 @@ pub struct PluginLoader<T: Host> {
 /// An instance of an externally loaded VST plugin.
 #[allow(dead_code)] // To keep `lib` around.
 pub struct PluginInstance {
-    effect: *mut AEffect,
+    params: Arc<PluginParametersInstance>,
     lib: Arc<Library>,
     info: Info,
 }
+
+struct PluginParametersInstance {
+    effect: UnsafeCell<*mut AEffect>,
+}
+
+unsafe impl Sync for PluginParametersInstance {}
 
 impl Drop for PluginInstance {
     fn drop(&mut self) {
@@ -388,8 +395,9 @@ impl PluginInstance {
     fn new(effect: *mut AEffect, lib: Arc<Library>) -> PluginInstance {
         use plugin::OpCode as op;
 
+        let params = Arc::new(PluginParametersInstance { effect: UnsafeCell::new(effect) });
         let mut plug = PluginInstance {
-            effect,
+            params,
             lib,
             info: Default::default(),
         };
@@ -425,6 +433,10 @@ impl PluginInstance {
 
         plug
     }
+}
+
+trait Dispatch {
+    fn get_effect(&self) -> *mut AEffect;
 
     /// Send a dispatch message to the plugin.
     fn dispatch(
@@ -435,11 +447,11 @@ impl PluginInstance {
         ptr: *mut c_void,
         opt: f32,
     ) -> isize {
-        let dispatcher = unsafe { (*self.effect).dispatcher };
+        let dispatcher = unsafe { (*self.get_effect()).dispatcher };
         if (dispatcher as *mut u8).is_null() {
             panic!("Plugin was not loaded correctly.");
         }
-        dispatcher(self.effect, opcode.into(), index, value, ptr, opt)
+        dispatcher(self.get_effect(), opcode.into(), index, value, ptr, opt)
     }
 
     /// Send a lone opcode with no parameters.
@@ -487,6 +499,18 @@ impl PluginInstance {
     }
 }
 
+impl Dispatch for PluginInstance {
+    fn get_effect(&self) -> *mut AEffect {
+        self.params.get_effect()
+    }
+}
+
+impl Dispatch for PluginParametersInstance {
+    fn get_effect(&self) -> *mut AEffect {
+        unsafe { *self.effect.get() }
+    }
+}
+
 impl Plugin for PluginInstance {
     fn get_info(&self) -> plugin::Info {
         self.info.clone()
@@ -494,88 +518,6 @@ impl Plugin for PluginInstance {
 
     fn init(&mut self) {
         self.opcode(plugin::OpCode::Initialize);
-    }
-
-
-    fn change_preset(&mut self, preset: i32) {
-        self.dispatch(
-            plugin::OpCode::ChangePreset,
-            0,
-            preset as isize,
-            ptr::null_mut(),
-            0.0,
-        );
-    }
-
-    fn get_preset_num(&self) -> i32 {
-        self.opcode(plugin::OpCode::GetCurrentPresetNum) as i32
-    }
-
-    fn set_preset_name(&mut self, name: String) {
-        self.write_string(plugin::OpCode::SetCurrentPresetName, 0, 0, &name, 0.0);
-    }
-
-    fn get_preset_name(&self, preset: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetPresetName,
-            preset,
-            0,
-            0.0,
-            MAX_PRESET_NAME_LEN,
-        )
-    }
-
-
-    fn get_parameter_label(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterLabel,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
-    }
-
-    fn get_parameter_text(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterDisplay,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
-    }
-
-    fn get_parameter_name(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterName,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
-    }
-
-    fn get_parameter(&self, index: i32) -> f32 {
-        unsafe { ((*self.effect).getParameter)(self.effect, index) }
-    }
-
-    fn set_parameter(&mut self, index: i32, value: f32) {
-        unsafe { ((*self.effect).setParameter)(self.effect, index, value) }
-    }
-
-    fn can_be_automated(&self, index: i32) -> bool {
-        self.dispatch(
-            plugin::OpCode::CanBeAutomated,
-            index,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) > 0
-    }
-
-    fn string_to_parameter(&mut self, index: i32, text: String) -> bool {
-        self.write_string(plugin::OpCode::StringToParameter, index, 0, &text, 0.0) > 0
     }
 
 
@@ -627,8 +569,8 @@ impl Plugin for PluginInstance {
             panic!("Too few outputs in AudioBuffer");
         }
         unsafe {
-            ((*self.effect).processReplacing)(
-                self.effect,
+            ((*self.get_effect()).processReplacing)(
+                self.get_effect(),
                 buffer.raw_inputs().as_ptr() as *const *const _,
                 buffer.raw_outputs().as_mut_ptr() as *mut *mut _,
                 buffer.samples() as i32,
@@ -644,8 +586,8 @@ impl Plugin for PluginInstance {
             panic!("Too few outputs in AudioBuffer");
         }
         unsafe {
-            ((*self.effect).processReplacingF64)(
-                self.effect,
+            ((*self.get_effect()).processReplacingF64)(
+                self.get_effect(),
                 buffer.raw_inputs().as_ptr() as *const *const _,
                 buffer.raw_outputs().as_mut_ptr() as *mut *mut _,
                 buffer.samples() as i32,
@@ -663,55 +605,6 @@ impl Plugin for PluginInstance {
         );
     }
 
-    // TODO: Editor
-
-    fn get_preset_data(&mut self) -> Vec<u8> {
-        // Create a pointer that can be updated from the plugin.
-        let mut ptr: *mut u8 = ptr::null_mut();
-        let len = self.dispatch(
-            plugin::OpCode::GetData,
-            1, /*preset*/
-            0,
-            &mut ptr as *mut *mut u8 as *mut c_void,
-            0.0,
-        );
-        let slice = unsafe { slice::from_raw_parts(ptr, len as usize) };
-        slice.to_vec()
-    }
-
-    fn get_bank_data(&mut self) -> Vec<u8> {
-        // Create a pointer that can be updated from the plugin.
-        let mut ptr: *mut u8 = ptr::null_mut();
-        let len = self.dispatch(
-            plugin::OpCode::GetData,
-            0, /*bank*/
-            0,
-            &mut ptr as *mut *mut u8 as *mut c_void,
-            0.0,
-        );
-        let slice = unsafe { slice::from_raw_parts(ptr, len as usize) };
-        slice.to_vec()
-    }
-
-    fn load_preset_data(&mut self, data: &[u8]) {
-        self.dispatch(
-            plugin::OpCode::SetData,
-            1,
-            data.len() as isize,
-            data.as_ptr() as *mut c_void,
-            0.0,
-        );
-    }
-
-    fn load_bank_data(&mut self, data: &[u8]) {
-        self.dispatch(
-            plugin::OpCode::SetData,
-            0,
-            data.len() as isize,
-            data.as_ptr() as *mut c_void,
-            0.0,
-        );
-    }
 
     fn get_input_info(&self, input: i32) -> ChannelInfo {
         let mut props = unsafe { mem::uninitialized() };
@@ -729,6 +622,145 @@ impl Plugin for PluginInstance {
         self.dispatch(plugin::OpCode::GetOutputInfo, output, 0, ptr, 0.0);
 
         ChannelInfo::from(props)
+    }
+
+
+    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
+        Arc::clone(&self.params) as Arc<PluginParameters>
+    }
+}
+
+impl PluginParameters for PluginParametersInstance {
+    fn change_preset(&self, preset: i32) {
+        self.dispatch(
+            plugin::OpCode::ChangePreset,
+            0,
+            preset as isize,
+            ptr::null_mut(),
+            0.0,
+        );
+    }
+
+    fn get_preset_num(&self) -> i32 {
+        self.opcode(plugin::OpCode::GetCurrentPresetNum) as i32
+    }
+
+    fn set_preset_name(&self, name: String) {
+        self.write_string(plugin::OpCode::SetCurrentPresetName, 0, 0, &name, 0.0);
+    }
+
+    fn get_preset_name(&self, preset: i32) -> String {
+        self.read_string_param(
+            plugin::OpCode::GetPresetName,
+            preset,
+            0,
+            0.0,
+            MAX_PRESET_NAME_LEN,
+        )
+    }
+
+
+    fn get_parameter_label(&self, index: i32) -> String {
+        self.read_string_param(
+            plugin::OpCode::GetParameterLabel,
+            index,
+            0,
+            0.0,
+            MAX_PARAM_STR_LEN,
+        )
+    }
+
+    fn get_parameter_text(&self, index: i32) -> String {
+        self.read_string_param(
+            plugin::OpCode::GetParameterDisplay,
+            index,
+            0,
+            0.0,
+            MAX_PARAM_STR_LEN,
+        )
+    }
+
+    fn get_parameter_name(&self, index: i32) -> String {
+        self.read_string_param(
+            plugin::OpCode::GetParameterName,
+            index,
+            0,
+            0.0,
+            MAX_PARAM_STR_LEN,
+        )
+    }
+
+    fn get_parameter(&self, index: i32) -> f32 {
+        unsafe { ((*self.get_effect()).getParameter)(self.get_effect(), index) }
+    }
+
+    fn set_parameter(&self, index: i32, value: f32) {
+        unsafe { ((*self.get_effect()).setParameter)(self.get_effect(), index, value) }
+    }
+
+    fn can_be_automated(&self, index: i32) -> bool {
+        self.dispatch(
+            plugin::OpCode::CanBeAutomated,
+            index,
+            0,
+            ptr::null_mut(),
+            0.0,
+        ) > 0
+    }
+
+    fn string_to_parameter(&self, index: i32, text: String) -> bool {
+        self.write_string(plugin::OpCode::StringToParameter, index, 0, &text, 0.0) > 0
+    }
+
+
+    // TODO: Editor
+
+    fn get_preset_data(&self) -> Vec<u8> {
+        // Create a pointer that can be updated from the plugin.
+        let mut ptr: *mut u8 = ptr::null_mut();
+        let len = self.dispatch(
+            plugin::OpCode::GetData,
+            1, /*preset*/
+            0,
+            &mut ptr as *mut *mut u8 as *mut c_void,
+            0.0,
+        );
+        let slice = unsafe { slice::from_raw_parts(ptr, len as usize) };
+        slice.to_vec()
+    }
+
+    fn get_bank_data(&self) -> Vec<u8> {
+        // Create a pointer that can be updated from the plugin.
+        let mut ptr: *mut u8 = ptr::null_mut();
+        let len = self.dispatch(
+            plugin::OpCode::GetData,
+            0, /*bank*/
+            0,
+            &mut ptr as *mut *mut u8 as *mut c_void,
+            0.0,
+        );
+        let slice = unsafe { slice::from_raw_parts(ptr, len as usize) };
+        slice.to_vec()
+    }
+
+    fn load_preset_data(&self, data: &[u8]) {
+        self.dispatch(
+            plugin::OpCode::SetData,
+            1,
+            data.len() as isize,
+            data.as_ptr() as *mut c_void,
+            0.0,
+        );
+    }
+
+    fn load_bank_data(&self, data: &[u8]) {
+        self.dispatch(
+            plugin::OpCode::SetData,
+            0,
+            data.len() as isize,
+            data.as_ptr() as *mut c_void,
+            0.0,
+        );
     }
 }
 

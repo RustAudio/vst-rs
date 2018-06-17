@@ -189,6 +189,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     trace!("Creating VST plugin instance...");
     let mut plugin = T::new(host);
     let info = plugin.get_info().clone();
+    let params = plugin.get_parameter_object();
+    let editor = params.get_editor();
 
     // Update AEffect in place
     unsafe {
@@ -215,7 +217,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
                     flag |= PluginFlags::CAN_DOUBLE_REPLACING;
                 }
 
-                if plugin.get_editor().is_some() {
+                if editor.is_some() {
                     flag |= PluginFlags::HAS_EDITOR;
                 }
 
@@ -244,7 +246,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
             _ioRatio: 0.0,
 
             object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
-            user: Box::into_raw(Box::new(PluginCache::new(&info))) as *mut _,
+            user: Box::into_raw(Box::new(PluginCache::new(&info, params, editor))) as *mut _,
 
             uniqueId: info.unique_id,
             version: info.version,
