@@ -54,3 +54,7 @@ crate-type = ["cdylib"]
 [[example]]
 name = "fwd_midi"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "gain_effect"
+crate-type = ["cdylib"]
