@@ -13,7 +13,7 @@ use std::os::raw::c_void;
 
 use interfaces;
 use plugin::{self, Plugin, Info, Category};
-use api::{self, AEffect, PluginMain, Supported};
+use api::{self, AEffect, PluginMain, Supported, TimeInfo};
 use api::consts::*;
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
@@ -211,6 +211,16 @@ pub trait Host {
 
     /// Handle incoming events from the plugin.
     fn process_events(&mut self, events: &api::Events) {}
+
+    /// Get time information.
+    fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
+        None
+    }
+
+    /// Get block size.
+    fn get_block_size(&self) -> isize {
+        0
+    }
 }
 
 /// All possible errors that can occur when loading a VST plugin.
@@ -398,6 +408,9 @@ impl PluginInstance {
                 parameters: effect.numParams,
                 inputs: effect.numInputs,
                 outputs: effect.numOutputs,
+
+                midi_inputs: 0,
+                midi_outputs: 0,
 
                 unique_id: effect.uniqueId,
                 version: effect.version,

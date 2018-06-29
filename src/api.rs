@@ -661,6 +661,87 @@ pub struct SysExEvent {
     pub _reserved2: isize,
 }
 
+#[repr(C)]
+#[derive(Clone)]
+/// Describes the time at the start of the block currently being processed
+pub struct TimeInfo {
+    /// current Position in audio samples (always valid)
+    pub sample_pos: f64,
+
+    /// current Sample Rate in Hertz (always valid)
+    pub sample_rate: f64,
+
+    /// System Time in nanoseconds (10^-9 second)
+    pub nanoseconds: f64,
+
+    /// Musical Position, in Quarter Note (1.0 equals 1 Quarter Note)
+    pub ppq_pos: f64,
+
+    /// current Tempo in BPM (Beats Per Minute)
+    pub tempo: f64,
+
+    /// last Bar Start Position, in Quarter Note
+    pub bar_start_pos: f64,
+
+    /// Cycle Start (left locator), in Quarter Note
+    pub cycle_start_pos: f64,
+    
+    /// Cycle End (right locator), in Quarter Note
+    pub cycle_end_pos: f64,
+
+    /// Time Signature Numerator (e.g. 3 for 3/4)
+    pub time_sig_numerator: i32,
+
+    /// Time Signature Denominator (e.g. 4 for 3/4)
+    pub time_sig_denominator: i32,
+
+    /// SMPTE offset in SMPTE subframes (bits; 1/80 of a frame).
+    /// The current SMPTE position can be calculated using `sample_pos`, `sample_rate`, and `smpte_frame_rate`.
+    pub smpte_offset: i32,
+
+    /// See `SmpteFrameRate`
+    pub smpte_frame_rate: SmpteFrameRate,
+
+    /// MIDI Clock Resolution (24 Per Quarter Note), can be negative (nearest clock)
+    pub samples_to_next_clock: i32,
+
+    /// See `flags::TimeInfo`
+    pub flags: i32
+}
+
+#[repr(i32)]
+#[derive(Copy, Clone, Debug)]
+/// SMPTE Frame Rates.
+pub enum SmpteFrameRate {
+    /// 24 fps
+    Smpte24fps = 0,
+    /// 25 fps
+    Smpte25fps = 1,
+    /// 29.97 fps
+    Smpte2997fps = 2,
+    /// 30 fps
+    Smpte30fps = 3,
+
+    /// 29.97 drop
+    Smpte2997dfps = 4,
+    /// 30 drop
+    Smpte30dfps = 5,
+
+    /// Film 16mm
+    SmpteFilm16mm = 6,
+    /// Film 35mm
+    SmpteFilm35mm = 7,
+
+    /// HDTV: 23.976 fps
+    Smpte239fps = 10,
+    /// HDTV: 24.976 fps
+    Smpte249fps = 11,
+    /// HDTV: 59.94 fps
+    Smpte599fps = 12,
+    /// HDTV: 60 fps
+    Smpte60fps = 13
+}
+
 /// Bitflags.
 pub mod flags {
     bitflags! {
@@ -714,6 +795,42 @@ pub mod flags {
             /// plugin to handle these flagged events with higher priority, especially when the
             /// plugin has a big latency as per `plugin::Info::initial_delay`.
             const REALTIME_EVENT = 1,
+        }
+    }
+
+    bitflags! {
+        /// Used in the `flags` field of `TimeInfo`, and for querying the host for specific values
+        pub flags TimeInfo : i32 {
+            /// Indicates that play, cycle or record state has changed.
+            const TRANSPORT_CHANGED = 1,
+            /// Set if Host sequencer is currently playing.
+            const TRANSPORT_PLAYING = 1 << 1,
+            /// Set if Host sequencer is in cycle mode.
+            const TRANSPORT_CYCLE_ACTIVE = 1 << 2,
+            /// Set if Host sequencer is in record mode.
+            const TRANSPORT_RECORDING = 1 << 3,
+
+            /// Set if automation write mode active (record parameter changes).
+            const AUTOMATION_WRITING = 1 << 6,
+            /// Set if automation read mode active (play parameter changes).
+            const AUTOMATION_READING = 1 << 7,
+
+            /// Set if TimeInfo::nanoseconds is valid.
+            const NANOSECONDS_VALID = 1 << 8,
+            /// Set if TimeInfo::ppq_pos is valid.
+            const PPQ_POS_VALID = 1 << 9,
+            /// Set if TimeInfo::tempo is valid.
+            const TEMPO_VALID = 1 << 10,
+            /// Set if TimeInfo::bar_start_pos is valid.
+            const BARS_VALID = 1 << 11,
+            /// Set if both TimeInfo::cycle_start_pos and VstTimeInfo::cycle_end_pos are valid.
+            const CYCLE_POS_VALID = 1 << 12,
+            /// Set if both TimeInfo::time_sig_numerator and TimeInfo::time_sig_denominator are valid.
+            const TIME_SIG_VALID = 1 << 13,
+            /// Set if both TimeInfo::smpte_offset and VstTimeInfo::smpte_frame_rate are valid.
+            const SMPTE_VALID = 1 << 14,
+            /// Set if TimeInfo::samples_to_next_clock is valid.
+            const VST_CLOCK_VALID = 1 << 15
         }
     }
 }

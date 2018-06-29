@@ -3,12 +3,12 @@
 #![doc(hidden)]
 
 use std::{mem, slice};
-
+use std::cell::UnsafeCell;
 use std::os::raw::{c_char, c_void};
 
 use buffer::AudioBuffer;
 use api::consts::*;
-use api::{self, AEffect, ChannelProperties};
+use api::{self, AEffect, ChannelProperties, TimeInfo};
 use editor::{Rect, KeyCode, Key, KnobMode};
 use host::Host;
 
@@ -285,6 +285,16 @@ pub fn dispatch(
             }
         }
 
+        OpCode::StartProcess => plugin.start_process(),
+        OpCode::StopProcess => plugin.stop_process(),
+
+        OpCode::GetNumMidiInputs => {
+            return plugin.get_info().midi_inputs as isize;
+        }
+        OpCode::GetNumMidiOutputs => {
+            return plugin.get_info().midi_outputs as isize;
+        }
+
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);
             trace!(
@@ -330,6 +340,23 @@ pub fn host_dispatch(
         OpCode::ProcessEvents => {
             host.process_events(unsafe { &*(ptr as *const api::Events) });
         }
+
+        OpCode::GetTime => {
+            return match host.get_time_info(value as i32) {
+                None => 0,
+                Some(result) => {
+                    thread_local! {
+                        static TIME_INFO: UnsafeCell<TimeInfo> =
+                            UnsafeCell::new(unsafe { mem::uninitialized() });
+                    }
+                    TIME_INFO.with(|time_info| {
+                        unsafe { *time_info.get() = result };
+                        time_info.get() as isize
+                    })
+                }
+            };
+        }
+        OpCode::GetBlockSize => return host.get_block_size(),
 
         unimplemented => {
             trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);

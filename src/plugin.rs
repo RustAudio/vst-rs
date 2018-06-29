@@ -6,7 +6,7 @@ use std::os::raw::c_void;
 
 use channels::ChannelInfo;
 use host::{self, Host};
-use api::{AEffect, HostCallbackProc, Supported};
+use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
 use api::consts::VST_MAGIC;
 use buffer::AudioBuffer;
 use editor::Editor;
@@ -315,6 +315,12 @@ pub struct Info {
     /// Number of outputs.
     pub outputs: i32,
 
+    /// Number of MIDI input channels (1-16), or 0 for the default of 16 channels.
+    pub midi_inputs: i32,
+
+    /// Number of MIDI output channels (1-16), or 0 for the default of 16 channels.
+    pub midi_outputs: i32,
+
     /// Unique plugin ID. Can be registered with Steinberg to prevent conflicts with other plugins.
     ///
     /// This ID is used to identify a plugin during save and load of a preset and project.
@@ -359,6 +365,9 @@ impl Default for Info {
             parameters: 0,
             inputs: 2, // Stereo in,out
             outputs: 2,
+
+            midi_inputs: 0,
+            midi_outputs: 0,
 
             unique_id: 0, // This must be changed.
             version: 1, // v0.0.0.1
@@ -716,6 +725,13 @@ pub trait Plugin {
             None,
         )
     }
+
+    /// Called one time before the start of process call.
+    /// This indicates that the process call will be interrupted (due to Host reconfiguration or bypass state when the plug-in doesn't support softBypass).
+    fn start_process(&self) {}
+
+    /// Called after the stop of process call.
+    fn stop_process(&self) {}
 }
 
 /// A reference to the host which allows the plugin to call back and access information.
@@ -911,6 +927,37 @@ impl Host for HostCallback {
             events as *const _ as *mut _,
             0.0,
         );
+    }
+
+    /// Request time information from Host.
+    ///
+    /// The mask parameter is composed of the same flags which will be found in the `flags` field of `TimeInfo` when returned.
+    /// That is, if you want the host's tempo, the parameter passed to `get_time_info()` should have the `TEMPO_VALID` flag set.
+    /// This request and delivery system is important, as a request like this may cause
+    /// significant calculations at the application's end, which may take a lot of our precious time.
+    /// This obviously means you should only set those flags that are required to get the information you need.
+    ///
+    /// Also please be aware that requesting information does not necessarily mean that that information is provided in return.
+    /// Check the flags field in the `TimeInfo` structure to see if your request was actually met.
+    fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
+        if self.callback.is_none() {
+            return None
+        }
+
+        let opcode = host::OpCode::GetTime;
+        let mask = mask as isize;
+        let null = 0 as *mut c_void;
+        let ptr = self.callback(self.effect, opcode, 0, mask, null, 0.0);
+
+        match ptr {
+            0   => None,
+            ptr => Some(unsafe { (*(ptr as *const TimeInfo)).clone() }),
+        }
+    }
+
+    /// Get block size.
+    fn get_block_size(&self) -> isize {
+        self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
     }
 }
 
