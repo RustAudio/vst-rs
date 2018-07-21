@@ -289,10 +289,10 @@ pub fn dispatch(
         OpCode::StopProcess => plugin.stop_process(),
 
         OpCode::GetNumMidiInputs => {
-            return plugin.get_info().midi_inputs as isize;
+            return unsafe { (*effect).get_cache() }.info.midi_inputs as isize
         }
         OpCode::GetNumMidiOutputs => {
-            return plugin.get_info().midi_outputs as isize;
+            return unsafe { (*effect).get_cache() }.info.midi_outputs as isize
         }
 
         _ => {
