@@ -940,10 +940,6 @@ impl Host for HostCallback {
     /// Also please be aware that requesting information does not necessarily mean that that information is provided in return.
     /// Check the flags field in the `TimeInfo` structure to see if your request was actually met.
     fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
-        if self.callback.is_none() {
-            return None
-        }
-
         let opcode = host::OpCode::GetTime;
         let mask = mask as isize;
         let null = 0 as *mut c_void;
