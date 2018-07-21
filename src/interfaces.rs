@@ -3,7 +3,7 @@
 #![doc(hidden)]
 
 use std::{mem, slice};
-use std::cell::UnsafeCell;
+use std::cell::Cell;
 use std::os::raw::{c_char, c_void};
 
 use buffer::AudioBuffer;
@@ -346,12 +346,12 @@ pub fn host_dispatch(
                 None => 0,
                 Some(result) => {
                     thread_local! {
-                        static TIME_INFO: UnsafeCell<TimeInfo> =
-                            UnsafeCell::new(unsafe { mem::uninitialized() });
+                        static TIME_INFO: Cell<TimeInfo> =
+                            Cell::new(TimeInfo::default());
                     }
                     TIME_INFO.with(|time_info| {
-                        unsafe { *time_info.get() = result };
-                        time_info.get() as isize
+                        (*time_info).set(result);
+                        time_info.as_ptr() as isize
                     })
                 }
             };

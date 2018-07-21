@@ -662,7 +662,7 @@ pub struct SysExEvent {
 }
 
 #[repr(C)]
-#[derive(Clone)]
+#[derive(Clone, Default)]
 /// Describes the time at the start of the block currently being processed
 pub struct TimeInfo {
     /// current Position in audio samples (always valid)
@@ -739,7 +739,12 @@ pub enum SmpteFrameRate {
     /// HDTV: 59.94 fps
     Smpte599fps = 12,
     /// HDTV: 60 fps
-    Smpte60fps = 13
+    Smpte60fps = 13,
+}
+impl Default for SmpteFrameRate {
+    fn default() -> Self {
+        SmpteFrameRate::Smpte24fps
+    }
 }
 
 /// Bitflags.
