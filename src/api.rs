@@ -662,7 +662,7 @@ pub struct SysExEvent {
 }
 
 #[repr(C)]
-#[derive(Clone, Default)]
+#[derive(Clone, Default, Copy)]
 /// Describes the time at the start of the block currently being processed
 pub struct TimeInfo {
     /// current Position in audio samples (always valid)
