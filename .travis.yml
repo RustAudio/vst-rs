@@ -1,5 +1,6 @@
 language: rust
 script:
+  - rustup toolchain install nightly
   - FMT_DIFF="$(rustfmt --write-mode diff  **/*.rs)" && test -z "$FMT_DIFF" || echo "Code is not properly formatted, please run 'rustfmt **/*.rs':\nDiff: $FMT_DIFF"
   - rustup component add --toolchain=nightly clippy-preview && cargo +nightly clippy
   - cargo build --verbose
