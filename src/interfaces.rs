@@ -7,7 +7,7 @@ use std::os::raw::{c_char, c_void};
 use std::{mem, slice};
 
 use api::consts::*;
-use api::{self, AEffect, ChannelProperties, TimeInfo};
+use api::{self, AEffect, TimeInfo};
 use buffer::AudioBuffer;
 use editor::{Key, KeyCode, KnobMode, Rect};
 use host::Host;
@@ -225,7 +225,7 @@ pub fn dispatch(
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
                 unsafe {
-                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    let ptr = ptr as *mut api::ChannelProperties;
                     *ptr = plugin.get_input_info(index).into();
                 }
             }
@@ -233,7 +233,7 @@ pub fn dispatch(
         OpCode::GetOutputInfo => {
             if index >= 0 && index < plugin.get_info().outputs {
                 unsafe {
-                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    let ptr = ptr as *mut api::ChannelProperties;
                     *ptr = plugin.get_output_info(index).into();
                 }
             }

@@ -35,7 +35,7 @@ impl ChannelInfo {
                 name
             },
 
-            active: active,
+            active,
 
             arrangement_type: arrangement_type.unwrap_or(SpeakerArrangementType::Custom),
         }

@@ -28,7 +28,7 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
         Self {
             inputs: slice::from_raw_parts(inputs_raw, input_count),
             outputs: slice::from_raw_parts_mut(outputs_raw, output_count),
-            samples: samples,
+            samples,
         }
     }
 
@@ -313,14 +313,14 @@ impl<'a> WriteIntoPlaceholder for SysExEvent<'a> {
 
 impl<'a> WriteIntoPlaceholder for Event<'a> {
     fn write_into(&self, out: &mut PlaceholderEvent) {
-        match self {
-            &Event::Midi(ref ev) => {
+        match *self {
+            Event::Midi(ref ev) => {
                 ev.write_into(out);
             }
-            &Event::SysEx(ref ev) => {
+            Event::SysEx(ref ev) => {
                 ev.write_into(out);
             }
-            &Event::Deprecated(e) => {
+            Event::Deprecated(e) => {
                 let out = unsafe { &mut *(out as *mut _ as *mut _) };
                 *out = e;
             }
@@ -366,10 +366,7 @@ impl SendEventBuffer {
                 *ptr = event;
             }
         }
-        Self {
-            buf: buf,
-            api_events: api_events,
-        }
+        Self { buf, api_events }
     }
 
     /// Sends events to the host. See the `fwd_midi` example.
