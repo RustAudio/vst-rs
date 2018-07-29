@@ -8,8 +8,8 @@ use std::os::raw::{c_char, c_void};
 
 use buffer::AudioBuffer;
 use api::consts::*;
-use api::{self, AEffect, ChannelProperties, TimeInfo};
-use editor::{Rect, KeyCode, Key, KnobMode};
+use api::{self, AEffect, TimeInfo};
+use editor::{Key, KeyCode, KnobMode, Rect};
 use host::Host;
 
 /// Deprecated process function.
@@ -221,7 +221,7 @@ pub fn dispatch(
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
                 unsafe {
-                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    let ptr = ptr as *mut api::ChannelProperties;
                     *ptr = plugin.get_input_info(index).into();
                 }
             }
@@ -229,7 +229,7 @@ pub fn dispatch(
         OpCode::GetOutputInfo => {
             if index >= 0 && index < plugin.get_info().outputs {
                 unsafe {
-                    let ptr = mem::transmute::<_, *mut ChannelProperties>(ptr);
+                    let ptr = ptr as *mut api::ChannelProperties;
                     *ptr = plugin.get_output_info(index).into();
                 }
             }

@@ -1,4 +1,10 @@
 language: rust
+script:
+  - rustup toolchain install nightly
+  - rustup component add --toolchain=nightly clippy-preview
+  - cargo +nightly clippy
+  - cargo build --verbose
+  - cargo test --verbose
 after_success: 
   - |
     [ $TRAVIS_BRANCH = master ] &&

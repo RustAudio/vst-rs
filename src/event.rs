@@ -114,7 +114,9 @@ impl<'a> From<api::Event> for Event<'a> {
                 payload: unsafe {
                     // We can safely transmute the event pointer to a `SysExEvent` pointer as
                     // event_type refers to a `SysEx` type.
-                    let event: &api::SysExEvent = mem::transmute(&event);
+                    #[allow(cast_ptr_alignment)]
+                    let event: &api::SysExEvent =
+                        &*(&event as *const api::Event as *const api::SysExEvent);
                     slice::from_raw_parts(event.system_data, event.data_size as usize)
                 },
 

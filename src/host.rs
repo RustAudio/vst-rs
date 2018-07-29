@@ -344,7 +344,7 @@ impl<T: Host> PluginLoader<T> {
                 }
             },
             lib: Arc::new(lib),
-            host: host,
+            host,
         })
     }
 
@@ -389,8 +389,8 @@ impl PluginInstance {
         use plugin::OpCode as op;
 
         let mut plug = PluginInstance {
-            effect: effect,
-            lib: lib,
+            effect,
+            lib,
             info: Default::default(),
         };
 
