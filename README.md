@@ -101,5 +101,17 @@ Example: 
 Creates a Plugin.vst bundle
 ```
 
+## Development
+
+The CI system will lint the code using `clippy` and check if it is properly formatted with `cargo fmt`.
+Both tools can be installed like this, assuming you're using [rustup][1]:
+
+- make sure you've a nightly toolchain available: `rustup toolchain install nightly`
+- install rustfmt and clippy: `rustup component add --toolchain nightly rustfmt-preview clippy-preview`
+
+The tools can be run like `cargo +nightly {fmt,clippy}` or you call the appropriate make target, that are `make fmt` and `make lint`.
+
 ## Special Thanks
 [Marko Mijalkovic](https://github.com/overdrivenpotato) for [initiating this project](https://github.com/overdrivenpotato/rust-vst2)
+
+[1]: https://rustup.rs/

@@ -2,11 +2,11 @@
 
 use num_traits::Float;
 
-use std::slice;
 use std::iter::Zip;
+use std::slice;
 
 /// `AudioBuffer` contains references to the audio buffers for all input and output channels.
-/// 
+///
 /// To create an `AudioBuffer` in a host, use a [`HostBuffer`](../host/struct.HostBuffer.html).
 pub struct AudioBuffer<'a, T: 'a + Float> {
     inputs: &'a [*const T],
@@ -28,7 +28,7 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
         Self {
             inputs: slice::from_raw_parts(inputs_raw, input_count),
             outputs: slice::from_raw_parts_mut(outputs_raw, output_count),
-            samples: samples,
+            samples,
         }
     }
 
@@ -313,14 +313,14 @@ impl<'a> WriteIntoPlaceholder for SysExEvent<'a> {
 
 impl<'a> WriteIntoPlaceholder for Event<'a> {
     fn write_into(&self, out: &mut PlaceholderEvent) {
-        match self {
-            &Event::Midi(ref ev) => {
+        match *self {
+            Event::Midi(ref ev) => {
                 ev.write_into(out);
             }
-            &Event::SysEx(ref ev) => {
+            Event::SysEx(ref ev) => {
                 ev.write_into(out);
             }
-            &Event::Deprecated(e) => {
+            Event::Deprecated(e) => {
                 let out = unsafe { &mut *(out as *mut _ as *mut _) };
                 *out = e;
             }
@@ -329,9 +329,9 @@ impl<'a> WriteIntoPlaceholder for Event<'a> {
 }
 
 use api;
-use std::mem;
 use host::Host;
 use plugin::Plugin;
+use std::mem;
 
 /// This buffer is used for sending midi events through the VST interface.
 /// The purpose of this is to convert outgoing midi events from `event::Event` to `api::Events`.
@@ -366,10 +366,7 @@ impl SendEventBuffer {
                 *ptr = event;
             }
         }
-        Self {
-            buf: buf,
-            api_events: api_events,
-        }
+        Self { buf, api_events }
     }
 
     /// Sends events to the host. See the `fwd_midi` example.
@@ -393,14 +390,22 @@ impl SendEventBuffer {
     /// # }
     /// ```
     #[inline(always)]
-    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, host: &mut Host) {
+    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(
+        &mut self,
+        events: T,
+        host: &mut Host,
+    ) {
         self.store_events(events);
         host.process_events(self.events());
     }
 
     /// Sends events from the host to a plugin.
     #[inline(always)]
-    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, plugin: &mut Plugin) {
+    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(
+        &mut self,
+        events: T,
+        plugin: &mut Plugin,
+    ) {
         self.store_events(events);
         plugin.process_events(self.events());
     }
@@ -458,18 +463,18 @@ mod tests {
 
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer = unsafe {
-            AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
-        };
+        let mut buffer =
+            unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter()).fold(0, |acc,
-             (input,
-              output)| {
-                assert_eq!(*input - acc as f32, 0.0);
-                assert_eq!(*output, 0.0);
-                acc + 1
-            });
+            input
+                .into_iter()
+                .zip(output.into_iter())
+                .fold(0, |acc, (input, output)| {
+                    assert_eq!(*input - acc as f32, 0.0);
+                    assert_eq!(*output, 0.0);
+                    acc + 1
+                });
         }
     }
 
@@ -488,13 +493,14 @@ mod tests {
             unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input.into_iter().zip(output.into_iter()).fold(0, |acc,
-             (input,
-              output)| {
-                assert_eq!(*input - acc as f32, 0.0);
-                assert_eq!(*output, 0.0);
-                acc + 1
-            });
+            input
+                .into_iter()
+                .zip(output.into_iter())
+                .fold(0, |acc, (input, output)| {
+                    assert_eq!(*input - acc as f32, 0.0);
+                    assert_eq!(*output, 0.0);
+                    acc + 1
+                });
         }
     }
 }

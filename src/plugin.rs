@@ -1,16 +1,16 @@
 //! Plugin specific structures.
 
-use std::{mem, ptr};
+use std::ptr;
 
 use std::os::raw::c_void;
 
-use channels::ChannelInfo;
-use host::{self, Host};
-use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
-use api::consts::VST_MAGIC;
-use buffer::AudioBuffer;
-use editor::Editor;
 use api;
+use api::consts::VST_MAGIC;
+use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
+use buffer::AudioBuffer;
+use channels::ChannelInfo;
+use editor::Editor;
+use host::{self, Host};
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -370,7 +370,7 @@ impl Default for Info {
             midi_outputs: 0,
 
             unique_id: 0, // This must be changed.
-            version: 1, // v0.0.0.1
+            version: 1,   // v0.0.0.1
 
             category: Category::Effect,
 
@@ -511,7 +511,6 @@ pub trait Plugin {
         trace!("Initialized vst plugin.");
     }
 
-
     /// Set the current preset to the index specified by `preset`.
     fn change_preset(&mut self, preset: i32) {}
 
@@ -527,7 +526,6 @@ pub trait Plugin {
     fn get_preset_name(&self, preset: i32) -> String {
         "".to_string()
     }
-
 
     /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
     fn get_parameter_label(&self, index: i32) -> String {
@@ -564,13 +562,11 @@ pub trait Plugin {
         false
     }
 
-
     /// Called when sample rate is changed by host.
     fn set_sample_rate(&mut self, rate: f32) {}
 
     /// Called when block size is changed by host.
     fn set_block_size(&mut self, size: i64) {}
-
 
     /// Called when plugin is turned on.
     fn resume(&mut self) {}
@@ -578,12 +574,10 @@ pub trait Plugin {
     /// Called when plugin is turned off.
     fn suspend(&mut self) {}
 
-
     /// Vendor specific handling.
     fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         0
     }
-
 
     /// Return whether plugin supports specified action.
     fn can_do(&self, can_do: CanDo) -> Supported {
@@ -595,7 +589,6 @@ pub trait Plugin {
     fn get_tail_size(&self) -> isize {
         0
     }
-
 
     /// Process an audio buffer containing `f32` values.
     ///
@@ -684,7 +677,6 @@ pub trait Plugin {
     fn get_editor(&mut self) -> Option<&mut Editor> {
         None
     }
-
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current preset.
@@ -794,7 +786,9 @@ impl HostCallback {
         ptr: *mut c_void,
         opt: f32,
     ) -> isize {
-        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
+        let callback = self
+            .callback
+            .unwrap_or_else(|| panic!("Host not yet initialized."));
         callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
@@ -802,7 +796,7 @@ impl HostCallback {
     #[doc(hidden)]
     fn is_effect_valid(&self) -> bool {
         // Check whether `effect` points to a valid AEffect struct
-        unsafe { *mem::transmute::<*mut AEffect, *mut i32>(self.effect) == VST_MAGIC }
+        self.effect as i32 == VST_MAGIC
     }
 
     /// Create a new Host structure wrapping a host callback.
@@ -810,7 +804,7 @@ impl HostCallback {
     pub fn wrap(callback: HostCallbackProc, effect: *mut AEffect) -> HostCallback {
         HostCallback {
             callback: Some(callback),
-            effect: effect,
+            effect,
         }
     }
 
@@ -942,18 +936,25 @@ impl Host for HostCallback {
     fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
         let opcode = host::OpCode::GetTime;
         let mask = mask as isize;
-        let null = 0 as *mut c_void;
+        let null = ptr::null_mut();
         let ptr = self.callback(self.effect, opcode, 0, mask, null, 0.0);
 
         match ptr {
-            0   => None,
+            0 => None,
             ptr => Some(unsafe { (*(ptr as *const TimeInfo)) }),
         }
     }
 
     /// Get block size.
     fn get_block_size(&self) -> isize {
-        self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
+        self.callback(
+            self.effect,
+            host::OpCode::GetBlockSize,
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        )
     }
 }
 
@@ -1041,7 +1042,9 @@ mod tests {
 
         impl Default for TestPlugin {
             fn default() -> TestPlugin {
-                let plugin = TestPlugin { host: Default::default() };
+                let plugin = TestPlugin {
+                    host: Default::default(),
+                };
 
                 // Should panic
                 let version = plugin.host.vst_version();
