@@ -4,12 +4,12 @@
 extern crate vst;
 extern crate time;
 
-use vst::plugin::{Category, Info, Plugin};
 use vst::buffer::AudioBuffer;
+use vst::plugin::{Category, Info, Plugin};
 
-use std::mem;
-use std::f64::consts::PI;
 use std::collections::VecDeque;
+use std::f64::consts::PI;
+use std::mem;
 
 /// Calculate the length in samples for a delay. Size ranges from 0.0 to 1.0.
 fn delay(index: usize, mut size: f32) -> isize {

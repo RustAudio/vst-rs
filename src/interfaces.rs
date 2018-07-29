@@ -2,14 +2,14 @@
 
 #![doc(hidden)]
 
-use std::{mem, slice};
 use std::cell::Cell;
 use std::os::raw::{c_char, c_void};
+use std::{mem, slice};
 
-use buffer::AudioBuffer;
 use api::consts::*;
 use api::{self, AEffect, ChannelProperties, TimeInfo};
-use editor::{Rect, KeyCode, Key, KnobMode};
+use buffer::AudioBuffer;
+use editor::{Key, KeyCode, KnobMode, Rect};
 use host::Host;
 
 /// Deprecated process function.
@@ -83,12 +83,16 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 /// String will be cut at `max` characters.
 fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
     unsafe {
+        use libc::{c_void, memcpy, memset};
         use std::cmp::min;
-        use libc::{c_void, memset, memcpy};
 
         let dst = dst as *mut c_void;
         memset(dst, 0, max);
-        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.as_bytes().len()));
+        memcpy(
+            dst,
+            src.as_ptr() as *const c_void,
+            min(max, src.as_bytes().len()),
+        );
     }
 
     1 // Success
@@ -154,9 +158,9 @@ pub fn dispatch(
                     // Given a Rect** structure
                     // TODO: Investigate whether we are given a valid Rect** pointer already
                     *(ptr as *mut *mut c_void) = Box::into_raw(Box::new(Rect {
-                        left: pos.0 as i16, // x coord of position
-                        top: pos.1 as i16, // y coord of position
-                        right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
+                        left: pos.0 as i16,              // x coord of position
+                        top: pos.1 as i16,               // y coord of position
+                        right: (pos.0 + size.0) as i16,  // x coord of pos + x coord of size
                         bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
                     })) as *mut _; // TODO: free memory
                 }

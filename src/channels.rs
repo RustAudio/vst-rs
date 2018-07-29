@@ -225,16 +225,17 @@ impl SpeakerArrangementType {
 impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
     /// Convert to VST API arrangement type.
     fn into(self) -> api::SpeakerArrangementType {
-        use api::SpeakerArrangementType as Raw;
+        use self::ArrangementTarget::{Cinema, Music};
         use self::SpeakerArrangementType::*;
-        use self::ArrangementTarget::{Music, Cinema};
+        use api::SpeakerArrangementType as Raw;
 
         match self {
             Custom => Raw::Custom,
             Empty => Raw::Empty,
             Mono => Raw::Mono,
             Stereo(conf, _) => {
-                match conf { // Stereo channels.
+                match conf {
+                    // Stereo channels.
                     StereoConfig::L_R => Raw::Stereo,
                     StereoConfig::Ls_Rs => Raw::StereoSurround,
                     StereoConfig::Lc_Rc => Raw::StereoCenter,
@@ -243,7 +244,8 @@ impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
                 }
             }
             Surround(conf) => {
-                match conf { // Surround channels.
+                match conf {
+                    // Surround channels.
                     SurroundConfig::S3_0(Music) => Raw::Music30,
                     SurroundConfig::S3_0(Cinema) => Raw::Cinema30,
 
@@ -292,10 +294,10 @@ impl From<api::ChannelProperties> for SpeakerArrangementType {
     fn from(api: api::ChannelProperties) -> SpeakerArrangementType {
         use api::flags::*;
 
-        use api::SpeakerArrangementType as Raw;
+        use self::ArrangementTarget::{Cinema, Music};
         use self::SpeakerArrangementType::*;
-        use self::ArrangementTarget::{Music, Cinema};
         use self::SurroundConfig::*;
+        use api::SpeakerArrangementType as Raw;
 
         let stereo = if Channel::from_bits(api.flags)
             .expect("Invalid Channel Flags")

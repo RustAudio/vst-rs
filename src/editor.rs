@@ -11,7 +11,6 @@ pub trait Editor {
     /// Get the coordinates of the editor window.
     fn position(&self) -> (i32, i32);
 
-
     /// Editor idle call. Called by host.
     fn idle(&mut self) {}
 
@@ -24,7 +23,6 @@ pub trait Editor {
 
     /// Return whether the window is currently open.
     fn is_open(&mut self) -> bool;
-
 
     /// Set the knob mode for this editor (if supported by host).
     ///
