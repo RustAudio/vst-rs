@@ -1,6 +1,6 @@
 //! Plugin specific structures.
 
-use std::{mem, ptr};
+use std::ptr;
 
 use std::os::raw::c_void;
 
@@ -802,7 +802,7 @@ impl HostCallback {
     #[doc(hidden)]
     fn is_effect_valid(&self) -> bool {
         // Check whether `effect` points to a valid AEffect struct
-        unsafe { *mem::transmute::<*mut AEffect, *mut i32>(self.effect) == VST_MAGIC }
+        self.effect as i32 == VST_MAGIC
     }
 
     /// Create a new Host structure wrapping a host callback.
@@ -810,7 +810,7 @@ impl HostCallback {
     pub fn wrap(callback: HostCallbackProc, effect: *mut AEffect) -> HostCallback {
         HostCallback {
             callback: Some(callback),
-            effect: effect,
+            effect,
         }
     }
 
@@ -942,7 +942,7 @@ impl Host for HostCallback {
     fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
         let opcode = host::OpCode::GetTime;
         let mask = mask as isize;
-        let null = 0 as *mut c_void;
+        let null = ptr::null_mut();
         let ptr = self.callback(self.effect, opcode, 0, mask, null, 0.0);
 
         match ptr {
