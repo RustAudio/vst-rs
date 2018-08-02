@@ -23,7 +23,9 @@ jobs:
     - stage: deploy
       os:
         - linux
-      if: tags = true AND type != pull_request
+      on:
+        tags: true
+        branch: master
       # our encrypted cratesio token
       env:
         - secure: "JXnAcT0TcXb0lAs4A53wsnUTaJFZu2uRECYGz3fYKcFlI+47Htl6j7BVI25PRouREObWCAf30VGXWYCzp1Jn/KftXNjEfzduw794Dl1g22HiazGm0k7D3ONTDinsgbadJ0QoCRYthjwFvVXuLNKfI1H+/6JddX5RDhIhvE82O1yL3T3oh4keGwIrDh0snwoFXRxFJGyfREHkF7dztZgwxSXctTPcBlfrbSjWIea84eonXr9SU229gKeXS3sKd/mjwzubJ4bzWvM9nhpu4dZtxvAm95Af1akAvxPnXM5vjbXkrJZflAIxs6Qu6sc4bqYvTQiDW5rJUNz8Sa0z2ESOiu0wQVC7Tj7WtUlZ1EEwemb7QUOw05Ocv+LPqZrEXRPtJLa952OUhIOyWRHnEehKmE34gILW1HbgOTO5jqdTQbRpPlXrXL6QdCqqBvYkgMkuiFSgXdZiuerYY6yGHhjuS3kd77XPBnWl4cU/S3pESkH7DNvjraI6DoyBIh62Ua3oYeAwFSmyvB0bB0BUaw2R+sE6ljxL45HOT3NeB/Pxwga9b2oxzlpxAv3kRyWLL155eJt7pNYAM+12wFjvnSDR8lPKsY5c+fow527ZW+4++/N1Qc85+mRFiwfIEYmkGmjqm50TUB0TxdQyyWAe5Yq+YnKYsbdjMNiqgTaomONW6sw=" 
@@ -34,7 +36,8 @@ jobs:
     - stage: docs
       os:
         - linux
-      if: (branch = master OR tags = true) AND type != pull_request
+      on:
+        branch: master
       script: 
         - |
           cargo doc --all --no-deps &&
