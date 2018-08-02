@@ -20,10 +20,9 @@ jobs:
     - stage: deploy
       os:
         - linux
+      if: branch = master AND type != pull_request
       script: 
         - |
-          [ $TRAVIS_BRANCH = master ] &&
-          [ $TRAVIS_PULL_REQUEST = false ] &&
           cargo doc --all --no-deps &&
           echo '<meta http-equiv=refresh content=0;url=vst/index.html>' > target/doc/index.html &&
           sudo pip install ghp-import &&
