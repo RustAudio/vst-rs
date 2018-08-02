@@ -13,7 +13,7 @@ use std::os::raw::c_void;
 
 use interfaces;
 use plugin::{self, Plugin, Info, Category};
-use api::{self, AEffect, PluginMain, Supported, TimeInfo};
+use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use api::consts::*;
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
@@ -395,10 +395,8 @@ impl PluginInstance {
         };
 
         unsafe {
-            use api::flags::*;
-
             let effect: &AEffect = &*effect;
-            let flags = Plugin::from_bits_truncate(effect.flags);
+            let flags = PluginFlags::from_bits_truncate(effect.flags);
 
             plug.info = Info {
                 name: plug.read_string(op::GetProductName, MAX_PRODUCT_STR_LEN),
@@ -419,9 +417,9 @@ impl PluginInstance {
 
                 initial_delay: effect.initialDelay,
 
-                preset_chunks: flags.intersects(PROGRAM_CHUNKS),
-                f64_precision: flags.intersects(CAN_DOUBLE_REPLACING),
-                silent_when_stopped: flags.intersects(NO_SOUND_IN_STOP),
+                preset_chunks: flags.intersects(PluginFlags::PROGRAM_CHUNKS),
+                f64_precision: flags.intersects(PluginFlags::CAN_DOUBLE_REPLACING),
+                silent_when_stopped: flags.intersects(PluginFlags::NO_SOUND_IN_STOP),
             };
         }
 
