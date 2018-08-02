@@ -27,7 +27,7 @@ license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
 
 [dependencies]
-log = "0.3"
+log = "0.4"
 num-traits = "0.1"
 libc = "0.2"
 bitflags = "0.8"
