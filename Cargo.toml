@@ -31,7 +31,7 @@ log = "0.3"
 num-traits = "0.1"
 libc = "0.2"
 bitflags = "0.8"
-libloading = "0.4"
+libloading = "0.5"
 
 [dev-dependencies]
 time = "0.1"
