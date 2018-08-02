@@ -31,7 +31,7 @@ jobs:
         - |
           cargo publish --token ${CRATESIO_TOKEN} --manifest-path Cargo.toml
     # deploy docs if master and not PR
-    -
+    - stage: deploy
       os:
         - linux
       if: branch = master AND type != pull_request
