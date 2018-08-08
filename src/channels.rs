@@ -54,17 +54,15 @@ impl Into<api::ChannelProperties> for ChannelInfo {
                 label
             },
             flags: {
-                use api::flags::*;
-
-                let mut flag = Channel::empty();
+                let mut flag = api::ChannelFlags::empty();
                 if self.active {
-                    flag |= ACTIVE
+                    flag |= api::ChannelFlags::ACTIVE
                 }
                 if self.arrangement_type.is_left_stereo() {
-                    flag |= STEREO
+                    flag |= api::ChannelFlags::STEREO
                 }
                 if self.arrangement_type.is_speaker_type() {
-                    flag |= SPEAKER
+                    flag |= api::ChannelFlags::SPEAKER
                 }
                 flag.bits()
             },
@@ -83,14 +81,12 @@ impl Into<api::ChannelProperties> for ChannelInfo {
 
 impl From<api::ChannelProperties> for ChannelInfo {
     fn from(api: api::ChannelProperties) -> ChannelInfo {
-        use api::flags::*;
-
         ChannelInfo {
             name: String::from_utf8_lossy(&api.name).to_string(),
             short_name: String::from_utf8_lossy(&api.short_name).to_string(),
-            active: Channel::from_bits(api.flags)
+            active: api::ChannelFlags::from_bits(api.flags)
                 .expect("Invalid bits in channel info")
-                .intersects(ACTIVE),
+                .intersects(api::ChannelFlags::ACTIVE),
             arrangement_type: SpeakerArrangementType::from(api),
         }
     }
@@ -290,16 +286,14 @@ impl Into<api::SpeakerArrangementType> for SpeakerArrangementType {
 /// stereo speakers found in the channel flags.
 impl From<api::ChannelProperties> for SpeakerArrangementType {
     fn from(api: api::ChannelProperties) -> SpeakerArrangementType {
-        use api::flags::*;
-
         use api::SpeakerArrangementType as Raw;
         use self::SpeakerArrangementType::*;
         use self::ArrangementTarget::{Music, Cinema};
         use self::SurroundConfig::*;
 
-        let stereo = if Channel::from_bits(api.flags)
+        let stereo = if api::ChannelFlags::from_bits(api.flags)
             .expect("Invalid Channel Flags")
-            .intersects(STEREO)
+            .intersects(api::ChannelFlags::STEREO)
         {
             StereoChannel::Left
         } else {

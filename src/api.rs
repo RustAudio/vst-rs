@@ -92,11 +92,11 @@ pub struct AEffect {
     /// Number of audio outputs.
     pub numOutputs: i32,
 
-    /// Bitmask made of values from api::flags.
+    /// Bitmask made of values from `api::PluginFlags`.
     ///
     /// ```no_run
-    /// use vst::api::flags;
-    /// let flags = flags::CAN_REPLACING | flags::CAN_DOUBLE_REPLACING;
+    /// use vst::api::PluginFlags;
+    /// let flags = PluginFlags::CAN_REPLACING | PluginFlags::CAN_DOUBLE_REPLACING;
     /// // ...
     /// ```
     pub flags: i32,
@@ -171,7 +171,7 @@ pub struct ChannelProperties {
     /// Channel name.
     pub name: [u8; MAX_LABEL as usize],
 
-    /// Flags found in `channel_flags` module.
+    /// Flags found in `ChannelFlags`.
     pub flags: i32,
 
     /// Type of speaker arrangement this channel is a part of.
@@ -597,7 +597,7 @@ pub struct MidiEvent {
     /// `samples[123]`.
     pub delta_frames: i32,
 
-    /// See `flags::MidiFlags`.
+    /// See `MidiEventFlags`.
     pub flags: i32,
 
     /// Length in sample frames of entire note if available, otherwise 0.
@@ -705,7 +705,7 @@ pub struct TimeInfo {
     /// MIDI Clock Resolution (24 Per Quarter Note), can be negative (nearest clock)
     pub samples_to_next_clock: i32,
 
-    /// See `flags::TimeInfo`
+    /// See `TimeInfoFlags`
     pub flags: i32
 }
 
@@ -747,95 +747,92 @@ impl Default for SmpteFrameRate {
     }
 }
 
-/// Bitflags.
-pub mod flags {
-    bitflags! {
-        /// Flags for VST channels.
-        pub flags Channel: i32 {
-            /// Indicates channel is active. Ignored by host.
-            const ACTIVE = 1,
-            /// Indicates channel is first of stereo pair.
-            const STEREO = 1 << 1,
-            /// Use channel's specified speaker_arrangement instead of stereo flag.
-            const SPEAKER = 1 << 2
-        }
+bitflags! {
+    /// Flags for VST channels.
+    pub struct ChannelFlags: i32 {
+        /// Indicates channel is active. Ignored by host.
+        const ACTIVE = 1;
+        /// Indicates channel is first of stereo pair.
+        const STEREO = 1 << 1;
+        /// Use channel's specified speaker_arrangement instead of stereo flag.
+        const SPEAKER = 1 << 2;
     }
+}
 
-    bitflags! {
-        /// Flags for VST plugins.
-        pub flags Plugin: i32 {
-            /// Plugin has an editor.
-            const HAS_EDITOR = 1,
-            /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
-            const CAN_REPLACING = 1 << 4,
-            /// Plugin preset data is handled in formatless chunks.
-            const PROGRAM_CHUNKS = 1 << 5,
-            /// Plugin is a synth.
-            const IS_SYNTH = 1 << 8,
-            /// Plugin does not produce sound when all input is silence.
-            const NO_SOUND_IN_STOP = 1 << 9,
-            /// Supports 64 bit audio processing.
-            const CAN_DOUBLE_REPLACING = 1 << 12
-        }
+bitflags! {
+    /// Flags for VST plugins.
+    pub struct PluginFlags: i32 {
+        /// Plugin has an editor.
+        const HAS_EDITOR = 1;
+        /// Plugin can process 32 bit audio. (Mandatory in VST 2.4).
+        const CAN_REPLACING = 1 << 4;
+        /// Plugin preset data is handled in formatless chunks.
+        const PROGRAM_CHUNKS = 1 << 5;
+        /// Plugin is a synth.
+        const IS_SYNTH = 1 << 8;
+        /// Plugin does not produce sound when all input is silence.
+        const NO_SOUND_IN_STOP = 1 << 9;
+        /// Supports 64 bit audio processing.
+        const CAN_DOUBLE_REPLACING = 1 << 12;
     }
+}
 
-    bitflags!{
-        /// Cross platform modifier key flags.
-        pub flags ModifierKey: u8 {
-            /// Shift key.
-            const SHIFT = 1,
-            /// Alt key.
-            const ALT = 1 << 1,
-            /// Control on mac.
-            const COMMAND = 1 << 2,
-            /// Command on mac, ctrl on other.
-            const CONTROL = 1 << 3, // Ctrl on PC, Apple on Mac
-        }
+bitflags!{
+    /// Cross platform modifier key flags.
+    pub struct ModifierKey: u8 {
+        /// Shift key.
+        const SHIFT = 1;
+        /// Alt key.
+        const ALT = 1 << 1;
+        /// Control on mac.
+        const COMMAND = 1 << 2;
+        /// Command on mac, ctrl on other.
+        const CONTROL = 1 << 3; // Ctrl on PC, Apple on Mac
     }
+}
 
-    bitflags! {
-        /// MIDI event flags.
-        pub flags MidiEvent: i32 {
-            /// This event is played live (not in playback from a sequencer track). This allows the
-            /// plugin to handle these flagged events with higher priority, especially when the
-            /// plugin has a big latency as per `plugin::Info::initial_delay`.
-            const REALTIME_EVENT = 1,
-        }
+bitflags! {
+    /// MIDI event flags.
+    pub struct MidiEventFlags: i32 {
+        /// This event is played live (not in playback from a sequencer track). This allows the
+        /// plugin to handle these flagged events with higher priority, especially when the
+        /// plugin has a big latency as per `plugin::Info::initial_delay`.
+        const REALTIME_EVENT = 1;
     }
+}
 
-    bitflags! {
-        /// Used in the `flags` field of `TimeInfo`, and for querying the host for specific values
-        pub flags TimeInfo : i32 {
-            /// Indicates that play, cycle or record state has changed.
-            const TRANSPORT_CHANGED = 1,
-            /// Set if Host sequencer is currently playing.
-            const TRANSPORT_PLAYING = 1 << 1,
-            /// Set if Host sequencer is in cycle mode.
-            const TRANSPORT_CYCLE_ACTIVE = 1 << 2,
-            /// Set if Host sequencer is in record mode.
-            const TRANSPORT_RECORDING = 1 << 3,
+bitflags! {
+    /// Used in the `flags` field of `TimeInfo`, and for querying the host for specific values
+    pub struct TimeInfoFlags : i32 {
+        /// Indicates that play, cycle or record state has changed.
+        const TRANSPORT_CHANGED = 1;
+        /// Set if Host sequencer is currently playing.
+        const TRANSPORT_PLAYING = 1 << 1;
+        /// Set if Host sequencer is in cycle mode.
+        const TRANSPORT_CYCLE_ACTIVE = 1 << 2;
+        /// Set if Host sequencer is in record mode.
+        const TRANSPORT_RECORDING = 1 << 3;
 
-            /// Set if automation write mode active (record parameter changes).
-            const AUTOMATION_WRITING = 1 << 6,
-            /// Set if automation read mode active (play parameter changes).
-            const AUTOMATION_READING = 1 << 7,
+        /// Set if automation write mode active (record parameter changes).
+        const AUTOMATION_WRITING = 1 << 6;
+        /// Set if automation read mode active (play parameter changes).
+        const AUTOMATION_READING = 1 << 7;
 
-            /// Set if TimeInfo::nanoseconds is valid.
-            const NANOSECONDS_VALID = 1 << 8,
-            /// Set if TimeInfo::ppq_pos is valid.
-            const PPQ_POS_VALID = 1 << 9,
-            /// Set if TimeInfo::tempo is valid.
-            const TEMPO_VALID = 1 << 10,
-            /// Set if TimeInfo::bar_start_pos is valid.
-            const BARS_VALID = 1 << 11,
-            /// Set if both TimeInfo::cycle_start_pos and VstTimeInfo::cycle_end_pos are valid.
-            const CYCLE_POS_VALID = 1 << 12,
-            /// Set if both TimeInfo::time_sig_numerator and TimeInfo::time_sig_denominator are valid.
-            const TIME_SIG_VALID = 1 << 13,
-            /// Set if both TimeInfo::smpte_offset and VstTimeInfo::smpte_frame_rate are valid.
-            const SMPTE_VALID = 1 << 14,
-            /// Set if TimeInfo::samples_to_next_clock is valid.
-            const VST_CLOCK_VALID = 1 << 15
-        }
+        /// Set if TimeInfo::nanoseconds is valid.
+        const NANOSECONDS_VALID = 1 << 8;
+        /// Set if TimeInfo::ppq_pos is valid.
+        const PPQ_POS_VALID = 1 << 9;
+        /// Set if TimeInfo::tempo is valid.
+        const TEMPO_VALID = 1 << 10;
+        /// Set if TimeInfo::bar_start_pos is valid.
+        const BARS_VALID = 1 << 11;
+        /// Set if both TimeInfo::cycle_start_pos and VstTimeInfo::cycle_end_pos are valid.
+        const CYCLE_POS_VALID = 1 << 12;
+        /// Set if both TimeInfo::time_sig_numerator and TimeInfo::time_sig_denominator are valid.
+        const TIME_SIG_VALID = 1 << 13;
+        /// Set if both TimeInfo::smpte_offset and VstTimeInfo::smpte_frame_rate are valid.
+        const SMPTE_VALID = 1 << 14;
+        /// Set if TimeInfo::samples_to_next_clock is valid.
+        const VST_CLOCK_VALID = 1 << 15;
     }
 }

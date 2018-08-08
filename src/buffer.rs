@@ -277,13 +277,12 @@ impl<'a, T: WriteIntoPlaceholder> WriteIntoPlaceholder for &'a T {
 
 impl WriteIntoPlaceholder for MidiEvent {
     fn write_into(&self, out: &mut PlaceholderEvent) {
-        use api::flags::REALTIME_EVENT;
         let out = unsafe { &mut *(out as *mut _ as *mut _) };
         *out = api::MidiEvent {
             event_type: api::EventType::Midi,
             byte_size: mem::size_of::<api::MidiEvent>() as i32,
             delta_frames: self.delta_frames,
-            flags: if self.live { REALTIME_EVENT.bits() } else { 0 },
+            flags: if self.live { api::MidiEventFlags::REALTIME_EVENT.bits() } else { 0 },
             note_length: self.note_length.unwrap_or(0),
             note_offset: self.note_offset.unwrap_or(0),
             midi_data: self.data,

@@ -207,28 +207,28 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
             numOutputs: info.outputs,
 
             flags: {
-                use api::flags::*;
+                use api::PluginFlags;
 
-                let mut flag = CAN_REPLACING;
+                let mut flag = PluginFlags::CAN_REPLACING;
 
                 if info.f64_precision {
-                    flag |= CAN_DOUBLE_REPLACING;
+                    flag |= PluginFlags::CAN_DOUBLE_REPLACING;
                 }
 
                 if plugin.get_editor().is_some() {
-                    flag |= HAS_EDITOR;
+                    flag |= PluginFlags::HAS_EDITOR;
                 }
 
                 if info.preset_chunks {
-                    flag |= PROGRAM_CHUNKS;
+                    flag |= PluginFlags::PROGRAM_CHUNKS;
                 }
 
                 if let plugin::Category::Synth = info.category {
-                    flag |= IS_SYNTH;
+                    flag |= PluginFlags::IS_SYNTH;
                 }
 
                 if info.silent_when_stopped {
-                    flag |= NO_SOUND_IN_STOP;
+                    flag |= PluginFlags::NO_SOUND_IN_STOP;
                 }
 
                 flag.bits()
