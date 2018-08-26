@@ -187,7 +187,7 @@ impl_clike!(OpCode);
 #[allow(unused_variables)]
 pub trait Host {
     /// Automate a parameter; the value has been changed.
-    fn automate(&mut self, index: i32, value: f32) {}
+    fn automate(&self, index: i32, value: f32) {}
 
     /// Get the plugin ID of the currently loading plugin.
     ///
@@ -211,7 +211,7 @@ pub trait Host {
     }
 
     /// Handle incoming events from the plugin.
-    fn process_events(&mut self, events: &api::Events) {}
+    fn process_events(&self, events: &api::Events) {}
 
     /// Get time information.
     fn get_time_info(&self, mask: i32) -> Option<TimeInfo> {
@@ -313,7 +313,7 @@ impl<T: Host> PluginLoader<T> {
     /// # struct MyHost;
     /// # impl MyHost { fn new() -> MyHost { MyHost } }
     /// # impl Host for MyHost {
-    /// #     fn automate(&mut self, _: i32, _: f32) {}
+    /// #     fn automate(&self, _: i32, _: f32) {}
     /// #     fn get_plugin_id(&self) -> i32 { 0 }
     /// # }
     /// // ...

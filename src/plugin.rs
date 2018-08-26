@@ -883,7 +883,7 @@ impl HostCallback {
 }
 
 impl Host for HostCallback {
-    fn automate(&mut self, index: i32, value: f32) {
+    fn automate(&self, index: i32, value: f32) {
         if self.is_effect_valid() {
             // TODO: Investigate removing this check, should be up to host
             self.callback(
@@ -934,7 +934,7 @@ impl Host for HostCallback {
     ///
     /// [`process`]: trait.Plugin.html#method.process
     /// [`process_f64`]: trait.Plugin.html#method.process_f64
-    fn process_events(&mut self, events: &api::Events) {
+    fn process_events(&self, events: &api::Events) {
         self.callback(
             self.effect,
             host::OpCode::ProcessEvents,
