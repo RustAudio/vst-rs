@@ -4,8 +4,14 @@
 extern crate vst;
 extern crate time;
 
+mod atomic_float;
+
+use atomic_float::AtomicFloat;
+
 use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, Info, Plugin};
+use vst::plugin::{Category, Info, Plugin, PluginParameters};
+
+use std::sync::Arc;
 
 /// Simple Gain Effect.
 /// Note that this does not use a proper scale for sound and shouldn't be used in
@@ -13,8 +19,21 @@ use vst::plugin::{Category, Info, Plugin};
 /// as well as to keep things simple as this is meant to be a starting point for
 /// any effect.
 struct GainEffect {
-    // Here, we can store a variable that keeps track of the plugin's state.
-    amplitude: f32,
+    // Store a handle to the plugin's parameter object.
+    params: Arc<GainEffectParameters>,
+}
+
+/// The plugin's parameter object contains the values of parameters that can be
+/// adjusted from the host.  If we were creating an effect that didn't allow the
+/// user to modify it at runtime or have any controls, we could omit this part.
+///
+/// The parameters object is shared between the processing and GUI threads.
+/// For this reason, all mutable state in the object has to be represented
+/// through thread-safe interior mutability. The easiest way to achieve this
+/// is to store the parameters in atomic containers.
+struct GainEffectParameters {
+    // The plugin's state consists of a single parameter: amplitude.
+    amplitude: AtomicFloat,
 }
 
 // All plugins using the `vst` crate will either need to implement the `Default`
@@ -23,7 +42,13 @@ struct GainEffect {
 // 0.5 means it's halfway up.
 impl Default for GainEffect {
     fn default() -> GainEffect {
-        GainEffect { amplitude: 0.5f32 }
+        GainEffect { params: Arc::new(GainEffectParameters::default()) }
+    }
+}
+
+impl Default for GainEffectParameters {
+    fn default() -> GainEffectParameters {
+        GainEffectParameters { amplitude: AtomicFloat::new(0.5) }
     }
 }
 
@@ -46,20 +71,42 @@ impl Plugin for GainEffect {
         }
     }
 
-    // the `get_parameter` and `set_parameter` functions are required if we
-    // want to interact with the plugin.  If we were creating an effect that
-    // didn't allow the user to modify it at runtime or have any controls,
-    // we could omit these next parts.
+    // Here is where the bulk of our audio processing code goes.
+    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
+        // Read the amplitude from the parameter object
+        let amplitude = self.params.amplitude.get();
+        // First, we destructure our audio buffer into an arbitrary number of
+        // input and output buffers.  Usually, we'll be dealing with stereo (2 of each)
+        // but that might change.
+        for (input_buffer, output_buffer) in buffer.zip() {
+            // Next, we'll loop through each individual sample so we can apply the amplitude
+            // value to it.
+            for (input_sample, output_sample) in input_buffer.iter().zip(output_buffer) {
+                *output_sample = *input_sample * amplitude;
+            }
+        }
+    }
+
+    // Return the parameter object. This method can be omitted if the
+    // plugin has no parameters.
+    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
+        Arc::clone(&self.params) as Arc<PluginParameters>
+    }
+}
+
+impl PluginParameters for GainEffectParameters {
+    // the `get_parameter` function reads the value of a parameter.
     fn get_parameter(&self, index: i32) -> f32 {
         match index {
-            0 => self.amplitude,
+            0 => self.amplitude.get(),
             _ => 0.0,
         }
     }
 
-    fn set_parameter(&mut self, index: i32, val: f32) {
+    // the `set_parameter` function sets the value of a parameter.
+    fn set_parameter(&self, index: i32, val: f32) {
         match index {
-            0 => self.amplitude = val,
+            0 => self.amplitude.set(val),
             _ => (),
         }
     }
@@ -68,7 +115,7 @@ impl Plugin for GainEffect {
     // format it into a string that makes the most since.
     fn get_parameter_text(&self, index: i32) -> String {
         match index {
-            0 => format!("{:.2}", (self.amplitude - 0.5) * 2f32),
+            0 => format!("{:.2}", (self.amplitude.get() - 0.5) * 2f32),
             _ => "".to_string(),
         }
     }
@@ -79,20 +126,6 @@ impl Plugin for GainEffect {
             0 => "Amplitude",
             _ => "",
         }.to_string()
-    }
-
-    // Here is where the bulk of our audio processing code goes.
-    fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
-        // First, we destructure our audio buffer into an arbitrary number of
-        // input and output buffers.  Usually, we'll be dealing with stereo (2 of each)
-        // but that might change.
-        for (input_buffer, output_buffer) in buffer.zip() {
-            // Next, we'll loop through each individual sample so we can apply the amplitude
-            // value to it.
-            for (input_sample, output_sample) in input_buffer.iter().zip(output_buffer) {
-                *output_sample = *input_sample * self.amplitude;
-            }
-        }
     }
 }
 
