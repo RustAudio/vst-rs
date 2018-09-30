@@ -3,7 +3,6 @@
 use num_traits::Float;
 
 use std::slice;
-use std::iter::Zip;
 
 /// `AudioBuffer` contains references to the audio buffers for all input and output channels.
 /// 
@@ -80,14 +79,47 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
         )
     }
 
-    /// Zip together buffers.
+    /// Create an iterator over pairs of input buffers and output buffers.
     #[inline]
-    pub fn zip<'b>(&'b mut self) -> Zip<InputIterator<'b, T>, OutputIterator<'b, T>>
-    where
-        'a: 'b,
+    pub fn zip<'b>(&'b mut self) -> AudioBufferIterator<'a, 'b, T>
     {
-        let (inputs, outputs) = self.split();
-        inputs.into_iter().zip(outputs)
+        AudioBufferIterator {
+            audio_buffer: self,
+            index: 0
+        }
+    }
+}
+
+/// Iterator over pairs of buffers of input channels and output channels.
+pub struct AudioBufferIterator<'a, 'b, T> 
+where
+    T: 'a + Float,
+    'a: 'b
+{
+    audio_buffer: &'b mut AudioBuffer<'a, T>,
+    index: usize
+}
+
+impl<'a, 'b, T> Iterator for AudioBufferIterator<'a, 'b, T> 
+where
+    T: 'b + Float,
+{
+    type Item = (&'b [T], &'b mut[T]);
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.audio_buffer.inputs.len() && self.index < self.audio_buffer.outputs.len() {
+            let input = unsafe { 
+                slice::from_raw_parts(self.audio_buffer.inputs[self.index], self.audio_buffer.samples) 
+            };
+            let output = unsafe { 
+                slice::from_raw_parts_mut(self.audio_buffer.outputs[self.index], self.audio_buffer.samples) 
+            };
+            let val = (input, output);
+            self.index += 1;
+            Some(val)
+        } else {
+            None
+        }
     }
 }
 
@@ -172,7 +204,6 @@ impl<'a, T: Sized> IntoIterator for Inputs<'a, T> {
 
 /// Wrapper type to access the buffers for the output channels of an `AudioBuffer` in a safe way.
 /// Behaves like a slice.
-#[derive(Copy, Clone)]
 pub struct Outputs<'a, T: 'a> {
     bufs: &'a [*mut T],
     samples: usize,
@@ -200,7 +231,7 @@ impl<'a, T> Outputs<'a, T> {
     }
 
     /// Split borrowing at the given index, like for slices
-    pub fn split_at_mut(&mut self, i: usize) -> (Outputs<'a, T>, Outputs<'a, T>) {
+    pub fn split_at_mut(self, i: usize) -> (Outputs<'a, T>, Outputs<'a, T>) {
         let (l, r) = self.bufs.split_at(i);
         (
             Outputs {
@@ -230,13 +261,17 @@ impl<'a, T> IndexMut<usize> for Outputs<'a, T> {
 }
 
 /// Iterator over buffers for output channels of an `AudioBuffer`.
-pub struct OutputIterator<'a, T: 'a> {
-    data: Outputs<'a, T>,
+pub struct OutputIterator<'a, 'b, T> 
+where 
+    T: 'a,
+    'a: 'b
+{
+    data: &'b mut Outputs<'a, T>,
     i: usize,
 }
 
-impl<'a, T> Iterator for OutputIterator<'a, T> {
-    type Item = &'a mut [T];
+impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T> {
+    type Item = &'b mut [T];
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.i < self.data.len() {
@@ -249,9 +284,9 @@ impl<'a, T> Iterator for OutputIterator<'a, T> {
     }
 }
 
-impl<'a, T: Sized> IntoIterator for Outputs<'a, T> {
-    type Item = &'a mut [T];
-    type IntoIter = OutputIterator<'a, T>;
+impl<'a, 'b: 'a, T: Sized> IntoIterator for &'b mut Outputs<'a, T> {
+    type Item = &'b mut [T];
+    type IntoIter = OutputIterator<'a, 'b, T>;
 
     fn into_iter(self) -> Self::IntoIter {
         OutputIterator { data: self, i: 0 }
