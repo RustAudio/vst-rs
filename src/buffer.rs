@@ -284,7 +284,7 @@ impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T> {
     }
 }
 
-impl<'a, 'b: 'a, T: Sized> IntoIterator for &'b mut Outputs<'a, T> {
+impl<'a, 'b, T: Sized> IntoIterator for &'b mut Outputs<'a, T> where 'a: 'b {
     type Item = &'b mut [T];
     type IntoIter = OutputIterator<'a, 'b, T>;
 
