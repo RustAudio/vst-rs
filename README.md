@@ -3,7 +3,7 @@
 [![Appveyor Build][appv-img]][appv-url]
 [![crates.io][crates-img]][crates-url]
 
-[Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org))
+[Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org)) **PLEASE READ:** *when you join, introduce yourself as a human!  We get a lot of bot spam.*
 
 A library to help facilitate creating VST plugins in rust.
 
