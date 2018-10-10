@@ -2,6 +2,7 @@
 [![Travis Build][trav-img]][trav-url]
 [![Appveyor Build][appv-img]][appv-url]
 [![crates.io][crates-img]][crates-url]
+[![dependency status](https://deps.rs/repo/github/rust-dsp/rust-vst/status.svg)](https://deps.rs/repo/github/rust-dsp/rust-vst)
 
 [Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org)) **PLEASE READ:** *when you join, introduce yourself as a human!  We get a lot of bot spam.*
 
@@ -18,10 +19,10 @@ opcodes. It is enough to create basic VST plugins without an editor interface.
   - Proper editor support
   - Write more tests
   - Provide better examples
-  
+
 ## Crate
 `VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
-include the crate directly from the official [Github repository](https://github.com/rust-dsp/rust-vst). 
+include the crate directly from the official [Github repository](https://github.com/rust-dsp/rust-vst).
 
 ```toml
 # get from crates.io.
@@ -91,7 +92,7 @@ crate-type = ["cdylib"]
 
 #### Packaging on OS X
 
-On OS X VST plugins are packaged inside of loadable bundles. 
+On OS X VST plugins are packaged inside of loadable bundles.
 To package your VST as a loadable bundle you may use the `osx_vst_bundler.sh` script this library provides. 
 
 Example: 
