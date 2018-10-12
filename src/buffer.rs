@@ -263,13 +263,14 @@ impl<'a, T> IndexMut<usize> for Outputs<'a, T> {
 /// Iterator over buffers for output channels of an `AudioBuffer`.
 pub struct OutputIterator<'a, 'b, T> 
 where 
-    T: 'a
+    T: 'a,
+    'a: 'b
 {
     data: &'b mut Outputs<'a, T>,
     i: usize,
 }
 
-impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T> {
+impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T> where T: 'b {
     type Item = &'b mut [T];
 
     fn next(&mut self) -> Option<Self::Item> {
