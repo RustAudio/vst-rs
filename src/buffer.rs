@@ -509,6 +509,78 @@ mod tests {
             });
         }
     }
+    
+    
+    // Test that the `zip()` method returns an iterator that gives `n` elements
+    // where n is the number of inputs when this is lower than the number of outputs.
+    #[test]
+    fn buffer_zip_fewer_inputs_than_outputs() {
+        let in1 = vec![1.0; SIZE];
+        let in2 = vec![2.0; SIZE];
+        
+        let mut out1 = vec![3.0; SIZE];
+        let mut out2 = vec![4.0; SIZE];
+        let mut out3 = vec![5.0; SIZE];
+        
+        let inputs = vec![in1.as_ptr(), in2.as_ptr()];
+        let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr(), out3.as_mut_ptr()];
+        let mut buffer = unsafe {
+            AudioBuffer::from_raw(2, 3, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
+        };
+        
+        let mut iter = buffer.zip();
+        if let Some((observed_in1, observed_out1)) = iter.next() {
+            assert_eq!(1.0, observed_in1[0]);
+            assert_eq!(3.0, observed_out1[0]);
+        } else {
+            unreachable!();
+        }
+        
+        if let Some((observed_in2, observed_out2)) = iter.next() {
+            assert_eq!(2.0, observed_in2[0]);
+            assert_eq!(4.0, observed_out2[0]);
+        } else {
+            unreachable!();
+        }
+
+        assert_eq!(None, iter.next());
+    }
+    
+    // Test that the `zip()` method returns an iterator that gives `n` elements
+    // where n is the number of outputs when this is lower than the number of outputs.
+    #[test]
+    fn buffer_zip_more_inputs_than_outputs() {
+        let in1 = vec![1.0; SIZE];
+        let in2 = vec![2.0; SIZE];
+        let in3 = vec![4.0; SIZE];
+        
+        let mut out1 = vec![4.0; SIZE];
+        let mut out2 = vec![5.0; SIZE];
+        
+        let inputs = vec![in1.as_ptr(), in2.as_ptr(), in3.as_ptr()];
+        let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
+        let mut buffer = unsafe {
+            AudioBuffer::from_raw(3, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
+        };
+        
+        let mut iter = buffer.zip();
+        
+        if let Some((observed_in1, observed_out1)) = iter.next() {
+            assert_eq!(1.0, observed_in1[0]);
+            assert_eq!(4.0, observed_out1[0]);
+        } else {
+            unreachable!();
+        }
+        
+        if let Some((observed_in2, observed_out2)) = iter.next() {
+            assert_eq!(2.0, observed_in2[0]);
+            assert_eq!(5.0, observed_out2[0]);
+        } else {
+            unreachable!();
+        }
+
+        assert_eq!(None, iter.next());
+    }
 
     /// Test that creating buffers from raw pointers works.
     #[test]
