@@ -655,10 +655,10 @@ pub trait Plugin {
 
     /// Called one time before the start of process call.
     /// This indicates that the process call will be interrupted (due to Host reconfiguration or bypass state when the plug-in doesn't support softBypass).
-    fn start_process(&self) {}
+    fn start_process(&mut self) {}
 
     /// Called after the stop of process call.
-    fn stop_process(&self) {}
+    fn stop_process(&mut self) {}
 }
 
 /// Parameter object shared between the UI and processing threads.
