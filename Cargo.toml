@@ -36,9 +36,6 @@ libloading = "0.5"
 [dev-dependencies]
 time = "0.1"
 
-[features]
-nightly = []
-
 [[example]]
 name = "dimension_expander"
 crate-type = ["cdylib"]
