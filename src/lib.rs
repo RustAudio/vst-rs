@@ -12,6 +12,11 @@
 //! must be implemented by the plugin. Any of the default implementations may be overriden for
 //! custom functionality; the defaults do nothing on their own.
 //!
+//! ## `PluginParameters` Trait
+//! The methods in this trait handle access to plugin parameters. Since the host may call these
+//! methods concurrently with audio processing, it needs to be separate from the main `Plugin`
+//! trait.
+//!
 //! ## `plugin_main!` macro
 //! `plugin_main!` will export the necessary functions to create a proper VST plugin. This must be
 //! called with your VST plugin struct name in order for the vst to work.

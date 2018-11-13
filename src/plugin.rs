@@ -455,6 +455,19 @@ impl Into<String> for CanDo {
 ///
 /// All methods except `get_info` provide a default implementation which does nothing and can be
 /// safely overridden.
+///
+/// At any time, a plugin is in one of two states: *suspended* or *resumed*.
+/// While a plugin is in the *suspended* state, various processing parameters,
+/// such as the sample rate and block size, can be changed by the host, but no
+/// audio processing takes place. While a plugin is in the *resumed* state,
+/// audio processing methods and parameter access methods can be called by
+/// the host. A plugin starts in the *suspended* state and is switched between
+/// the states by the host using the `resume` and `suspend` methods.
+///
+/// Hosts call methods of the plugin on two threads: the UI thread and the
+/// processing thread. For this reason, the plugin API is separated into two
+/// traits: The `Plugin` trait containing setup and processing methods, and
+/// the `PluginParameters` trait containing methods for parameter access.
 #[allow(unused_variables)]
 pub trait Plugin {
     /// This method must return an `Info` struct.
@@ -508,22 +521,28 @@ pub trait Plugin {
     }
 
     /// Called when plugin is fully initialized.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn init(&mut self) {
         trace!("Initialized vst plugin.");
     }
 
 
     /// Called when sample rate is changed by host.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn set_sample_rate(&mut self, rate: f32) {}
 
     /// Called when block size is changed by host.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn set_block_size(&mut self, size: i64) {}
 
 
-    /// Called when plugin is turned on.
+    /// Called to transition the plugin into the *resumed* state.
     fn resume(&mut self) {}
 
-    /// Called when plugin is turned off.
+    /// Called to transition the plugin into the *suspended* state.
     fn suspend(&mut self) {}
 
 
@@ -534,6 +553,8 @@ pub trait Plugin {
 
 
     /// Return whether plugin supports specified action.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn can_do(&self, can_do: CanDo) -> Supported {
         info!("Host is asking if plugin can: {:?}.", can_do);
         Supported::Maybe
@@ -574,6 +595,8 @@ pub trait Plugin {
     /// }
     /// # }
     /// ```
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         // For each input and output
         for (input, output) in buffer.zip() {
@@ -613,6 +636,8 @@ pub trait Plugin {
     /// }
     /// # }
     /// ```
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>) {
         // For each input and output
         for (input, output) in buffer.zip() {
@@ -626,6 +651,8 @@ pub trait Plugin {
     /// Handle incoming events sent from the host.
     ///
     /// This is always called before the start of `process` or `process_f64`.
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process_events(&mut self, events: &api::Events) {}
 
     /// Get a reference to the shared parameter object.
@@ -655,9 +682,13 @@ pub trait Plugin {
 
     /// Called one time before the start of process call.
     /// This indicates that the process call will be interrupted (due to Host reconfiguration or bypass state when the plug-in doesn't support softBypass).
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn start_process(&mut self) {}
 
     /// Called after the stop of process call.
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn stop_process(&mut self) {}
 }
 
@@ -667,6 +698,8 @@ pub trait Plugin {
 #[allow(unused_variables)]
 pub trait PluginParameters: Sync {
     /// Set the current preset to the index specified by `preset`.
+    ///
+    /// This method can be called on the processing thread for automation.
     fn change_preset(&self, preset: i32) {}
 
     /// Get the current preset index.
@@ -704,6 +737,8 @@ pub trait PluginParameters: Sync {
     }
 
     /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
+    ///
+    /// This method can be called on the processing thread for automation.
     fn set_parameter(&self, index: i32, value: f32) {}
 
     /// Return whether parameter at `index` can be automated.
@@ -741,6 +776,11 @@ pub trait PluginParameters: Sync {
 
 
     /// Return handle to plugin editor if supported.
+    /// The method need only return the object on the first call.
+    /// Subsequent calls can just return `None`.
+    ///
+    /// The editor object will typically contain an `Arc` reference to the parameter
+    /// object through which it can communicate with the audio processing.
     fn get_editor(&self) -> Option<Box<Editor>> {
         None
     }
