@@ -698,7 +698,7 @@ pub trait Plugin {
     ///
     /// The editor object will typically contain an `Arc` reference to the parameter
     /// object through which it can communicate with the audio processing.
-    fn get_editor(&self) -> Option<Box<Editor>> {
+    fn get_editor(&mut self) -> Option<Box<Editor>> {
         None
     }
 }
