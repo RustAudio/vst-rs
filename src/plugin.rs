@@ -690,6 +690,17 @@ pub trait Plugin {
     ///
     /// This method is only called while the plugin is in the *resumed* state.
     fn stop_process(&mut self) {}
+
+
+    /// Return handle to plugin editor if supported.
+    /// The method need only return the object on the first call.
+    /// Subsequent calls can just return `None`.
+    ///
+    /// The editor object will typically contain an `Arc` reference to the parameter
+    /// object through which it can communicate with the audio processing.
+    fn get_editor(&self) -> Option<Box<Editor>> {
+        None
+    }
 }
 
 /// Parameter object shared between the UI and processing threads.
@@ -773,17 +784,6 @@ pub trait PluginParameters: Sync {
     /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
     /// given chunk data.
     fn load_bank_data(&self, data: &[u8]) {}
-
-
-    /// Return handle to plugin editor if supported.
-    /// The method need only return the object on the first call.
-    /// Subsequent calls can just return `None`.
-    ///
-    /// The editor object will typically contain an `Arc` reference to the parameter
-    /// object through which it can communicate with the audio processing.
-    fn get_editor(&self) -> Option<Box<Editor>> {
-        None
-    }
 }
 
 struct DummyPluginParameters;

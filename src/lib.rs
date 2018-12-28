@@ -195,7 +195,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let mut plugin = T::new(host);
     let info = plugin.get_info().clone();
     let params = plugin.get_parameter_object();
-    let editor = params.get_editor();
+    let editor = plugin.get_editor();
 
     // Update AEffect in place
     unsafe {
