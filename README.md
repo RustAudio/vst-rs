@@ -11,6 +11,8 @@ A library to help facilitate creating VST plugins in rust.
 This library is a work in progress and as such does not yet implement all
 opcodes. It is enough to create basic VST plugins without an editor interface.
 
+For more detailed information about this library and subtopics such as GUI development progress, please check the [wiki](https://github.com/rust-dsp/rust-vst/wiki/).
+
 ## Library Documentation
   * https://rust-dsp.github.io/rust-vst
 
