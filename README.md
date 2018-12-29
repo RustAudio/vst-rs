@@ -5,7 +5,7 @@
 [![dependency status](https://deps.rs/repo/github/rust-dsp/rust-vst/status.svg)](https://deps.rs/repo/github/rust-dsp/rust-vst)
 [![Telegram Chat][tg-img]][tg-url]
 
-rust-vst is a library for creating VST plugins in tje Rust programming language.
+rust-vst is a library for creating VST plugins in the Rust programming language.
 
 This library is a work in progress, and as such it does not yet implement all
 functionality. It can create basic VST plugins without an editor interface.
