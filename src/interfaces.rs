@@ -165,6 +165,7 @@ pub fn dispatch(
         OpCode::EditorOpen => {
             if let Some(editor) = plugin.get_editor() {
                 editor.open(ptr); //ptr is raw window handle, eg HWND* on windows
+                return 1;
             }
         }
         OpCode::EditorClose => {
