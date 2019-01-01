@@ -3,18 +3,20 @@
 [![Appveyor Build][appv-img]][appv-url]
 [![crates.io][crates-img]][crates-url]
 [![dependency status](https://deps.rs/repo/github/rust-dsp/rust-vst/status.svg)](https://deps.rs/repo/github/rust-dsp/rust-vst)
+[![Telegram Chat][tg-img]][tg-url]
 
-[Join the Rust VST chat](https://tinyurl.com/ya5ff5ef) (for web users, make sure you're [registered/logged in](https://web.telegram.org)) **PLEASE READ:** *when you join, introduce yourself as a human!  We get a lot of bot spam.*
+rust-vst is a library for creating VST plugins in the Rust programming language.
 
-A library to help facilitate creating VST plugins in rust.
-
-This library is a work in progress and as such does not yet implement all
-opcodes. It is enough to create basic VST plugins without an editor interface.
+This library is a work in progress, and as such it does not yet implement all
+functionality. It can create basic VST plugins without an editor interface.
 
 For more detailed information about this library and subtopics such as GUI development progress, please check the [wiki](https://github.com/rust-dsp/rust-vst/wiki/).
 
 ## Library Documentation
   * https://rust-dsp.github.io/rust-vst
+  
+## Community
+For questions, help, or other issues, consider joining our [Telegram Chat][tg-url].
 
 ## TODO
   - Implement all opcodes
@@ -91,6 +93,8 @@ crate-type = ["cdylib"]
 [appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
+[tg-img]: https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg
+[tg-url]: https://t.me/joinchat/BfEhnw0l4386Uzi5elmGrQ
 
 #### Packaging on OS X
 
