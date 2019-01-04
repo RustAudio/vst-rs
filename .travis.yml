@@ -3,18 +3,20 @@ jobs:
   include:
     - stage: test
       os: linux
+      before_script:
+        - rustup toolchain install stable
+        - rustup component add --toolchain stable clippy-preview || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
       script:
-        - rustup toolchain install nightly
-        - rustup component add --toolchain nightly clippy
-        - cargo +nightly clippy
+        - cargo +stable clippy
         - cargo build --verbose
         - cargo test --verbose
     - 
       os: osx
+      before_script:
+        - rustup toolchain install stable
+        - rustup component add --toolchain stable clippy-preview || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
       script:
-        - rustup toolchain install nightly
-        - rustup component add --toolchain nightly clippy
-        - cargo +nightly clippy
+        - cargo +stable clippy
         - cargo build --verbose
         - cargo test --verbose
         
