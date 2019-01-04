@@ -5,7 +5,7 @@ jobs:
       os: linux
       script:
         - rustup toolchain install nightly
-        - rustup component add --toolchain=nightly clippy-preview
+        - rustup component add --toolchain=nightly clippy
         - cargo +nightly clippy
         - cargo build --verbose
         - cargo test --verbose
@@ -13,7 +13,7 @@ jobs:
       os: osx
       script:
         - rustup toolchain install nightly
-        - rustup component add --toolchain=nightly clippy-preview
+        - rustup component add --toolchain=nightly clippy
         - cargo +nightly clippy
         - cargo build --verbose
         - cargo test --verbose
