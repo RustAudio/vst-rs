@@ -266,7 +266,6 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
 }
 
 #[cfg(test)]
-#[allow(private_no_mangle_fns)] // For `plugin_main!`
 mod tests {
     use std::ptr;
 

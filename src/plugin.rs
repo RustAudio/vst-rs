@@ -859,7 +859,7 @@ impl HostCallback {
     #[doc(hidden)]
     fn is_effect_valid(&self) -> bool {
         // Check whether `effect` points to a valid AEffect struct
-        self.effect as i32 == VST_MAGIC
+        unsafe { (*self.effect).magic as i32 == VST_MAGIC }
     }
 
     /// Create a new Host structure wrapping a host callback.

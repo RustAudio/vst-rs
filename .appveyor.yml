@@ -44,18 +44,18 @@ environment:
     - channel: stable
       target: i686-pc-windows-msvc
   # Beta 64-bit MSVC
-    - channel: beta
-      target: x86_64-pc-windows-msvc
+    # - channel: beta
+    #   target: x86_64-pc-windows-msvc
   # Beta 32-bit MSVC
-    - channel: beta
-      target: i686-pc-windows-msvc
+    # - channel: beta
+    #   target: i686-pc-windows-msvc
   # Nightly 64-bit MSVC
-    - channel: nightly
-      target: x86_64-pc-windows-msvc
+    # - channel: nightly
+    #   target: x86_64-pc-windows-msvc
       #cargoflags: --features "unstable"
   # Nightly 32-bit MSVC
-    - channel: nightly
-      target: i686-pc-windows-msvc
+    # - channel: nightly
+    #   target: i686-pc-windows-msvc
       #cargoflags: --features "unstable"
 
 ### GNU Toolchains ###
@@ -67,18 +67,18 @@ environment:
     - channel: stable
       target: i686-pc-windows-gnu
   # Beta 64-bit GNU
-    - channel: beta
-      target: x86_64-pc-windows-gnu
+    # - channel: beta
+    #   target: x86_64-pc-windows-gnu
   # Beta 32-bit GNU
-    - channel: beta
-      target: i686-pc-windows-gnu
+    # - channel: beta
+    #   target: i686-pc-windows-gnu
   # Nightly 64-bit GNU
-    - channel: nightly
-      target: x86_64-pc-windows-gnu
+    # - channel: nightly
+    #   target: x86_64-pc-windows-gnu
       #cargoflags: --features "unstable"
   # Nightly 32-bit GNU
-    - channel: nightly
-      target: i686-pc-windows-gnu
+    # - channel: nightly
+    #   target: i686-pc-windows-gnu
       #cargoflags: --features "unstable"
 
 ### Allowed failures ###
