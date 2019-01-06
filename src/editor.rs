@@ -28,7 +28,7 @@ pub trait Editor {
     ///  - On Mac OS X (64 bit), it should be interpreted as a `NSView*`
     ///  - On X11 platforms, it should be interpreted as a `u32` (the ID number of the parent window)
     ///
-    /// Return true if the window opened successfully, false otherwise.
+    /// Return `true` if the window opened successfully, `false` otherwise.
     fn open(&mut self, parent: *mut c_void) -> bool;
 
     /// Return whether the window is currently open.
@@ -36,17 +36,17 @@ pub trait Editor {
 
     /// Set the knob mode for this editor (if supported by host).
     ///
-    /// Return true if the knob mode was set.
+    /// Return `true` if the knob mode was set.
     fn set_knob_mode(&mut self, mode: KnobMode) -> bool {
         false
     }
 
-    /// Receive key up event. Return true if the key was used.
+    /// Receive key up event. Return `true` if the key was used.
     fn key_up(&mut self, keycode: KeyCode) -> bool {
         false
     }
 
-    /// Receive key down event. Return true if the key was used.
+    /// Receive key down event. Return `true` if the key was used.
     fn key_down(&mut self, keycode: KeyCode) -> bool {
         false
     }
