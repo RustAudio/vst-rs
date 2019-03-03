@@ -3,10 +3,10 @@
 #[macro_use]
 extern crate vst;
 
+use vst::api::{Events, Supported};
 use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, Plugin, Info, CanDo};
 use vst::event::Event;
-use vst::api::{Supported, Events};
+use vst::plugin::{CanDo, Category, Info, Plugin};
 
 use std::f64::consts::PI;
 
@@ -111,37 +111,36 @@ impl Plugin for SineSynth {
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let samples = buffer.samples();
-
+        let (_, outputs) = buffer.split();
+        let output_count = outputs.len();
         let per_sample = self.time_per_sample();
-
-        for (input_buffer, output_buffer) in buffer.zip() {
+        let mut output_sample;
+        for sample_idx in 0..samples {
             let mut time = self.time;
             let mut note_duration = self.note_duration;
+            if let Some(current_note) = self.note {
+                let signal = (time * midi_pitch_to_freq(current_note) * TAU).sin();
 
-            for (_, output_sample) in input_buffer.iter().zip(output_buffer) {
-                if let Some(current_note) = self.note {
-                    let signal = (time * midi_pitch_to_freq(current_note) * TAU).sin();
-
-                    // Apply a quick envelope to the attack of the signal to avoid popping.
-                    let attack = 0.5;
-                    let alpha = if note_duration < attack {
-                        note_duration / attack
-                    } else {
-                        1.0
-                    };
-
-                    *output_sample = (signal * alpha) as f32;
-
-                    time += per_sample;
-                    note_duration += per_sample;
+                // Apply a quick envelope to the attack of the signal to avoid popping.
+                let attack = 0.5;
+                let alpha = if note_duration < attack {
+                    note_duration / attack
                 } else {
-                    *output_sample = 0.0;
-                }
+                    1.0
+                };
+
+                output_sample = (signal * alpha) as f32;
+
+                self.time += per_sample;
+                self.note_duration += per_sample;
+            } else {
+                output_sample = 0.0;
+            }
+            for buf_idx in 0..output_count {
+                let buff = outputs.get_mut(buf_idx);
+                buff[sample_idx] = output_sample;
             }
         }
-
-        self.time += samples as f64 * per_sample;
-        self.note_duration += samples as f64 * per_sample;
     }
 
     fn can_do(&self, can_do: CanDo) -> Supported {
