@@ -148,7 +148,7 @@ impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
     // Supresses warning about returning a reference to a box
     #[allow(unknown_lints)]
-    #[allow(borrowed_box)]
+    #[allow(clippy::borrowed_box)]
     pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
         //FIXME: find a way to do this without resorting to transmuting via a box
         &mut *(self.object as *mut Box<Plugin>)

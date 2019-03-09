@@ -448,7 +448,7 @@ impl SendEventBuffer {
 
     #[inline(always)]
     fn events(&self) -> &api::Events {
-        #[allow(cast_ptr_alignment)]
+        #[allow(clippy::cast_ptr_alignment)]
         unsafe {
             &*(self.buf.as_ptr() as *const api::Events)
         }
@@ -456,7 +456,7 @@ impl SendEventBuffer {
 
     #[inline(always)]
     fn buf_as_api_events(buf: &mut [u8]) -> &mut api::Events {
-        #[allow(cast_ptr_alignment)]
+        #[allow(clippy::cast_ptr_alignment)]
         unsafe {
             &mut *(buf.as_mut_ptr() as *mut api::Events)
         }
