@@ -45,10 +45,15 @@ impl ParameterTransfer {
 	///
 	/// The iterator returns a pair of `(index, value)` for each changed parameter.
 	///
-	/// The iterator is conservative is the sense that it is guaranteed to report
-	/// changed parameters, but if a parameter is changed multiple times in a short
-	/// period of time, it may skip some of the changes (but never the last) and
-	/// may report an extra, spurious change at the end.
+	/// When parameters have been changed on the current thread, the iterator is
+	/// precise: it reports all changed parameters with the values they were last
+	/// changed to.
+	///
+	/// When parameters are changed on a different thread, the iterator is
+	/// conservative, in the sense that it is guaranteed to report changed
+	/// parameters eventually, but if a parameter is changed multiple times in
+	/// a short period of time, it may skip some of the changes (but never the
+	/// last) and may report an extra, spurious change at the end.
 	///
 	/// The changed parameters are reported in increasing index order, and the same
 	/// parameter is never reported more than once in the same iteration.
