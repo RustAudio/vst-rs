@@ -109,3 +109,78 @@ impl<'pt> Iterator for ParameterTransferIterator<'pt> {
 		Some((index, self.pt.get_parameter(index)))
 	}
 }
+
+#[cfg(test)]
+mod tests {
+	extern crate rand;
+
+	use crate::util::ParameterTransfer;
+
+	use std::sync::Arc;
+	use std::sync::mpsc::channel;
+	use std::thread;
+	use std::time::Duration;
+
+	use self::rand::{Rng, SeedableRng};
+	use self::rand::rngs::StdRng;
+
+	const THREADS: usize = 3;
+	const PARAMETERS: usize = 1000;
+	const UPDATES: usize = 1000000;
+
+	#[test]
+	fn parameter_transfer() {
+		let transfer = Arc::new(ParameterTransfer::new(PARAMETERS));
+		let (tx, rx) = channel();
+
+		// Launch threads that change parameters
+		for t in 0..THREADS {
+			let t_transfer = Arc::clone(&transfer);
+			let t_tx = tx.clone();
+			let mut t_rng = StdRng::seed_from_u64(t as u64);
+			thread::spawn(move || {
+				let mut values = vec![0f32; PARAMETERS];
+				for _ in 0..UPDATES {
+					let p: usize = t_rng.gen_range(0, PARAMETERS);
+					let v: f32 = t_rng.gen_range(0.0, 1.0);
+					values[p] = v;
+					t_transfer.set_parameter(p, v);
+				}
+				t_tx.send(values).unwrap();
+			});
+		}
+
+		// Continually receive updates from threads
+		let mut values = vec![0f32; PARAMETERS];
+		let mut results = vec![];
+		let mut acquire_rng = StdRng::seed_from_u64(42);
+		while results.len() < THREADS {
+			let mut last_p = -1;
+			for (p, v) in transfer.iterate(acquire_rng.gen_bool(0.9)) {
+				assert!(p as isize > last_p);
+				last_p = p as isize;
+				values[p] = v;
+			}
+			thread::sleep(Duration::from_micros(100));
+			while let Ok(result) = rx.try_recv() {
+				results.push(result);
+			}
+		}
+
+		// One last iteration to pick up all updates
+		let mut last_p = -1;
+		for (p, v) in transfer.iterate(true) {
+			assert!(p as isize > last_p);
+			last_p = p as isize;
+			values[p] = v;
+		}
+
+		// Now there should be no more updates
+		assert!(transfer.iterate(true).next().is_none());
+
+		// Verify final values
+		for p in 0..PARAMETERS {
+			assert!((0..THREADS).any(|t| results[t][p] == values[p]));
+		}
+    }
+}
