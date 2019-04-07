@@ -58,3 +58,7 @@ crate-type = ["cdylib"]
 [[example]]
 name = "gain_effect"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "transfer_and_smooth"
+crate-type = ["cdylib"]
