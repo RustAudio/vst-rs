@@ -4,12 +4,9 @@
 extern crate vst;
 extern crate time;
 
-mod atomic_float;
-
-use atomic_float::AtomicFloat;
-
 use vst::buffer::AudioBuffer;
 use vst::plugin::{Category, Info, Plugin, PluginParameters};
+use vst::util::AtomicFloat;
 
 use std::sync::Arc;
 
