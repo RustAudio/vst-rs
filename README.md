@@ -4,6 +4,7 @@
 [![crates.io][crates-img]][crates-url]
 [![dependency status](https://deps.rs/repo/github/rust-dsp/rust-vst/status.svg)](https://deps.rs/repo/github/rust-dsp/rust-vst)
 [![Telegram Chat][tg-img]][tg-url]
+[![Discourse topics][dc-img]][dc-url]
 
 rust-vst is a library for creating VST plugins in the Rust programming language.
 
@@ -95,6 +96,8 @@ crate-type = ["cdylib"]
 [crates-url]: https://crates.io/crates/vst
 [tg-img]: https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg
 [tg-url]: https://t.me/joinchat/BfEhnw0l4386Uzi5elmGrQ
+[dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg
+[dc-url]: https://rust-audio.discourse.group
 
 #### Packaging on OS X
 

@@ -141,6 +141,8 @@ pub mod plugin;
 mod interfaces;
 mod cache;
 
+pub mod util;
+
 use api::{HostCallbackProc, AEffect};
 use api::consts::VST_MAGIC;
 use plugin::{HostCallback, Plugin};
