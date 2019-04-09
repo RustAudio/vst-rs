@@ -1,6 +1,7 @@
 //! Plugin specific structures.
 
 use std::ptr;
+use std::sync::Arc;
 
 use std::os::raw::c_void;
 
@@ -454,6 +455,19 @@ impl Into<String> for CanDo {
 ///
 /// All methods except `get_info` provide a default implementation which does nothing and can be
 /// safely overridden.
+///
+/// At any time, a plugin is in one of two states: *suspended* or *resumed*.
+/// While a plugin is in the *suspended* state, various processing parameters,
+/// such as the sample rate and block size, can be changed by the host, but no
+/// audio processing takes place. While a plugin is in the *resumed* state,
+/// audio processing methods and parameter access methods can be called by
+/// the host. A plugin starts in the *suspended* state and is switched between
+/// the states by the host using the `resume` and `suspend` methods.
+///
+/// Hosts call methods of the plugin on two threads: the UI thread and the
+/// processing thread. For this reason, the plugin API is separated into two
+/// traits: The `Plugin` trait containing setup and processing methods, and
+/// the `PluginParameters` trait containing methods for parameter access.
 #[allow(unused_variables)]
 pub trait Plugin {
     /// This method must return an `Info` struct.
@@ -507,75 +521,28 @@ pub trait Plugin {
     }
 
     /// Called when plugin is fully initialized.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn init(&mut self) {
         trace!("Initialized vst plugin.");
     }
 
 
-    /// Set the current preset to the index specified by `preset`.
-    fn change_preset(&mut self, preset: i32) {}
-
-    /// Get the current preset index.
-    fn get_preset_num(&self) -> i32 {
-        0
-    }
-
-    /// Set the current preset name.
-    fn set_preset_name(&mut self, name: String) {}
-
-    /// Get the name of the preset at the index specified by `preset`.
-    fn get_preset_name(&self, preset: i32) -> String {
-        "".to_string()
-    }
-
-
-    /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
-    fn get_parameter_label(&self, index: i32) -> String {
-        "".to_string()
-    }
-
-    /// Get the parameter value for parameter at `index` (e.g. "1.0", "150", "Plate", "Off").
-    fn get_parameter_text(&self, index: i32) -> String {
-        format!("{:.3}", self.get_parameter(index))
-    }
-
-    /// Get the name of parameter at `index`.
-    fn get_parameter_name(&self, index: i32) -> String {
-        format!("Param {}", index)
-    }
-
-    /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
-    fn get_parameter(&self, index: i32) -> f32 {
-        0.0
-    }
-
-    /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
-    fn set_parameter(&mut self, index: i32, value: f32) {}
-
-    /// Return whether parameter at `index` can be automated.
-    fn can_be_automated(&self, index: i32) -> bool {
-        false
-    }
-
-    /// Use String as input for parameter value. Used by host to provide an editable field to
-    /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
-    /// the input string was used.
-    fn string_to_parameter(&mut self, index: i32, text: String) -> bool {
-        false
-    }
-
-
     /// Called when sample rate is changed by host.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn set_sample_rate(&mut self, rate: f32) {}
 
     /// Called when block size is changed by host.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn set_block_size(&mut self, size: i64) {}
 
 
-    /// Called when plugin is turned on.
+    /// Called to transition the plugin into the *resumed* state.
     fn resume(&mut self) {}
 
-    /// Called when plugin is turned off.
+    /// Called to transition the plugin into the *suspended* state.
     fn suspend(&mut self) {}
 
 
@@ -586,6 +553,8 @@ pub trait Plugin {
 
 
     /// Return whether plugin supports specified action.
+    ///
+    /// This method is only called while the plugin is in the *suspended* state.
     fn can_do(&self, can_do: CanDo) -> Supported {
         info!("Host is asking if plugin can: {:?}.", can_do);
         Supported::Maybe
@@ -626,6 +595,8 @@ pub trait Plugin {
     /// }
     /// # }
     /// ```
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         // For each input and output
         for (input, output) in buffer.zip() {
@@ -665,6 +636,8 @@ pub trait Plugin {
     /// }
     /// # }
     /// ```
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process_f64(&mut self, buffer: &mut AudioBuffer<f64>) {
         // For each input and output
         for (input, output) in buffer.zip() {
@@ -678,33 +651,14 @@ pub trait Plugin {
     /// Handle incoming events sent from the host.
     ///
     /// This is always called before the start of `process` or `process_f64`.
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
     fn process_events(&mut self, events: &api::Events) {}
 
-    /// Return handle to plugin editor if supported.
-    fn get_editor(&mut self) -> Option<&mut Editor> {
-        None
+    /// Get a reference to the shared parameter object.
+    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
+        Arc::new(DummyPluginParameters)
     }
-
-
-    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
-    /// the current preset.
-    fn get_preset_data(&mut self) -> Vec<u8> {
-        Vec::new()
-    }
-
-    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
-    /// the current plugin bank.
-    fn get_bank_data(&mut self) -> Vec<u8> {
-        Vec::new()
-    }
-
-    /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
-    /// chunk data.
-    fn load_preset_data(&mut self, data: &[u8]) {}
-
-    /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
-    /// given chunk data.
-    fn load_bank_data(&mut self, data: &[u8]) {}
 
     /// Get information about an input channel. Only used by some hosts.
     fn get_input_info(&self, input: i32) -> ChannelInfo {
@@ -728,11 +682,113 @@ pub trait Plugin {
 
     /// Called one time before the start of process call.
     /// This indicates that the process call will be interrupted (due to Host reconfiguration or bypass state when the plug-in doesn't support softBypass).
-    fn start_process(&self) {}
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
+    fn start_process(&mut self) {}
 
     /// Called after the stop of process call.
-    fn stop_process(&self) {}
+    ///
+    /// This method is only called while the plugin is in the *resumed* state.
+    fn stop_process(&mut self) {}
+
+
+    /// Return handle to plugin editor if supported.
+    /// The method need only return the object on the first call.
+    /// Subsequent calls can just return `None`.
+    ///
+    /// The editor object will typically contain an `Arc` reference to the parameter
+    /// object through which it can communicate with the audio processing.
+    fn get_editor(&mut self) -> Option<Box<Editor>> {
+        None
+    }
 }
+
+/// Parameter object shared between the UI and processing threads.
+/// Since access is shared, all methods take `self` by immutable reference.
+/// All mutation must thus be performed using thread-safe interior mutability.
+#[allow(unused_variables)]
+pub trait PluginParameters: Sync {
+    /// Set the current preset to the index specified by `preset`.
+    ///
+    /// This method can be called on the processing thread for automation.
+    fn change_preset(&self, preset: i32) {}
+
+    /// Get the current preset index.
+    fn get_preset_num(&self) -> i32 {
+        0
+    }
+
+    /// Set the current preset name.
+    fn set_preset_name(&self, name: String) {}
+
+    /// Get the name of the preset at the index specified by `preset`.
+    fn get_preset_name(&self, preset: i32) -> String {
+        "".to_string()
+    }
+
+
+    /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
+    fn get_parameter_label(&self, index: i32) -> String {
+        "".to_string()
+    }
+
+    /// Get the parameter value for parameter at `index` (e.g. "1.0", "150", "Plate", "Off").
+    fn get_parameter_text(&self, index: i32) -> String {
+        format!("{:.3}", self.get_parameter(index))
+    }
+
+    /// Get the name of parameter at `index`.
+    fn get_parameter_name(&self, index: i32) -> String {
+        format!("Param {}", index)
+    }
+
+    /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
+    fn get_parameter(&self, index: i32) -> f32 {
+        0.0
+    }
+
+    /// Set the value of parameter at `index`. `value` is between 0.0 and 1.0.
+    ///
+    /// This method can be called on the processing thread for automation.
+    fn set_parameter(&self, index: i32, value: f32) {}
+
+    /// Return whether parameter at `index` can be automated.
+    fn can_be_automated(&self, index: i32) -> bool {
+        false
+    }
+
+    /// Use String as input for parameter value. Used by host to provide an editable field to
+    /// adjust a parameter value. E.g. "100" may be interpreted as 100hz for parameter. Returns if
+    /// the input string was used.
+    fn string_to_parameter(&self, index: i32, text: String) -> bool {
+        false
+    }
+
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current preset.
+    fn get_preset_data(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
+    /// the current plugin bank.
+    fn get_bank_data(&self) -> Vec<u8> {
+        Vec::new()
+    }
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset from the given
+    /// chunk data.
+    fn load_preset_data(&self, data: &[u8]) {}
+
+    /// If `preset_chunks` is set to true in plugin info, this should load a preset bank from the
+    /// given chunk data.
+    fn load_bank_data(&self, data: &[u8]) {}
+}
+
+struct DummyPluginParameters;
+
+impl PluginParameters for DummyPluginParameters {}
 
 /// A reference to the host which allows the plugin to call back and access information.
 ///
@@ -781,6 +837,7 @@ impl Default for HostCallback {
 }
 
 unsafe impl Send for HostCallback {}
+unsafe impl Sync for HostCallback {}
 
 impl HostCallback {
     /// Wrap callback in a function to avoid using fn pointer notation.
@@ -867,7 +924,7 @@ impl HostCallback {
 }
 
 impl Host for HostCallback {
-    fn automate(&mut self, index: i32, value: f32) {
+    fn automate(&self, index: i32, value: f32) {
         if self.is_effect_valid() {
             // TODO: Investigate removing this check, should be up to host
             self.callback(
@@ -918,7 +975,7 @@ impl Host for HostCallback {
     ///
     /// [`process`]: trait.Plugin.html#method.process
     /// [`process_f64`]: trait.Plugin.html#method.process_f64
-    fn process_events(&mut self, events: &api::Events) {
+    fn process_events(&self, events: &api::Events) {
         self.callback(
             self.effect,
             host::OpCode::ProcessEvents,

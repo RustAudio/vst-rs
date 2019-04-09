@@ -26,6 +26,8 @@ documentation = "https://rust-dsp.github.io/rust-vst/vst/"
 license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
 
+autoexamples = false
+
 [dependencies]
 log = "0.4"
 num-traits = "0.2"
@@ -55,4 +57,8 @@ crate-type = ["cdylib"]
 
 [[example]]
 name = "gain_effect"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "transfer_and_smooth"
 crate-type = ["cdylib"]

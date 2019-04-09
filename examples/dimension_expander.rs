@@ -4,12 +4,13 @@
 extern crate vst;
 extern crate time;
 
-use vst::plugin::{Category, Info, Plugin};
 use vst::buffer::AudioBuffer;
+use vst::plugin::{Category, Info, Plugin, PluginParameters};
+use vst::util::AtomicFloat;
 
-use std::mem;
-use std::f64::consts::PI;
 use std::collections::VecDeque;
+use std::f64::consts::PI;
+use std::sync::Arc;
 
 /// Calculate the length in samples for a delay. Size ranges from 0.0 to 1.0.
 fn delay(index: usize, mut size: f32) -> isize {
@@ -34,8 +35,13 @@ type SamplePair = (f32, f32);
 /// The Dimension Expander.
 struct DimensionExpander {
     buffers: Vec<VecDeque<SamplePair>>,
-    dry_wet: f32,
-    size: f32,
+    params: Arc<DimensionExpanderParameters>,
+    old_size: f32,
+}
+
+struct DimensionExpanderParameters {
+    dry_wet: AtomicFloat,
+    size: AtomicFloat,
 }
 
 impl Default for DimensionExpander {
@@ -65,14 +71,17 @@ impl DimensionExpander {
 
         DimensionExpander {
             buffers: buffers,
-            dry_wet: dry_wet,
-            size: size,
+            params: Arc::new(DimensionExpanderParameters {
+                dry_wet: AtomicFloat::new(dry_wet),
+                size: AtomicFloat::new(size),
+            }),
+            old_size: size,
         }
     }
 
     /// Update the delay buffers with a new size value.
     fn resize(&mut self, n: f32) {
-        let old_size = mem::replace(&mut self.size, n);
+        let old_size = self.old_size;
 
         for (i, buffer) in self.buffers.iter_mut().enumerate() {
             // Calculate the size difference between delays
@@ -92,6 +101,8 @@ impl DimensionExpander {
                 }
             }
         }
+
+        self.old_size = n;
     }
 }
 
@@ -111,43 +122,18 @@ impl Plugin for DimensionExpander {
         }
     }
 
-    fn get_parameter(&self, index: i32) -> f32 {
-        match index {
-            0 => self.size,
-            1 => self.dry_wet,
-            _ => 0.0,
-        }
-    }
-
-    fn get_parameter_text(&self, index: i32) -> String {
-        match index {
-            0 => format!("{}", (self.size * 1000.0) as isize),
-            1 => format!("{:.1}%", self.dry_wet * 100.0),
-            _ => "".to_string(),
-        }
-    }
-
-    fn get_parameter_name(&self, index: i32) -> String {
-        match index {
-            0 => "Size",
-            1 => "Dry/Wet",
-            _ => "",
-        }.to_string()
-    }
-
-    fn set_parameter(&mut self, index: i32, val: f32) {
-        match index {
-            0 => self.resize(val),
-            1 => self.dry_wet = val,
-            _ => (),
-        }
-    }
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let (inputs, mut outputs) = buffer.split();
 
         // Assume 2 channels
         if inputs.len() < 2 || outputs.len() < 2 {
             return;
+        }
+
+        // Resize if size changed
+        let size = self.params.size.get();
+        if size != self.old_size {
+            self.resize(size);
         }
 
         // Iterate over inputs as (&f32, &f32)
@@ -182,7 +168,7 @@ impl Plugin for DimensionExpander {
                     // Sine wave volume LFO
                     let lfo = ((time_s * LFO_FREQ + offset) * PI * 2.0).sin() as f32;
 
-                    let wet = self.dry_wet * WET_MULT;
+                    let wet = self.params.dry_wet.get() * WET_MULT;
                     let mono = (left_old + right_old) / 2.0;
 
                     // Flip right channel and keep left mono so that the result is
@@ -195,6 +181,44 @@ impl Plugin for DimensionExpander {
             // By only adding to the input, the output value always remains the same in mono
             *left_out = *left_in + left_processed;
             *right_out = *right_in + right_processed;
+        }
+    }
+
+    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
+        Arc::clone(&self.params) as Arc<PluginParameters>
+    }
+}
+
+impl PluginParameters for DimensionExpanderParameters {
+    fn get_parameter(&self, index: i32) -> f32 {
+        match index {
+            0 => self.size.get(),
+            1 => self.dry_wet.get(),
+            _ => 0.0,
+        }
+    }
+
+    fn get_parameter_text(&self, index: i32) -> String {
+        match index {
+            0 => format!("{}", (self.size.get() * 1000.0) as isize),
+            1 => format!("{:.1}%", self.dry_wet.get() * 100.0),
+            _ => "".to_string(),
+        }
+    }
+
+    fn get_parameter_name(&self, index: i32) -> String {
+        match index {
+            0 => "Size",
+            1 => "Dry/Wet",
+            _ => "",
+        }.to_string()
+    }
+
+    fn set_parameter(&self, index: i32, val: f32) {
+        match index {
+            0 => self.size.set(val),
+            1 => self.dry_wet.set(val),
+            _ => (),
         }
     }
 }
