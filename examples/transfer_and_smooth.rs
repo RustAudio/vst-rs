@@ -1,6 +1,9 @@
 
 // This example illustrates how an existing plugin can be ported to the new,
 // thread-safe API with the help of the ParameterTransfer struct.
+// It shows how the parameter iteration feature of ParameterTransfer can be
+// used to react explicitly to parameter changes in an efficient way (here,
+// to implement smoothing of parameters).
 
 #[macro_use]
 extern crate vst;
@@ -14,7 +17,7 @@ use vst::util::ParameterTransfer;
 
 const PARAMETER_COUNT: usize = 100;
 const BASE_FREQUENCY: f32 = 5.0;
-const FILTER_FACTOR: f32 = 0.01;
+const FILTER_FACTOR: f32 = 0.01; // Set this to 1.0 to disable smoothing.
 const TWO_PI: f32 = 2.0 * f32::consts::PI;
 
 // 1. Define a struct to hold parameters. Put a ParameterTransfer inside it,

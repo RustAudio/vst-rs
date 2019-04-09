@@ -1,6 +1,11 @@
 #![warn(missing_docs)]
 
-//! rust-vst is a rust implementation of the VST2.4 API
+//! A rust implementation of the VST2.4 API.
+//!
+//! The VST API is multi-threaded. A VST host calls into a plugin generally from two threads -
+//! the *processing* thread and the *UI* thread. The organization of this crate reflects this
+//! structure to ensure that the threading assumptions of Safe Rust are fulfilled and data
+//! races are avoided.
 //!
 //! # Plugins
 //! All Plugins must implement the `Plugin` trait and `std::default::Default`.
