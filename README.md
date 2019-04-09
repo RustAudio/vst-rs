@@ -31,7 +31,7 @@ include the crate directly from the official [Github repository](https://github.
 
 ```toml
 # get from crates.io.
-vst = "*"
+vst = "0.1.0"
 ```
 ```toml
 # get directly from Github.  This might be unstable!
