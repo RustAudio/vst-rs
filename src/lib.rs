@@ -257,7 +257,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
             _offQualities: 0,
             _ioRatio: 0.0,
 
-            object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
+            object: Box::into_raw(Box::new(Box::new(plugin) as Box<dyn Plugin>)) as *mut _,
             user: Box::into_raw(Box::new(PluginCache::new(&info, params, editor))) as *mut _,
 
             uniqueId: info.unique_id,

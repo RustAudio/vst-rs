@@ -389,14 +389,14 @@ impl SendEventBuffer {
     /// # }
     /// ```
     #[inline(always)]
-    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, host: &mut Host) {
+    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, host: &mut dyn Host) {
         self.store_events(events);
         host.process_events(self.events());
     }
 
     /// Sends events from the host to a plugin.
     #[inline(always)]
-    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, plugin: &mut Plugin) {
+    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, plugin: &mut dyn Plugin) {
         self.store_events(events);
         plugin.process_events(self.events());
     }

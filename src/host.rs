@@ -625,8 +625,8 @@ impl Plugin for PluginInstance {
     }
 
 
-    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
-        Arc::clone(&self.params) as Arc<PluginParameters>
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        Arc::clone(&self.params) as Arc<dyn PluginParameters>
     }
 }
 

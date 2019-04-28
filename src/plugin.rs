@@ -656,7 +656,7 @@ pub trait Plugin {
     fn process_events(&mut self, events: &api::Events) {}
 
     /// Get a reference to the shared parameter object.
-    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::new(DummyPluginParameters)
     }
 
@@ -698,7 +698,7 @@ pub trait Plugin {
     ///
     /// The editor object will typically contain an `Arc` reference to the parameter
     /// object through which it can communicate with the audio processing.
-    fn get_editor(&mut self) -> Option<Box<Editor>> {
+    fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
         None
     }
 }
