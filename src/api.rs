@@ -149,14 +149,14 @@ impl AEffect {
     // Supresses warning about returning a reference to a box
     #[allow(unknown_lints)]
     #[allow(clippy::borrowed_box)]
-    pub unsafe fn get_plugin(&mut self) -> &mut Box<Plugin> {
+    pub unsafe fn get_plugin(&mut self) -> &mut Box<dyn Plugin> {
         //FIXME: find a way to do this without resorting to transmuting via a box
-        &mut *(self.object as *mut Box<Plugin>)
+        &mut *(self.object as *mut Box<dyn Plugin>)
     }
 
     /// Drop the Plugin object. Only works for plugins created using this library.
     pub unsafe fn drop_plugin(&mut self) {
-        drop(Box::from_raw(self.object as *mut Box<Plugin>));
+        drop(Box::from_raw(self.object as *mut Box<dyn Plugin>));
         drop(Box::from_raw(self.user as *mut super::PluginCache));
     }
 

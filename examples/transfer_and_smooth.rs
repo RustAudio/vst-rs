@@ -84,8 +84,8 @@ impl Plugin for MyPlugin {
     }
 
     // 5. Return a reference to the parameter struct from get_parameter_object.
-    fn get_parameter_object(&mut self) -> Arc<PluginParameters> {
-        Arc::clone(&self.params) as Arc<PluginParameters>
+    fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
+        Arc::clone(&self.params) as Arc<dyn PluginParameters>
     }
 
     fn set_sample_rate(&mut self, sample_rate: f32) {

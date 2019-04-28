@@ -315,7 +315,7 @@ pub fn dispatch(
 }
 
 pub fn host_dispatch(
-    host: &mut Host,
+    host: &mut dyn Host,
     effect: *mut AEffect,
     opcode: i32,
     index: i32,
