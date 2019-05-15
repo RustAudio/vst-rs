@@ -242,6 +242,10 @@ pub fn dispatch(
             return plugin.get_info().category.into();
         }
 
+        OpCode::GetEffectName => {
+            return copy_string(ptr, &plugin.get_info().name, MAX_VENDOR_STR_LEN)
+        }
+
         OpCode::GetVendorName => {
             return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN)
         }
