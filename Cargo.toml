@@ -15,7 +15,7 @@ authors = [
 	"xnor104",
 	"Nathaniel Theis",
 	"Colin Wallace",
-	"Henrik Nordvik"
+	"Henrik Nordvik",
 	"Charles Saracco" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
