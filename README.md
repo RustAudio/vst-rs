@@ -1,4 +1,4 @@
-# rust-vst
+# vst-re
 [![Travis Build][trav-img]][trav-url]
 [![Appveyor Build][appv-img]][appv-url]
 [![crates.io][crates-img]][crates-url]
