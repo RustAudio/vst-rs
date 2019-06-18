@@ -15,13 +15,14 @@ authors = [
 	"xnor104",
 	"Nathaniel Theis",
 	"Colin Wallace",
-	"Henrik Nordvik" ]
+	"Henrik Nordvik",
+	"Charles Saracco" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
 readme = "README.md"
-repository = "https://github.com/rust-dsp/rust-vst"
-documentation = "https://rust-dsp.github.io/rust-vst/vst/"
+repository = "https://github.com/rustaudio/vst-rs"
+documentation = "https://rustaudio.github.io/vst-rs/vst/"
 
 license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
