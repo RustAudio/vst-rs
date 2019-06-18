@@ -1,17 +1,15 @@
-/*
-    This zero-delay feedback filter is based on a 4-stage transistor ladder filter.
-    It follows the following equations: 
-    x = input - tanh(self.res * self.vout[3])
-    vout[0] = self.g * (tanh(x) - tanh(self.vout[0])) + self.s[0]
-    vout[1] = self.g * (tanh(self.vout[0]) - tanh(self.vout[1])) + self.s[1]
-    vout[0] = self.g * (tanh(self.vout[1]) - tanh(self.vout[2])) + self.s[2]
-    vout[0] = self.g * (tanh(self.vout[2]) - tanh(self.vout[3])) + self.s[3]
-    since we can't easily solve a nonlinear equation, 
-    Mystran's fixed-pivot method is used to approximate the tanh() parts. 
-    Quality can be improved a lot by oversampling a bit. 
-    Feedback is clipped independently of the input, so it doesn't disappear at high gains.
+///This zero-delay feedback filter is based on a 4-stage transistor ladder filter.
+///It follows the following equations: 
+///x = input - tanh(self.res * self.vout[3])
+///vout[0] = self.g * (tanh(x) - tanh(self.vout[0])) + self.s[0]
+///vout[1] = self.g * (tanh(self.vout[0]) - tanh(self.vout[1])) + self.s[1]
+///vout[0] = self.g * (tanh(self.vout[1]) - tanh(self.vout[2])) + self.s[2]
+///vout[0] = self.g * (tanh(self.vout[2]) - tanh(self.vout[3])) + self.s[3]
+///since we can't easily solve a nonlinear equation, 
+///Mystran's fixed-pivot method is used to approximate the tanh() parts. 
+///Quality can be improved a lot by oversampling a bit. 
+///Feedback is clipped independently of the input, so it doesn't disappear at high gains.
         
-*/
  #[macro_use] extern crate vst;
 use vst::buffer::AudioBuffer;
 use vst::plugin::{Info, Plugin, Category};
@@ -24,7 +22,7 @@ enum Method {
 
 //this is a 4-pole filter with resonance, which is why there's 4 states and vouts
 #[derive(Clone)]
-struct MoogFilter {
+struct LadderFilter {
     //the output of the different filter stages
     vout: [f32; 4],
     //s is the "state" parameter. In an IIR it would be the last value from the filter
@@ -43,7 +41,7 @@ struct MoogFilter {
     drive: f32,
 }
 //member methods for the struct
-impl MoogFilter {
+impl LadderFilter {
     pub fn set_cutoff(&mut self, value: f32) {
         //cutoff formula gives us a natural feeling cutoff knob that spends more time in the low frequencies
         self.cutoff = 20000. * (1.8f32.powf(10. * value - 10.));
@@ -60,24 +58,24 @@ impl MoogFilter {
     //performs a complete filter process (mystran's method)
     fn tick_pivotal(&mut self, input: f32) {
         if self.drive > 0. {
-            self.run_moog_nonlinear(input * (self.drive + 0.7), Method::Pivotal);
+            self.run_ladder_nonlinear(input * (self.drive + 0.7), Method::Pivotal);
         } else {
             //
-            self.run_moog_nonlinear(input, Method::Linear);
+            self.run_ladder_nonlinear(input, Method::Linear);
         }
         self.update_state();
     }
     //instead of proper nonlinearities, this just has soft-clipping on the input
     fn _tick_simple(&mut self, input: f32) {
         if self.drive > 0. {
-            self.run_moog_simple(input * (self.drive + 0.7));
+            self.run_ladder_simple(input * (self.drive + 0.7));
         }
         else {
-            self.run_moog_nonlinear(input, Method::Linear);
+            self.run_ladder_nonlinear(input, Method::Linear);
         }
         self.update_state();
     }
-    fn run_moog_simple(&mut self, input: f32) {
+    fn run_ladder_simple(&mut self, input: f32) {
         let x = input.tanh();
         //denominators of solutions of individual stages. Simplifies the math a bit
             let g0 = 1. / (1. + self.g);
@@ -97,7 +95,7 @@ impl MoogFilter {
             self.vout[2] = g0 * (self.g * self.vout[1] + self.s[2]);
     }
     //nonlinear ladder filter function.  
-    fn run_moog_nonlinear(&mut self, input: f32, method: Method) {
+    fn run_ladder_nonlinear(&mut self, input: f32, method: Method) {
         let mut a = [1f32; 5];
         //version with drive
         if method == Method::Pivotal {
@@ -156,9 +154,9 @@ impl MoogFilter {
     }
 }
 //default values for parameters
-impl Default for MoogFilter {
-    fn default() -> DecentFilter {
-        DecentFilter {
+impl Default for LadderFilter {
+    fn default() -> LadderFilter {
+        LadderFilter {
             vout: [0f32; 4],
             s: [0f32; 4],
             sample_rate: 88200.,
@@ -171,7 +169,7 @@ impl Default for MoogFilter {
     }
 }
 
-impl Plugin for MoogFilter
+impl Plugin for LadderFilter
 {
     fn set_sample_rate(&mut self, rate: f32) {
         self.sample_rate = rate;
@@ -179,7 +177,7 @@ impl Plugin for MoogFilter
     fn get_info(&self) -> Info
     {
         Info  {
-            name: "ZeroDelayFilter".to_string(),
+            name: "LadderFilter".to_string(),
             unique_id: 9263,
             inputs: 1,
             outputs: 1,
@@ -235,4 +233,4 @@ impl Plugin for MoogFilter
         }
     }
 }
-plugin_main!(MoogFilter);
+plugin_main!(LadderFilter);
