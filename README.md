@@ -2,7 +2,7 @@
 [![Travis Build][trav-img]][trav-url]
 [![crates.io][crates-img]][crates-url]
 [![dependency status](https://deps.rs/repo/github/rustaudio/vst-rs/status.svg)](https://deps.rs/repo/github/rustaudio/vst-rs)
-[![Telegram Chat][tg-img]][tg-url]
+[![Discord Chat][discord-img]][discord-url]
 [![Discourse topics][dc-img]][dc-url]
 
 rust-vst is a library for creating VST plugins in the Rust programming language.
@@ -89,8 +89,8 @@ crate-type = ["cdylib"]
 [trav-url]: https://travis-ci.org/rustaudio/vst-rs
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
-[tg-img]: https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg
-[tg-url]: https://t.me/joinchat/BfEhnw0l4386Uzi5elmGrQ
+[discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord
+[discord-url]: https://discord.gg/QPdhk2u
 [dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg
 [dc-url]: https://rust-audio.discourse.group
 
