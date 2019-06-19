@@ -5,7 +5,7 @@
 [![Discord Chat][discord-img]][discord-url]
 [![Discourse topics][dc-img]][dc-url]
 
-rust-vst is a library for creating VST plugins in the Rust programming language.
+`vst-rs` is a library for creating VST2 plugins in the Rust programming language.
 
 This library is a work in progress, and as such it does not yet implement all
 functionality. It can create basic VST plugins without an editor interface.
