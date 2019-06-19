@@ -14,7 +14,7 @@ functionality. It can create basic VST plugins without an editor interface.
   - https://rustaudio.github.io/vst-rs/vst/
 
 ## Crate
-`VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
+This crate is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
 include the crate directly from the official [Github repository](https://github.com/rustaudio/vst-rs).
 
 ```toml
