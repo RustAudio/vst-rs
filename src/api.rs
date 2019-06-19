@@ -475,7 +475,7 @@ impl Events {
         EventIterator {
             current: ptr,
             end: unsafe { ptr.offset(self.num_events as isize) },
-            _marker : PhantomData
+            _marker: PhantomData
         }
     }
 }
