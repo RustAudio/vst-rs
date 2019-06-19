@@ -11,16 +11,7 @@ This library is a work in progress, and as such it does not yet implement all
 functionality. It can create basic VST plugins without an editor interface.
 
 ## Library Documentation
-  * https://rustaudio.github.io/vst-rs/vst/
-  
-## Community
-For questions, help, or other issues, consider joining our [Telegram Chat][tg-url].
-
-## TODO
-  - Implement all opcodes
-  - Proper editor support
-  - Write more tests
-  - Provide better examples
+  - https://rustaudio.github.io/vst-rs/vst/
 
 ## Crate
 `VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
@@ -89,9 +80,9 @@ crate-type = ["cdylib"]
 [trav-url]: https://travis-ci.org/rustaudio/vst-rs
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
-[discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord
+[discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord&logo=discord&color=blue
 [discord-url]: https://discord.gg/QPdhk2u
-[dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg
+[dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg?logo=discourse&color=blue
 [dc-url]: https://rust-audio.discourse.group
 
 #### Packaging on OS X
