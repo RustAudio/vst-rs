@@ -482,9 +482,9 @@ impl Events {
 
 /// An iterator over events, returned by `api::Events::events`
 pub struct EventIterator<'a> {
-    current : *const *const Event,
-    end : *const *const Event,
-    _marker : PhantomData<&'a Event>
+    current: *const *const Event,
+    end: *const *const Event,
+    _marker: PhantomData<&'a Event>,
 }
 
 impl<'a> Iterator for EventIterator<'a> {
@@ -493,11 +493,13 @@ impl<'a> Iterator for EventIterator<'a> {
     fn next(&mut self) -> Option<Self::Item> {
         if self.current == self.end {
             None
-        }
-        else {
-            let e = unsafe { **self.current }.clone();
-            self.current = unsafe { self.current.offset(1) };
-            Some(e.into())
+        } else {
+            let event = unsafe {
+                let e = (**self.current).clone();
+                self.current = self.current.offset(1);
+                e
+            };
+            Some(event.into())
         }
     }
 }
