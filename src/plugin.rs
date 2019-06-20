@@ -754,7 +754,7 @@ pub trait PluginParameters: Sync {
 
     /// Return whether parameter at `index` can be automated.
     fn can_be_automated(&self, index: i32) -> bool {
-        false
+        true
     }
 
     /// Use String as input for parameter value. Used by host to provide an editable field to
