@@ -1,33 +1,21 @@
-# rust-vst
+# vst-rs
 [![Travis Build][trav-img]][trav-url]
-[![Appveyor Build][appv-img]][appv-url]
 [![crates.io][crates-img]][crates-url]
-[![dependency status](https://deps.rs/repo/github/rust-dsp/rust-vst/status.svg)](https://deps.rs/repo/github/rust-dsp/rust-vst)
-[![Telegram Chat][tg-img]][tg-url]
+[![dependency status](https://deps.rs/repo/github/rustaudio/vst-rs/status.svg)](https://deps.rs/repo/github/rustaudio/vst-rs)
+[![Discord Chat][discord-img]][discord-url]
 [![Discourse topics][dc-img]][dc-url]
 
-rust-vst is a library for creating VST plugins in the Rust programming language.
+`vst-rs` is a library for creating VST2 plugins in the Rust programming language.
 
 This library is a work in progress, and as such it does not yet implement all
 functionality. It can create basic VST plugins without an editor interface.
 
-For more detailed information about this library and subtopics such as GUI development progress, please check the [wiki](https://github.com/rust-dsp/rust-vst/wiki/).
-
 ## Library Documentation
-  * https://rust-dsp.github.io/rust-vst
-  
-## Community
-For questions, help, or other issues, consider joining our [Telegram Chat][tg-url].
-
-## TODO
-  - Implement all opcodes
-  - Proper editor support
-  - Write more tests
-  - Provide better examples
+  - https://rustaudio.github.io/vst-rs/vst/
 
 ## Crate
-`VST` is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
-include the crate directly from the official [Github repository](https://github.com/rust-dsp/rust-vst).
+This crate is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
+include the crate directly from the official [Github repository](https://github.com/rustaudio/vst-rs).
 
 ```toml
 # get from crates.io.
@@ -35,7 +23,7 @@ vst = "0.1.0"
 ```
 ```toml
 # get directly from Github.  This might be unstable!
-vst = { git = "https://github.com/rust-dsp/rust-vst" }
+vst = { git = "https://github.com/rustaudio/vst-rs" }
 ```
 
 ## Usage
@@ -81,22 +69,20 @@ version = "0.0.1"
 authors = ["Author <author@example.com>"]
 
 [dependencies]
-vst = { git = "https://github.com/rust-dsp/rust-vst" }
+vst = { git = "https://github.com/rustaudio/vst-rs" }
 
 [lib]
 name = "basicvst"
 crate-type = ["cdylib"]
 ```
 
-[trav-img]: https://travis-ci.org/rust-dsp/rust-vst.svg?branch=master
-[trav-url]: https://travis-ci.org/rust-dsp/rust-vst
-[appv-img]: https://ci.appveyor.com/api/projects/status/npiyjfithlx50hfs?svg=true
-[appv-url]: https://ci.appveyor.com/project/rustdsp/rust-vst
+[trav-img]: https://travis-ci.org/rustaudio/vst-rs.svg?branch=master
+[trav-url]: https://travis-ci.org/rustaudio/vst-rs
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
-[tg-img]: https://img.shields.io/badge/Telegram-Join%20Chat-blue.svg
-[tg-url]: https://t.me/joinchat/BfEhnw0l4386Uzi5elmGrQ
-[dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg
+[discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord&logo=discord&color=blue
+[discord-url]: https://discord.gg/QPdhk2u
+[dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg?logo=discourse&color=blue
 [dc-url]: https://rust-audio.discourse.group
 
 #### Packaging on OS X
