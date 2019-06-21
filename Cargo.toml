@@ -16,7 +16,8 @@ authors = [
 	"Nathaniel Theis",
 	"Colin Wallace",
 	"Henrik Nordvik",
-	"Charles Saracco" ]
+	"Charles Saracco",
+	"Frederik Halkjær" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
@@ -63,3 +64,8 @@ crate-type = ["cdylib"]
 [[example]]
 name = "transfer_and_smooth"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "ladder_filter"
+crate-type = ["cdylib"]
+
