@@ -10,11 +10,7 @@ pub(crate) struct PluginCache {
 }
 
 impl PluginCache {
-    pub fn new(
-        info: &Info,
-        params: Arc<dyn PluginParameters>,
-        editor: Option<Box<dyn Editor>>,
-    ) -> Self {
+    pub fn new(info: &Info, params: Arc<dyn PluginParameters>, editor: Option<Box<dyn Editor>>) -> Self {
         Self {
             info: info.clone(),
             params,

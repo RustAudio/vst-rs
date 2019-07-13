@@ -33,15 +33,8 @@ pub fn process_replacing(
     let cache = unsafe { (*effect).get_cache() };
     let info = &mut cache.info;
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
-    let mut buffer = unsafe {
-        AudioBuffer::from_raw(
-            input_count,
-            output_count,
-            raw_inputs,
-            raw_outputs,
-            samples as usize,
-        )
-    };
+    let mut buffer =
+        unsafe { AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize) };
     plugin.process(&mut buffer);
 }
 
@@ -56,23 +49,14 @@ pub fn process_replacing_f64(
     let cache = unsafe { (*effect).get_cache() };
     let info = &mut cache.info;
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
-    let mut buffer = unsafe {
-        AudioBuffer::from_raw(
-            input_count,
-            output_count,
-            raw_inputs,
-            raw_outputs,
-            samples as usize,
-        )
-    };
+    let mut buffer =
+        unsafe { AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize) };
     plugin.process_f64(&mut buffer);
 }
 
 /// VST2.4 set parameter function.
 pub fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
-    unsafe { (*effect).get_cache() }
-        .params
-        .set_parameter(index, value);
+    unsafe { (*effect).get_cache() }.params.set_parameter(index, value);
 }
 
 /// VST2.4 get parameter function.
@@ -90,25 +74,14 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 
         let dst = dst as *mut c_void;
         memset(dst, 0, max);
-        memcpy(
-            dst,
-            src.as_ptr() as *const c_void,
-            min(max, src.as_bytes().len()),
-        );
+        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.as_bytes().len()));
     }
 
     1 // Success
 }
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.
-pub fn dispatch(
-    effect: *mut AEffect,
-    opcode: i32,
-    index: i32,
-    value: isize,
-    ptr: *mut c_void,
-    opt: f32,
-) -> isize {
+pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
     use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
@@ -133,15 +106,9 @@ pub fn dispatch(
             return copy_string(ptr, &params.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => {
-            return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN)
-        }
-        OpCode::GetParameterDisplay => {
-            return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN)
-        }
-        OpCode::GetParameterName => {
-            return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN)
-        }
+        OpCode::GetParameterLabel => return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterDisplay => return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN),
+        OpCode::GetParameterName => return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
         OpCode::SetBlockSize => plugin.set_block_size(value as i64),
@@ -222,13 +189,9 @@ pub fn dispatch(
             plugin.process_events(unsafe { &*(ptr as *const api::Events) });
         }
         OpCode::CanBeAutomated => return params.can_be_automated(index) as isize,
-        OpCode::StringToParameter => {
-            return params.string_to_parameter(index, read_string(ptr)) as isize
-        }
+        OpCode::StringToParameter => return params.string_to_parameter(index, read_string(ptr)) as isize,
 
-        OpCode::GetPresetName => {
-            return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN)
-        }
+        OpCode::GetPresetName => return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
@@ -250,16 +213,10 @@ pub fn dispatch(
             return plugin.get_info().category.into();
         }
 
-        OpCode::GetEffectName => {
-            return copy_string(ptr, &plugin.get_info().name, MAX_VENDOR_STR_LEN)
-        }
+        OpCode::GetEffectName => return copy_string(ptr, &plugin.get_info().name, MAX_VENDOR_STR_LEN),
 
-        OpCode::GetVendorName => {
-            return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN)
-        }
-        OpCode::GetProductName => {
-            return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN)
-        }
+        OpCode::GetVendorName => return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
+        OpCode::GetProductName => return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN),
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
@@ -304,12 +261,8 @@ pub fn dispatch(
         OpCode::StartProcess => plugin.start_process(),
         OpCode::StopProcess => plugin.stop_process(),
 
-        OpCode::GetNumMidiInputs => {
-            return unsafe { (*effect).get_cache() }.info.midi_inputs as isize
-        }
-        OpCode::GetNumMidiOutputs => {
-            return unsafe { (*effect).get_cache() }.info.midi_outputs as isize
-        }
+        OpCode::GetNumMidiInputs => return unsafe { (*effect).get_cache() }.info.midi_inputs as isize,
+        OpCode::GetNumMidiOutputs => return unsafe { (*effect).get_cache() }.info.midi_outputs as isize,
 
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);
@@ -350,9 +303,7 @@ pub fn host_dispatch(
 
         OpCode::GetVendorVersion => return host.get_info().0,
         OpCode::GetVendorString => return copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductString => {
-            return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN)
-        }
+        OpCode::GetProductString => return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
         OpCode::ProcessEvents => {
             host.process_events(unsafe { &*(ptr as *const api::Events) });
         }

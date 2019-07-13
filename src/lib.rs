@@ -162,26 +162,20 @@ macro_rules! plugin_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
-        pub extern "system" fn main_macho(
-            callback: $crate::api::HostCallbackProc,
-        ) -> *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn MAIN(
-            callback: $crate::api::HostCallbackProc,
-        ) -> *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "C" fn VSTPluginMain(
-            callback: $crate::api::HostCallbackProc,
-        ) -> *mut $crate::api::AEffect {
+        pub extern "C" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) -> *mut $crate::api::AEffect {
             $crate::main::<$t>(callback)
         }
     };
@@ -421,9 +415,6 @@ mod tests {
         assert_eq!(aeffect.uniqueId, 5678);
         assert_eq!(aeffect.version, 1234);
         assert_fn_eq!(aeffect.processReplacing, interfaces::process_replacing);
-        assert_fn_eq!(
-            aeffect.processReplacingF64,
-            interfaces::process_replacing_f64
-        );
+        assert_fn_eq!(aeffect.processReplacingF64, interfaces::process_replacing_f64);
     }
 }

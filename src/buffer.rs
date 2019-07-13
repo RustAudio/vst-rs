@@ -393,11 +393,7 @@ impl SendEventBuffer {
     /// # }
     /// ```
     #[inline(always)]
-    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(
-        &mut self,
-        events: T,
-        host: &mut dyn Host,
-    ) {
+    pub fn send_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T, host: &mut dyn Host) {
         self.store_events(events);
         host.process_events(self.events());
     }
@@ -472,8 +468,7 @@ mod tests {
 
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer =
-            unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
+        let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
             input
@@ -498,8 +493,7 @@ mod tests {
 
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer =
-            unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
+        let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
             input

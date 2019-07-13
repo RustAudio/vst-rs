@@ -843,9 +843,7 @@ impl HostCallback {
         ptr: *mut c_void,
         opt: f32,
     ) -> isize {
-        let callback = self
-            .callback
-            .unwrap_or_else(|| panic!("Host not yet initialized."));
+        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
         callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
@@ -867,14 +865,7 @@ impl HostCallback {
 
     /// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.
     pub fn vst_version(&self) -> i32 {
-        self.callback(
-            self.effect,
-            host::OpCode::Version,
-            0,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) as i32
+        self.callback(self.effect, host::OpCode::Version, 0, 0, ptr::null_mut(), 0.0) as i32
     }
 
     /// Get the callback for calling host-specific extensions
@@ -893,23 +884,9 @@ impl HostCallback {
         self.read_string_param(opcode, 0, 0, 0.0, max)
     }
 
-    fn read_string_param(
-        &self,
-        opcode: host::OpCode,
-        index: i32,
-        value: isize,
-        opt: f32,
-        max: usize,
-    ) -> String {
+    fn read_string_param(&self, opcode: host::OpCode, index: i32, value: isize, opt: f32, max: usize) -> String {
         let mut buf = vec![0; max];
-        self.callback(
-            self.effect,
-            opcode,
-            index,
-            value,
-            buf.as_mut_ptr() as *mut c_void,
-            opt,
-        );
+        self.callback(self.effect, opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
         String::from_utf8_lossy(&buf)
             .chars()
             .take_while(|c| *c != '\0')
@@ -921,26 +898,12 @@ impl Host for HostCallback {
     fn automate(&self, index: i32, value: f32) {
         if self.is_effect_valid() {
             // TODO: Investigate removing this check, should be up to host
-            self.callback(
-                self.effect,
-                host::OpCode::Automate,
-                index,
-                0,
-                ptr::null_mut(),
-                value,
-            );
+            self.callback(self.effect, host::OpCode::Automate, index, 0, ptr::null_mut(), value);
         }
     }
 
     fn get_plugin_id(&self) -> i32 {
-        self.callback(
-            self.effect,
-            host::OpCode::CurrentId,
-            0,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) as i32
+        self.callback(self.effect, host::OpCode::CurrentId, 0, 0, ptr::null_mut(), 0.0) as i32
     }
 
     fn idle(&self) {
@@ -949,14 +912,7 @@ impl Host for HostCallback {
 
     fn get_info(&self) -> (isize, String, String) {
         use api::consts::*;
-        let version = self.callback(
-            self.effect,
-            host::OpCode::CurrentId,
-            0,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) as isize;
+        let version = self.callback(self.effect, host::OpCode::CurrentId, 0, 0, ptr::null_mut(), 0.0) as isize;
         let vendor_name = self.read_string(host::OpCode::GetVendorString, MAX_VENDOR_STR_LEN);
         let product_name = self.read_string(host::OpCode::GetProductString, MAX_PRODUCT_STR_LEN);
         (version, vendor_name, product_name)
@@ -1004,14 +960,7 @@ impl Host for HostCallback {
 
     /// Get block size.
     fn get_block_size(&self) -> isize {
-        self.callback(
-            self.effect,
-            host::OpCode::GetBlockSize,
-            0,
-            0,
-            ptr::null_mut(),
-            0.0,
-        )
+        self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
     }
 }
 
@@ -1117,13 +1066,6 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(
-            aeffect,
-            plugin::OpCode::Initialize.into(),
-            0,
-            0,
-            ptr::null_mut(),
-            0.0,
-        );
+        (unsafe { (*aeffect).dispatcher })(aeffect, plugin::OpCode::Initialize.into(), 0, 0, ptr::null_mut(), 0.0);
     }
 }

@@ -440,14 +440,7 @@ trait Dispatch {
     fn get_effect(&self) -> *mut AEffect;
 
     /// Send a dispatch message to the plugin.
-    fn dispatch(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        ptr: *mut c_void,
-        opt: f32,
-    ) -> isize {
+    fn dispatch(&self, opcode: plugin::OpCode, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         let dispatcher = unsafe { (*self.get_effect()).dispatcher };
         if (dispatcher as *mut u8).is_null() {
             panic!("Plugin was not loaded correctly.");
@@ -461,36 +454,16 @@ trait Dispatch {
     }
 
     /// Like `dispatch`, except takes a `&str` to send via `ptr`.
-    fn write_string(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        string: &str,
-        opt: f32,
-    ) -> isize {
+    fn write_string(&self, opcode: plugin::OpCode, index: i32, value: isize, string: &str, opt: f32) -> isize {
         let string = CString::new(string).expect("Invalid string data");
-        self.dispatch(
-            opcode,
-            index,
-            value,
-            string.as_bytes().as_ptr() as *mut c_void,
-            opt,
-        )
+        self.dispatch(opcode, index, value, string.as_bytes().as_ptr() as *mut c_void, opt)
     }
 
     fn read_string(&self, opcode: plugin::OpCode, max: usize) -> String {
         self.read_string_param(opcode, 0, 0, 0.0, max)
     }
 
-    fn read_string_param(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        opt: f32,
-        max: usize,
-    ) -> String {
+    fn read_string_param(&self, opcode: plugin::OpCode, index: i32, value: isize, opt: f32, max: usize) -> String {
         let mut buf = vec![0; max];
         self.dispatch(opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
         String::from_utf8_lossy(&buf)
@@ -526,13 +499,7 @@ impl Plugin for PluginInstance {
     }
 
     fn set_block_size(&mut self, size: i64) {
-        self.dispatch(
-            plugin::OpCode::SetBlockSize,
-            0,
-            size as isize,
-            ptr::null_mut(),
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::SetBlockSize, 0, size as isize, ptr::null_mut(), 0.0);
     }
 
     fn resume(&mut self) {
@@ -592,13 +559,7 @@ impl Plugin for PluginInstance {
     }
 
     fn process_events(&mut self, events: &api::Events) {
-        self.dispatch(
-            plugin::OpCode::ProcessEvents,
-            0,
-            0,
-            events as *const _ as *mut _,
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::ProcessEvents, 0, 0, events as *const _ as *mut _, 0.0);
     }
 
     fn get_input_info(&self, input: i32) -> ChannelInfo {
@@ -626,13 +587,7 @@ impl Plugin for PluginInstance {
 
 impl PluginParameters for PluginParametersInstance {
     fn change_preset(&self, preset: i32) {
-        self.dispatch(
-            plugin::OpCode::ChangePreset,
-            0,
-            preset as isize,
-            ptr::null_mut(),
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::ChangePreset, 0, preset as isize, ptr::null_mut(), 0.0);
     }
 
     fn get_preset_num(&self) -> i32 {
@@ -644,43 +599,19 @@ impl PluginParameters for PluginParametersInstance {
     }
 
     fn get_preset_name(&self, preset: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetPresetName,
-            preset,
-            0,
-            0.0,
-            MAX_PRESET_NAME_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetPresetName, preset, 0, 0.0, MAX_PRESET_NAME_LEN)
     }
 
     fn get_parameter_label(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterLabel,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterLabel, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter_text(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterDisplay,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterDisplay, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter_name(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterName,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterName, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter(&self, index: i32) -> f32 {
@@ -692,13 +623,7 @@ impl PluginParameters for PluginParametersInstance {
     }
 
     fn can_be_automated(&self, index: i32) -> bool {
-        self.dispatch(
-            plugin::OpCode::CanBeAutomated,
-            index,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) > 0
+        self.dispatch(plugin::OpCode::CanBeAutomated, index, 0, ptr::null_mut(), 0.0) > 0
     }
 
     fn string_to_parameter(&self, index: i32, text: String) -> bool {
@@ -798,11 +723,7 @@ impl<T: Float> HostBuffer<T> {
     /// # Panics
     /// This function will panic if more inputs or outputs are supplied than the `HostBuffer`
     /// was created for, or if the sample arrays do not all have the same length.
-    pub fn bind<'a, I, O>(
-        &'a mut self,
-        input_arrays: &[I],
-        output_arrays: &mut [O],
-    ) -> AudioBuffer<'a, T>
+    pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O]) -> AudioBuffer<'a, T>
     where
         I: AsRef<[T]>,
         O: AsMut<[T]>,

@@ -50,13 +50,7 @@ fn main() {
          VST ID: {}\n\t\
          Version: {}\n\t\
          Initial Delay: {} samples",
-        info.name,
-        info.vendor,
-        info.presets,
-        info.parameters,
-        info.unique_id,
-        info.version,
-        info.initial_delay
+        info.name, info.vendor, info.presets, info.parameters, info.unique_id, info.version, info.initial_delay
     );
 
     // Initialize the instance

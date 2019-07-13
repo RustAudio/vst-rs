@@ -101,18 +101,12 @@ impl LadderFilter {
         let f1 = self.params.g.get() * a[1] * g1 * f2;
         let f0 = self.params.g.get() * g0 * f1;
         // outputs a 24db filter
-        self.vout[3] = (f0 * input * a[0]
-            + f1 * g0 * self.s[0]
-            + f2 * g1 * self.s[1]
-            + f3 * g2 * self.s[2]
-            + g3 * self.s[3])
-            / (f0 * self.params.res.get() * a[3] + 1.);
+        self.vout[3] =
+            (f0 * input * a[0] + f1 * g0 * self.s[0] + f2 * g1 * self.s[1] + f3 * g2 * self.s[2] + g3 * self.s[3])
+                / (f0 * self.params.res.get() * a[3] + 1.);
         // since we know the feedback, we can solve the remaining outputs:
         self.vout[0] = g0
-            * (self.params.g.get()
-                * a[1]
-                * (input * a[0] - self.params.res.get() * a[3] * self.vout[3])
-                + self.s[0]);
+            * (self.params.g.get() * a[1] * (input * a[0] - self.params.res.get() * a[3] * self.vout[3]) + self.s[0]);
         self.vout[1] = g1 * (self.params.g.get() * a[2] * self.vout[0] + self.s[1]);
         self.vout[2] = g2 * (self.params.g.get() * a[3] * self.vout[1] + self.s[2]);
     }
@@ -124,15 +118,11 @@ impl LadderFilter {
         let g2 = self.params.g.get() * g1 * g0;
         let g3 = self.params.g.get() * g2 * g0;
         // outputs a 24db filter
-        self.vout[3] = (g3 * self.params.g.get() * input
-            + g0 * self.s[3]
-            + g1 * self.s[2]
-            + g2 * self.s[1]
-            + g3 * self.s[0])
-            / (g3 * self.params.g.get() * self.params.res.get() + 1.);
+        self.vout[3] =
+            (g3 * self.params.g.get() * input + g0 * self.s[3] + g1 * self.s[2] + g2 * self.s[1] + g3 * self.s[0])
+                / (g3 * self.params.g.get() * self.params.res.get() + 1.);
         // since we know the feedback, we can solve the remaining outputs:
-        self.vout[0] =
-            g0 * (self.params.g.get() * (input - self.params.res.get() * self.vout[3]) + self.s[0]);
+        self.vout[0] = g0 * (self.params.g.get() * (input - self.params.res.get() * self.vout[3]) + self.s[0]);
         self.vout[1] = g0 * (self.params.g.get() * self.vout[0] + self.s[1]);
         self.vout[2] = g0 * (self.params.g.get() * self.vout[1] + self.s[2]);
     }
@@ -142,8 +132,7 @@ impl LadderParameters {
         // cutoff formula gives us a natural feeling cutoff knob that spends more time in the low frequencies
         self.cutoff.set(20000. * (1.8f32.powf(10. * value - 10.)));
         // bilinear transformation for g gives us a very accurate cutoff
-        self.g
-            .set((PI * self.cutoff.get() / (self.sample_rate.get())).tan());
+        self.g.set((PI * self.cutoff.get() / (self.sample_rate.get())).tan());
     }
     // returns the value used to set cutoff. for get_parameter function
     pub fn get_cutoff(&self) -> f32 {
@@ -151,8 +140,7 @@ impl LadderParameters {
     }
     pub fn set_poles(&self, value: f32) {
         self.pole_value.set(value);
-        self.poles
-            .store(((value * 3.).round()) as usize, Ordering::Relaxed);
+        self.poles.store(((value * 3.).round()) as usize, Ordering::Relaxed);
     }
 }
 impl PluginParameters for LadderParameters {

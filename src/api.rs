@@ -18,8 +18,7 @@ pub mod consts {
     pub const MAX_VENDOR_STR_LEN: usize = 64;
 
     /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
-    pub const VST_MAGIC: i32 =
-        ('V' as i32) << 24 | ('s' as i32) << 16 | ('t' as i32) << 8 | ('P' as i32);
+    pub const VST_MAGIC: i32 = ('V' as i32) << 24 | ('s' as i32) << 16 | ('t' as i32) << 8 | ('P' as i32);
 }
 
 /// `VSTPluginMain` function signature.
@@ -27,28 +26,15 @@ pub type PluginMain = fn(callback: HostCallbackProc) -> *mut AEffect;
 
 /// Host callback function passed to plugin.
 /// Can be used to query host information from plugin side.
-pub type HostCallbackProc = fn(
-    effect: *mut AEffect,
-    opcode: i32,
-    index: i32,
-    value: isize,
-    ptr: *mut c_void,
-    opt: f32,
-) -> isize;
+pub type HostCallbackProc =
+    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Dispatcher function used to process opcodes. Called by host.
-pub type DispatcherProc = fn(
-    effect: *mut AEffect,
-    opcode: i32,
-    index: i32,
-    value: isize,
-    ptr: *mut c_void,
-    opt: f32,
-) -> isize;
+pub type DispatcherProc =
+    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
-pub type ProcessProc =
-    fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
+pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
 
 /// Process function used to process 64 bit floating point samples. Called by host.
 pub type ProcessProcF64 =
