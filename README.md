@@ -81,7 +81,7 @@ crate-type = ["cdylib"]
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
 [discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord&logo=discord&color=blue
-[discord-url]: https://discord.gg/QPdhk2u
+[discord-url]: https://discord.gg/tASBvrN
 [dc-img]: https://img.shields.io/discourse/https/rust-audio.discourse.group/topics.svg?logo=discourse&color=blue
 [dc-url]: https://rust-audio.discourse.group
 
