@@ -27,7 +27,6 @@ pub enum Event<'a> {
     Deprecated(api::Event),
 }
 
-
 /// A midi event.
 ///
 /// These are sent to the plugin before `Plugin::processing()` or `Plugin::processing_f64()` is

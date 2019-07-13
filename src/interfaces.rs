@@ -2,13 +2,13 @@
 
 #![doc(hidden)]
 
-use std::{mem, slice};
 use std::cell::Cell;
 use std::os::raw::{c_char, c_void};
+use std::{mem, slice};
 
-use buffer::AudioBuffer;
 use api::consts::*;
 use api::{self, AEffect, TimeInfo};
+use buffer::AudioBuffer;
 use editor::{Key, KeyCode, KnobMode, Rect};
 use host::Host;
 
@@ -70,7 +70,9 @@ pub fn process_replacing_f64(
 
 /// VST2.4 set parameter function.
 pub fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
-    unsafe { (*effect).get_cache() }.params.set_parameter(index, value);
+    unsafe { (*effect).get_cache() }
+        .params
+        .set_parameter(index, value);
 }
 
 /// VST2.4 get parameter function.
@@ -83,12 +85,16 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 /// String will be cut at `max` characters.
 fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
     unsafe {
+        use libc::{c_void, memcpy, memset};
         use std::cmp::min;
-        use libc::{c_void, memset, memcpy};
 
         let dst = dst as *mut c_void;
         memset(dst, 0, max);
-        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.as_bytes().len()));
+        memcpy(
+            dst,
+            src.as_ptr() as *const c_void,
+            min(max, src.as_bytes().len()),
+        );
     }
 
     1 // Success
@@ -109,7 +115,7 @@ pub fn dispatch(
     let opcode = OpCode::from(opcode);
     // Plugin handle
     let plugin = unsafe { (*effect).get_plugin() };
-    let cache =  unsafe { (*effect).get_cache() };
+    let cache = unsafe { (*effect).get_cache() };
     let params = &cache.params;
 
     match opcode {
@@ -156,9 +162,9 @@ pub fn dispatch(
                     // Given a Rect** structure
                     // TODO: Investigate whether we are given a valid Rect** pointer already
                     *(ptr as *mut *mut c_void) = Box::into_raw(Box::new(Rect {
-                        left: pos.0 as i16, // x coord of position
-                        top: pos.1 as i16, // y coord of position
-                        right: (pos.0 + size.0) as i16, // x coord of pos + x coord of size
+                        left: pos.0 as i16,              // x coord of position
+                        top: pos.1 as i16,               // y coord of position
+                        right: (pos.0 + size.0) as i16,  // x coord of pos + x coord of size
                         bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
                     })) as *mut _; // TODO: free memory
                 }
@@ -168,7 +174,9 @@ pub fn dispatch(
             if let Some(ref mut editor) = cache.editor {
                 // `ptr` is a window handle to the parent window.
                 // See the documentation for `Editor::open` for details.
-                if editor.open(ptr) { return 1; }
+                if editor.open(ptr) {
+                    return 1;
+                }
             }
         }
         OpCode::EditorClose => {

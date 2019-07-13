@@ -3,21 +3,21 @@
 use num_traits::Float;
 
 use std::cell::UnsafeCell;
+use std::error::Error;
+use std::ffi::CString;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use std::error::Error;
 use std::{fmt, mem, ptr, slice};
-use std::ffi::CString;
 
 use libloading::Library;
 use std::os::raw::c_void;
 
-use interfaces;
-use plugin::{self, Plugin, PluginParameters, Info, Category};
-use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use api::consts::*;
+use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
+use interfaces;
+use plugin::{self, Category, Info, Plugin, PluginParameters};
 
 #[repr(usize)]
 #[derive(Clone, Copy, Debug)]
@@ -292,7 +292,6 @@ impl Drop for PluginInstance {
     }
 }
 
-
 impl<T: Host> PluginLoader<T> {
     /// Load a plugin at the given path with the given host.
     ///
@@ -395,7 +394,9 @@ impl PluginInstance {
     fn new(effect: *mut AEffect, lib: Arc<Library>) -> PluginInstance {
         use plugin::OpCode as op;
 
-        let params = Arc::new(PluginParametersInstance { effect: UnsafeCell::new(effect) });
+        let params = Arc::new(PluginParametersInstance {
+            effect: UnsafeCell::new(effect),
+        });
         let mut plug = PluginInstance {
             params,
             lib,
@@ -520,7 +521,6 @@ impl Plugin for PluginInstance {
         self.opcode(plugin::OpCode::Initialize);
     }
 
-
     fn set_sample_rate(&mut self, rate: f32) {
         self.dispatch(plugin::OpCode::SetSampleRate, 0, 0, ptr::null_mut(), rate);
     }
@@ -535,7 +535,6 @@ impl Plugin for PluginInstance {
         );
     }
 
-
     fn resume(&mut self) {
         self.dispatch(plugin::OpCode::StateChanged, 0, 1, ptr::null_mut(), 0.0);
     }
@@ -544,11 +543,9 @@ impl Plugin for PluginInstance {
         self.dispatch(plugin::OpCode::StateChanged, 0, 0, ptr::null_mut(), 0.0);
     }
 
-
     fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         self.dispatch(plugin::OpCode::VendorSpecific, index, value, ptr, opt)
     }
-
 
     fn can_do(&self, can_do: plugin::CanDo) -> Supported {
         let s: String = can_do.into();
@@ -559,7 +556,6 @@ impl Plugin for PluginInstance {
     fn get_tail_size(&self) -> isize {
         self.opcode(plugin::OpCode::GetTailSize)
     }
-
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         if buffer.input_count() < self.info.inputs as usize {
@@ -605,7 +601,6 @@ impl Plugin for PluginInstance {
         );
     }
 
-
     fn get_input_info(&self, input: i32) -> ChannelInfo {
         let mut props = unsafe { mem::uninitialized() };
         let ptr = &mut props as *mut api::ChannelProperties as *mut c_void;
@@ -623,7 +618,6 @@ impl Plugin for PluginInstance {
 
         ChannelInfo::from(props)
     }
-
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::clone(&self.params) as Arc<dyn PluginParameters>
@@ -658,7 +652,6 @@ impl PluginParameters for PluginParametersInstance {
             MAX_PRESET_NAME_LEN,
         )
     }
-
 
     fn get_parameter_label(&self, index: i32) -> String {
         self.read_string_param(
@@ -712,7 +705,6 @@ impl PluginParameters for PluginParametersInstance {
         self.write_string(plugin::OpCode::StringToParameter, index, 0, &text, 0.0) > 0
     }
 
-
     // TODO: Editor
 
     fn get_preset_data(&self) -> Vec<u8> {
@@ -765,11 +757,11 @@ impl PluginParameters for PluginParametersInstance {
 }
 
 /// Used for constructing `AudioBuffer` instances on the host.
-/// 
+///
 /// This struct contains all necessary allocations for an `AudioBuffer` apart
 /// from the actual sample arrays. This way, the inner processing loop can
 /// be allocation free even if `AudioBuffer` instances are repeatedly created.
-/// 
+///
 /// ```rust
 /// # use vst::host::HostBuffer;
 /// # use vst::plugin::Plugin;
@@ -802,13 +794,20 @@ impl<T: Float> HostBuffer<T> {
     }
 
     /// Bind sample arrays to the `HostBuffer` to create an `AudioBuffer` to pass to a plugin.
-    /// 
+    ///
     /// # Panics
     /// This function will panic if more inputs or outputs are supplied than the `HostBuffer`
     /// was created for, or if the sample arrays do not all have the same length.
-    pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O])
-        -> AudioBuffer<'a, T>
-        where I: AsRef<[T]>, O: AsMut<[T]>, I: 'a, O: 'a
+    pub fn bind<'a, I, O>(
+        &'a mut self,
+        input_arrays: &[I],
+        output_arrays: &mut [O],
+    ) -> AudioBuffer<'a, T>
+    where
+        I: AsRef<[T]>,
+        O: AsMut<[T]>,
+        I: 'a,
+        O: 'a,
     {
         // Check that number of desired inputs and outputs fit in allocation
         if input_arrays.len() > self.inputs.len() {
@@ -824,8 +823,10 @@ impl<T: Float> HostBuffer<T> {
             self.inputs[i] = input.as_ptr();
             match length {
                 None => length = Some(input.len()),
-                Some(old_length) => if input.len() != old_length {
-                    panic!("Mismatching lengths of input arrays");
+                Some(old_length) => {
+                    if input.len() != old_length {
+                        panic!("Mismatching lengths of input arrays");
+                    }
                 }
             }
         }
@@ -833,8 +834,10 @@ impl<T: Float> HostBuffer<T> {
             self.outputs[i] = output.as_mut_ptr();
             match length {
                 None => length = Some(output.len()),
-                Some(old_length) => if output.len() != old_length {
-                    panic!("Mismatching lengths of output arrays");
+                Some(old_length) => {
+                    if output.len() != old_length {
+                        panic!("Mismatching lengths of output arrays");
+                    }
                 }
             }
         }
@@ -847,7 +850,8 @@ impl<T: Float> HostBuffer<T> {
                 output_arrays.len(),
                 self.inputs.as_ptr(),
                 self.outputs.as_mut_ptr(),
-                length)
+                length,
+            )
         }
     }
 

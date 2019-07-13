@@ -211,7 +211,8 @@ impl PluginParameters for DimensionExpanderParameters {
             0 => "Size",
             1 => "Dry/Wet",
             _ => "",
-        }.to_string()
+        }
+        .to_string()
     }
 
     fn set_parameter(&self, index: i32, val: f32) {

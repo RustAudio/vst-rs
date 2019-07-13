@@ -25,6 +25,7 @@ impl AtomicFloat {
 
     /// Set the value of the atomic float to `value`.
     pub fn set(&self, value: f32) {
-        self.atomic.store(value.to_bits() as usize, Ordering::Relaxed)
+        self.atomic
+            .store(value.to_bits() as usize, Ordering::Relaxed)
     }
 }

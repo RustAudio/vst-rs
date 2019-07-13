@@ -5,13 +5,13 @@ use std::sync::Arc;
 
 use std::os::raw::c_void;
 
-use channels::ChannelInfo;
-use host::{self, Host};
-use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
-use api::consts::VST_MAGIC;
-use buffer::AudioBuffer;
-use editor::Editor;
 use api;
+use api::consts::VST_MAGIC;
+use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
+use buffer::AudioBuffer;
+use channels::ChannelInfo;
+use editor::Editor;
+use host::{self, Host};
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -371,7 +371,7 @@ impl Default for Info {
             midi_outputs: 0,
 
             unique_id: 0, // This must be changed.
-            version: 1, // v0.0.0.1
+            version: 1,   // v0.0.0.1
 
             category: Category::Effect,
 
@@ -527,7 +527,6 @@ pub trait Plugin {
         trace!("Initialized vst plugin.");
     }
 
-
     /// Called when sample rate is changed by host.
     ///
     /// This method is only called while the plugin is in the *suspended* state.
@@ -538,19 +537,16 @@ pub trait Plugin {
     /// This method is only called while the plugin is in the *suspended* state.
     fn set_block_size(&mut self, size: i64) {}
 
-
     /// Called to transition the plugin into the *resumed* state.
     fn resume(&mut self) {}
 
     /// Called to transition the plugin into the *suspended* state.
     fn suspend(&mut self) {}
 
-
     /// Vendor specific handling.
     fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         0
     }
-
 
     /// Return whether plugin supports specified action.
     ///
@@ -564,7 +560,6 @@ pub trait Plugin {
     fn get_tail_size(&self) -> isize {
         0
     }
-
 
     /// Process an audio buffer containing `f32` values.
     ///
@@ -691,7 +686,6 @@ pub trait Plugin {
     /// This method is only called while the plugin is in the *resumed* state.
     fn stop_process(&mut self) {}
 
-
     /// Return handle to plugin editor if supported.
     /// The method need only return the object on the first call.
     /// Subsequent calls can just return `None`.
@@ -725,7 +719,6 @@ pub trait PluginParameters: Sync {
     fn get_preset_name(&self, preset: i32) -> String {
         "".to_string()
     }
-
 
     /// Get parameter label for parameter at `index` (e.g. "db", "sec", "ms", "%").
     fn get_parameter_label(&self, index: i32) -> String {
@@ -763,7 +756,6 @@ pub trait PluginParameters: Sync {
     fn string_to_parameter(&self, index: i32, text: String) -> bool {
         false
     }
-
 
     /// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for
     /// the current preset.
@@ -851,7 +843,9 @@ impl HostCallback {
         ptr: *mut c_void,
         opt: f32,
     ) -> isize {
-        let callback = self.callback.unwrap_or_else(|| panic!("Host not yet initialized."));
+        let callback = self
+            .callback
+            .unwrap_or_else(|| panic!("Host not yet initialized."));
         callback(effect, opcode.into(), index, value, ptr, opt)
     }
 
@@ -1003,14 +997,21 @@ impl Host for HostCallback {
         let ptr = self.callback(self.effect, opcode, 0, mask, null, 0.0);
 
         match ptr {
-            0   => None,
+            0 => None,
             ptr => Some(unsafe { (*(ptr as *const TimeInfo)) }),
         }
     }
 
     /// Get block size.
     fn get_block_size(&self) -> isize {
-        self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
+        self.callback(
+            self.effect,
+            host::OpCode::GetBlockSize,
+            0,
+            0,
+            ptr::null_mut(),
+            0.0,
+        )
     }
 }
 
@@ -1098,7 +1099,9 @@ mod tests {
 
         impl Default for TestPlugin {
             fn default() -> TestPlugin {
-                let plugin = TestPlugin { host: Default::default() };
+                let plugin = TestPlugin {
+                    host: Default::default(),
+                };
 
                 // Should panic
                 let version = plugin.host.vst_version();

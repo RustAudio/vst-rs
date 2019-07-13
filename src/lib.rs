@@ -102,14 +102,14 @@
 //!
 
 extern crate libc;
-extern crate num_traits;
 extern crate libloading;
+extern crate num_traits;
 #[macro_use]
 extern crate log;
 #[macro_use]
 extern crate bitflags;
 
-use std::{ptr, mem};
+use std::{mem, ptr};
 
 /// Implements `From` and `Into` for enums with `#[repr(usize)]`. Useful for interfacing with C
 /// enums.
@@ -136,22 +136,22 @@ macro_rules! impl_clike {
     }
 }
 
-pub mod buffer;
 pub mod api;
-pub mod editor;
+pub mod buffer;
+mod cache;
 pub mod channels;
+pub mod editor;
 pub mod event;
 pub mod host;
-pub mod plugin;
 mod interfaces;
-mod cache;
+pub mod plugin;
 
 pub mod util;
 
-use api::{HostCallbackProc, AEffect};
 use api::consts::VST_MAGIC;
-use plugin::{HostCallback, Plugin};
+use api::{AEffect, HostCallbackProc};
 use cache::PluginCache;
+use plugin::{HostCallback, Plugin};
 
 /// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
@@ -162,26 +162,29 @@ macro_rules! plugin_main {
     ($t:ty) => {
         #[cfg(target_os = "macos")]
         #[no_mangle]
-        pub extern "system" fn main_macho(callback: $crate::api::HostCallbackProc) ->
-        *mut $crate::api::AEffect {
+        pub extern "system" fn main_macho(
+            callback: $crate::api::HostCallbackProc,
+        ) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[cfg(target_os = "windows")]
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "system" fn MAIN(callback: $crate::api::HostCallbackProc) ->
-        *mut $crate::api::AEffect {
+        pub extern "system" fn MAIN(
+            callback: $crate::api::HostCallbackProc,
+        ) -> *mut $crate::api::AEffect {
             VSTPluginMain(callback)
         }
 
         #[allow(non_snake_case)]
         #[no_mangle]
-        pub extern "C" fn VSTPluginMain(callback: $crate::api::HostCallbackProc) ->
-        *mut $crate::api::AEffect {
+        pub extern "C" fn VSTPluginMain(
+            callback: $crate::api::HostCallbackProc,
+        ) -> *mut $crate::api::AEffect {
             $crate::main::<$t>(callback)
         }
-    }
+    };
 }
 
 /// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
@@ -278,9 +281,9 @@ mod tests {
 
     use std::os::raw::c_void;
 
-    use interfaces;
-    use api::AEffect;
     use api::consts::VST_MAGIC;
+    use api::AEffect;
+    use interfaces;
     use plugin::{Info, Plugin};
 
     #[derive(Default)]
@@ -398,7 +401,7 @@ mod tests {
         macro_rules! assert_fn_eq {
             ($a:expr, $b:expr) => {
                 assert_eq!($a as usize, $b as usize);
-            }
+            };
         }
 
         let aeffect = unsafe { &mut *VSTPluginMain(pass_callback) };
