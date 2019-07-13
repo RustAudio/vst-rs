@@ -547,12 +547,12 @@ mod tests {
     }
     
     // Test that the `zip()` method returns an iterator that gives `n` elements
-    // where n is the number of outputs when this is lower than the number of outputs.
+    // where n is the number of outputs when this is lower than the number of inputs.
     #[test]
     fn buffer_zip_more_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
         let in2 = vec![2.0; SIZE];
-        let in3 = vec![4.0; SIZE];
+        let in3 = vec![3.0; SIZE];
         
         let mut out1 = vec![4.0; SIZE];
         let mut out2 = vec![5.0; SIZE];
