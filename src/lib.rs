@@ -1,6 +1,11 @@
 #![warn(missing_docs)]
 
-//! rust-vst is a rust implementation of the VST2.4 API
+//! A rust implementation of the VST2.4 API.
+//!
+//! The VST API is multi-threaded. A VST host calls into a plugin generally from two threads -
+//! the *processing* thread and the *UI* thread. The organization of this crate reflects this
+//! structure to ensure that the threading assumptions of Safe Rust are fulfilled and data
+//! races are avoided.
 //!
 //! # Plugins
 //! All Plugins must implement the `Plugin` trait and `std::default::Default`.
@@ -11,6 +16,11 @@
 //! All methods in this trait have a default implementation except for the `get_info` method which
 //! must be implemented by the plugin. Any of the default implementations may be overriden for
 //! custom functionality; the defaults do nothing on their own.
+//!
+//! ## `PluginParameters` Trait
+//! The methods in this trait handle access to plugin parameters. Since the host may call these
+//! methods concurrently with audio processing, it needs to be separate from the main `Plugin`
+//! trait.
 //!
 //! ## `plugin_main!` macro
 //! `plugin_main!` will export the necessary functions to create a proper VST plugin. This must be
@@ -64,7 +74,7 @@
 //! struct SampleHost;
 //!
 //! impl Host for SampleHost {
-//!     fn automate(&mut self, index: i32, value: f32) {
+//!     fn automate(&self, index: i32, value: f32) {
 //!         println!("Parameter {} had its value changed to {}", index, value);
 //!     }
 //! }
@@ -136,6 +146,8 @@ pub mod plugin;
 mod interfaces;
 mod cache;
 
+pub mod util;
+
 use api::{HostCallbackProc, AEffect};
 use api::consts::VST_MAGIC;
 use plugin::{HostCallback, Plugin};
@@ -189,6 +201,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     trace!("Creating VST plugin instance...");
     let mut plugin = T::new(host);
     let info = plugin.get_info().clone();
+    let params = plugin.get_parameter_object();
+    let editor = plugin.get_editor();
 
     // Update AEffect in place
     unsafe {
@@ -215,7 +229,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
                     flag |= PluginFlags::CAN_DOUBLE_REPLACING;
                 }
 
-                if plugin.get_editor().is_some() {
+                if editor.is_some() {
                     flag |= PluginFlags::HAS_EDITOR;
                 }
 
@@ -243,8 +257,8 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
             _offQualities: 0,
             _ioRatio: 0.0,
 
-            object: Box::into_raw(Box::new(Box::new(plugin) as Box<Plugin>)) as *mut _,
-            user: Box::into_raw(Box::new(PluginCache::new(&info))) as *mut _,
+            object: Box::into_raw(Box::new(Box::new(plugin) as Box<dyn Plugin>)) as *mut _,
+            user: Box::into_raw(Box::new(PluginCache::new(&info, params, editor))) as *mut _,
 
             uniqueId: info.unique_id,
             version: info.version,

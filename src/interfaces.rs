@@ -70,12 +70,12 @@ pub fn process_replacing_f64(
 
 /// VST2.4 set parameter function.
 pub fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
-    unsafe { (*effect).get_plugin() }.set_parameter(index, value);
+    unsafe { (*effect).get_cache() }.params.set_parameter(index, value);
 }
 
 /// VST2.4 get parameter function.
 pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
-    unsafe { (*effect).get_plugin() }.get_parameter(index)
+    unsafe { (*effect).get_cache() }.params.get_parameter(index)
 }
 
 /// Copy a string into a destination buffer.
@@ -109,30 +109,32 @@ pub fn dispatch(
     let opcode = OpCode::from(opcode);
     // Plugin handle
     let plugin = unsafe { (*effect).get_plugin() };
+    let cache =  unsafe { (*effect).get_cache() };
+    let params = &cache.params;
 
     match opcode {
         OpCode::Initialize => plugin.init(),
         OpCode::Shutdown => unsafe {
             (*effect).drop_plugin();
-            drop(mem::transmute::<*mut AEffect, Box<AEffect>>(effect));
+            drop(Box::from_raw(effect))
         },
 
-        OpCode::ChangePreset => plugin.change_preset(value as i32),
-        OpCode::GetCurrentPresetNum => return plugin.get_preset_num() as isize,
-        OpCode::SetCurrentPresetName => plugin.set_preset_name(read_string(ptr)),
+        OpCode::ChangePreset => params.change_preset(value as i32),
+        OpCode::GetCurrentPresetNum => return params.get_preset_num() as isize,
+        OpCode::SetCurrentPresetName => params.set_preset_name(read_string(ptr)),
         OpCode::GetCurrentPresetName => {
-            let num = plugin.get_preset_num();
-            return copy_string(ptr, &plugin.get_preset_name(num), MAX_PRESET_NAME_LEN);
+            let num = params.get_preset_num();
+            return copy_string(ptr, &params.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
         OpCode::GetParameterLabel => {
-            return copy_string(ptr, &plugin.get_parameter_label(index), MAX_PARAM_STR_LEN)
+            return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN)
         }
         OpCode::GetParameterDisplay => {
-            return copy_string(ptr, &plugin.get_parameter_text(index), MAX_PARAM_STR_LEN)
+            return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN)
         }
         OpCode::GetParameterName => {
-            return copy_string(ptr, &plugin.get_parameter_name(index), MAX_PARAM_STR_LEN)
+            return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN)
         }
 
         OpCode::SetSampleRate => plugin.set_sample_rate(opt),
@@ -146,7 +148,7 @@ pub fn dispatch(
         }
 
         OpCode::EditorGetRect => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 let size = editor.size();
                 let pos = editor.position();
 
@@ -163,29 +165,29 @@ pub fn dispatch(
             }
         }
         OpCode::EditorOpen => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 // `ptr` is a window handle to the parent window.
                 // See the documentation for `Editor::open` for details.
                 if editor.open(ptr) { return 1; }
             }
         }
         OpCode::EditorClose => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 editor.close();
             }
         }
 
         OpCode::EditorIdle => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 editor.idle();
             }
         }
 
         OpCode::GetData => {
             let mut chunks = if index == 0 {
-                plugin.get_bank_data()
+                params.get_bank_data()
             } else {
-                plugin.get_preset_data()
+                params.get_preset_data()
             };
 
             chunks.shrink_to_fit();
@@ -202,22 +204,22 @@ pub fn dispatch(
             let chunks = unsafe { slice::from_raw_parts(ptr as *mut u8, value as usize) };
 
             if index == 0 {
-                plugin.load_bank_data(chunks);
+                params.load_bank_data(chunks);
             } else {
-                plugin.load_preset_data(chunks);
+                params.load_preset_data(chunks);
             }
         }
 
         OpCode::ProcessEvents => {
             plugin.process_events(unsafe { &*(ptr as *const api::Events) });
         }
-        OpCode::CanBeAutomated => return plugin.can_be_automated(index) as isize,
+        OpCode::CanBeAutomated => return params.can_be_automated(index) as isize,
         OpCode::StringToParameter => {
-            return plugin.string_to_parameter(index, read_string(ptr)) as isize
+            return params.string_to_parameter(index, read_string(ptr)) as isize
         }
 
         OpCode::GetPresetName => {
-            return copy_string(ptr, &plugin.get_preset_name(index), MAX_PRESET_NAME_LEN)
+            return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN)
         }
 
         OpCode::GetInputInfo => {
@@ -238,6 +240,10 @@ pub fn dispatch(
         }
         OpCode::GetCategory => {
             return plugin.get_info().category.into();
+        }
+
+        OpCode::GetEffectName => {
+            return copy_string(ptr, &plugin.get_info().name, MAX_VENDOR_STR_LEN)
         }
 
         OpCode::GetVendorName => {
@@ -264,7 +270,7 @@ pub fn dispatch(
         OpCode::GetApiVersion => return 2400,
 
         OpCode::EditorKeyDown => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
@@ -273,7 +279,7 @@ pub fn dispatch(
             }
         }
         OpCode::EditorKeyUp => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
@@ -282,7 +288,7 @@ pub fn dispatch(
             }
         }
         OpCode::EditorSetKnobMode => {
-            if let Some(editor) = plugin.get_editor() {
+            if let Some(ref mut editor) = cache.editor {
                 editor.set_knob_mode(KnobMode::from(value));
             }
         }
@@ -313,7 +319,7 @@ pub fn dispatch(
 }
 
 pub fn host_dispatch(
-    host: &mut Host,
+    host: &mut dyn Host,
     effect: *mut AEffect,
     opcode: i32,
     index: i32,
