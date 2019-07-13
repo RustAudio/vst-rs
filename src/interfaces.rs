@@ -116,7 +116,7 @@ pub fn dispatch(
         OpCode::Initialize => plugin.init(),
         OpCode::Shutdown => unsafe {
             (*effect).drop_plugin();
-            drop(mem::transmute::<*mut AEffect, Box<AEffect>>(effect));
+            drop(Box::from_raw(effect))
         },
 
         OpCode::ChangePreset => params.change_preset(value as i32),

@@ -111,7 +111,7 @@ impl<'a> From<api::Event> for Event<'a> {
 
             SysEx => Event::SysEx(SysExEvent {
                 payload: unsafe {
-                    // We can safely transmute the event pointer to a `SysExEvent` pointer as
+                    // We can safely cast the event pointer to a `SysExEvent` pointer as
                     // event_type refers to a `SysEx` type.
                     #[allow(clippy::cast_ptr_alignment)]
                     let event: &api::SysExEvent =
