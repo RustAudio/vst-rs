@@ -1,6 +1,6 @@
 [package]
 name = "vst"
-version = "0.0.2"
+version = "0.1.0"
 authors = [
 	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
 	"Boscop",
@@ -15,16 +15,20 @@ authors = [
 	"xnor104",
 	"Nathaniel Theis",
 	"Colin Wallace",
-	"Henrik Nordvik" ]
+	"Henrik Nordvik",
+	"Charles Saracco",
+	"Frederik Halkjær" ]
 
 description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
 readme = "README.md"
-repository = "https://github.com/rust-dsp/rust-vst"
-documentation = "https://rust-dsp.github.io/rust-vst/vst/"
+repository = "https://github.com/rustaudio/vst-rs"
+documentation = "https://rustaudio.github.io/vst-rs/vst/"
 
 license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
+
+autoexamples = false
 
 [dependencies]
 log = "0.4"
@@ -35,6 +39,7 @@ libloading = "0.5"
 
 [dev-dependencies]
 time = "0.1"
+rand = "0.6.5"
 
 [[example]]
 name = "dimension_expander"
@@ -55,3 +60,12 @@ crate-type = ["cdylib"]
 [[example]]
 name = "gain_effect"
 crate-type = ["cdylib"]
+
+[[example]]
+name = "transfer_and_smooth"
+crate-type = ["cdylib"]
+
+[[example]]
+name = "ladder_filter"
+crate-type = ["cdylib"]
+
