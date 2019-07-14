@@ -81,39 +81,36 @@ impl<'a, T: 'a + Float> AudioBuffer<'a, T> {
 
     /// Create an iterator over pairs of input buffers and output buffers.
     #[inline]
-    pub fn zip<'b>(&'b mut self) -> AudioBufferIterator<'a, 'b, T>
-    {
+    pub fn zip<'b>(&'b mut self) -> AudioBufferIterator<'a, 'b, T> {
         AudioBufferIterator {
             audio_buffer: self,
-            index: 0
+            index: 0,
         }
     }
 }
 
 /// Iterator over pairs of buffers of input channels and output channels.
-pub struct AudioBufferIterator<'a, 'b, T> 
+pub struct AudioBufferIterator<'a, 'b, T>
 where
     T: 'a + Float,
-    'a: 'b
+    'a: 'b,
 {
     audio_buffer: &'b mut AudioBuffer<'a, T>,
-    index: usize
+    index: usize,
 }
 
-impl<'a, 'b, T> Iterator for AudioBufferIterator<'a, 'b, T> 
+impl<'a, 'b, T> Iterator for AudioBufferIterator<'a, 'b, T>
 where
     T: 'b + Float,
 {
-    type Item = (&'b [T], &'b mut[T]);
+    type Item = (&'b [T], &'b mut [T]);
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index < self.audio_buffer.inputs.len() && self.index < self.audio_buffer.outputs.len() {
-            let input = unsafe { 
-                slice::from_raw_parts(self.audio_buffer.inputs[self.index], self.audio_buffer.samples) 
-            };
-            let output = unsafe { 
-                slice::from_raw_parts_mut(self.audio_buffer.outputs[self.index], self.audio_buffer.samples) 
-            };
+            let input =
+                unsafe { slice::from_raw_parts(self.audio_buffer.inputs[self.index], self.audio_buffer.samples) };
+            let output =
+                unsafe { slice::from_raw_parts_mut(self.audio_buffer.outputs[self.index], self.audio_buffer.samples) };
             let val = (input, output);
             self.index += 1;
             Some(val)
@@ -261,16 +258,19 @@ impl<'a, T> IndexMut<usize> for Outputs<'a, T> {
 }
 
 /// Iterator over buffers for output channels of an `AudioBuffer`.
-pub struct OutputIterator<'a, 'b, T> 
-where 
+pub struct OutputIterator<'a, 'b, T>
+where
     T: 'a,
-    'a: 'b
+    'a: 'b,
 {
     data: &'b mut Outputs<'a, T>,
     i: usize,
 }
 
-impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T> where T: 'b {
+impl<'a, 'b, T> Iterator for OutputIterator<'a, 'b, T>
+where
+    T: 'b,
+{
     type Item = &'b mut [T];
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -516,25 +516,22 @@ mod tests {
                 });
         }
     }
-    
-    
+
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of inputs when this is lower than the number of outputs.
     #[test]
     fn buffer_zip_fewer_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
         let in2 = vec![2.0; SIZE];
-        
+
         let mut out1 = vec![3.0; SIZE];
         let mut out2 = vec![4.0; SIZE];
         let mut out3 = vec![5.0; SIZE];
-        
+
         let inputs = vec![in1.as_ptr(), in2.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr(), out3.as_mut_ptr()];
-        let mut buffer = unsafe {
-            AudioBuffer::from_raw(2, 3, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
-        };
-        
+        let mut buffer = unsafe { AudioBuffer::from_raw(2, 3, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
+
         let mut iter = buffer.zip();
         if let Some((observed_in1, observed_out1)) = iter.next() {
             assert_eq!(1.0, observed_in1[0]);
@@ -542,7 +539,7 @@ mod tests {
         } else {
             unreachable!();
         }
-        
+
         if let Some((observed_in2, observed_out2)) = iter.next() {
             assert_eq!(2.0, observed_in2[0]);
             assert_eq!(4.0, observed_out2[0]);
@@ -552,7 +549,7 @@ mod tests {
 
         assert_eq!(None, iter.next());
     }
-    
+
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of outputs when this is lower than the number of inputs.
     #[test]
@@ -560,25 +557,23 @@ mod tests {
         let in1 = vec![1.0; SIZE];
         let in2 = vec![2.0; SIZE];
         let in3 = vec![3.0; SIZE];
-        
+
         let mut out1 = vec![4.0; SIZE];
         let mut out2 = vec![5.0; SIZE];
-        
+
         let inputs = vec![in1.as_ptr(), in2.as_ptr(), in3.as_ptr()];
         let mut outputs = vec![out1.as_mut_ptr(), out2.as_mut_ptr()];
-        let mut buffer = unsafe {
-            AudioBuffer::from_raw(3, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE)
-        };
-        
+        let mut buffer = unsafe { AudioBuffer::from_raw(3, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
+
         let mut iter = buffer.zip();
-        
+
         if let Some((observed_in1, observed_out1)) = iter.next() {
             assert_eq!(1.0, observed_in1[0]);
             assert_eq!(4.0, observed_out1[0]);
         } else {
             unreachable!();
         }
-        
+
         if let Some((observed_in2, observed_out2)) = iter.next() {
             assert_eq!(2.0, observed_in2[0]);
             assert_eq!(5.0, observed_out2[0]);
