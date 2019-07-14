@@ -32,13 +32,14 @@ impl Plugin for MyPlugin {
     fn get_info(&self) -> Info {
         Info {
             name: "fwd_midi".to_string(),
-            unique_id: 7357001, // Used by hosts to differentiate between plugins.
+            unique_id: 7_357_001, // Used by hosts to differentiate between plugins.
             ..Default::default()
         }
     }
 
     fn process_events(&mut self, events: &api::Events) {
         for e in events.events() {
+            #[allow(clippy::single_match)]
             match e {
                 Event::Midi(e) => self.events.push(e),
                 _ => (),

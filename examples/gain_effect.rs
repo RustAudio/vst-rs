@@ -60,8 +60,8 @@ impl Plugin for GainEffect {
         Info {
             name: "Gain Effect in Rust".to_string(),
             vendor: "Rust DSP".to_string(),
-            unique_id: 243723072,
-            version: 0001,
+            unique_id: 243_723_072,
+            version: 1,
             inputs: 2,
             outputs: 2,
             // This `parameters` bit is important; without it, none of our
@@ -106,6 +106,7 @@ impl PluginParameters for GainEffectParameters {
 
     // the `set_parameter` function sets the value of a parameter.
     fn set_parameter(&self, index: i32, val: f32) {
+        #[allow(clippy::single_match)]
         match index {
             0 => self.amplitude.set(val),
             _ => (),

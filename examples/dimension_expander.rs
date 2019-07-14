@@ -70,7 +70,7 @@ impl DimensionExpander {
         }
 
         DimensionExpander {
-            buffers: buffers,
+            buffers,
             params: Arc::new(DimensionExpanderParameters {
                 dry_wet: AtomicFloat::new(dry_wet),
                 size: AtomicFloat::new(size),
@@ -111,8 +111,8 @@ impl Plugin for DimensionExpander {
         Info {
             name: "Dimension Expander".to_string(),
             vendor: "overdrivenpotato".to_string(),
-            unique_id: 243723071,
-            version: 0001,
+            unique_id: 243_723_071,
+            version: 1,
             inputs: 2,
             outputs: 2,
             parameters: 2,
@@ -132,7 +132,7 @@ impl Plugin for DimensionExpander {
 
         // Resize if size changed
         let size = self.params.size.get();
-        if size != self.old_size {
+        if (size - self.old_size).abs() < std::f32::EPSILON {
             self.resize(size);
         }
 

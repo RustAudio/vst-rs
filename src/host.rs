@@ -840,7 +840,7 @@ mod tests {
 
     #[test]
     fn host_buffer() {
-        const LENGTH: usize = 1000000;
+        const LENGTH: usize = 1_000_000;
         let mut host_buffer: HostBuffer<f32> = HostBuffer::new(2, 2);
         let input_left = vec![1.0; LENGTH];
         let input_right = vec![1.0; LENGTH];

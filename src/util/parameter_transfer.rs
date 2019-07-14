@@ -57,7 +57,7 @@ impl ParameterTransfer {
     ///
     /// The changed parameters are reported in increasing index order, and the same
     /// parameter is never reported more than once in the same iteration.
-    pub fn iterate<'pt>(&'pt self, acquire: bool) -> ParameterTransferIterator<'pt> {
+    pub fn iterate(&self, acquire: bool) -> ParameterTransferIterator {
         ParameterTransferIterator {
             pt: self,
             word: 0,
@@ -128,7 +128,7 @@ mod tests {
 
     const THREADS: usize = 3;
     const PARAMETERS: usize = 1000;
-    const UPDATES: usize = 1000000;
+    const UPDATES: usize = 1_000_000;
 
     #[test]
     fn parameter_transfer() {
@@ -182,7 +182,7 @@ mod tests {
 
         // Verify final values
         for p in 0..PARAMETERS {
-            assert!((0..THREADS).any(|t| results[t][p] == values[p]));
+            assert!((0..THREADS).any(|t| (results[t][p] - values[p]).abs() < std::f32::EPSILON));
         }
     }
 }

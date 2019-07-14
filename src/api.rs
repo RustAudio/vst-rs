@@ -479,7 +479,7 @@ impl<'a> Iterator for EventIterator<'a> {
             None
         } else {
             let event = unsafe {
-                let e = (**self.current).clone();
+                let e = **self.current;
                 self.current = self.current.offset(1);
                 e
             };

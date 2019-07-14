@@ -481,6 +481,7 @@ impl SendEventBuffer {
 #[cfg(test)]
 mod tests {
     use buffer::AudioBuffer;
+    use util::test_util;
 
     /// Size of buffers used in tests.
     const SIZE: usize = 1024;
@@ -506,14 +507,11 @@ mod tests {
         let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input
-                .into_iter()
-                .zip(output.into_iter())
-                .fold(0, |acc, (input, output)| {
-                    assert_eq!(*input - acc as f32, 0.0);
-                    assert_eq!(*output, 0.0);
-                    acc + 1
-                });
+            input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
+                test_util::assert_f32_equal(*input, acc as f32);
+                test_util::assert_f32_zero(*output);
+                acc + 1
+            });
         }
     }
 
@@ -534,15 +532,15 @@ mod tests {
 
         let mut iter = buffer.zip();
         if let Some((observed_in1, observed_out1)) = iter.next() {
-            assert_eq!(1.0, observed_in1[0]);
-            assert_eq!(3.0, observed_out1[0]);
+            test_util::assert_f32_equal(observed_in1[0], 1.0);
+            test_util::assert_f32_equal(observed_out1[0], 3.0);
         } else {
             unreachable!();
         }
 
         if let Some((observed_in2, observed_out2)) = iter.next() {
-            assert_eq!(2.0, observed_in2[0]);
-            assert_eq!(4.0, observed_out2[0]);
+            test_util::assert_f32_equal(observed_in2[0], 2.0);
+            test_util::assert_f32_equal(observed_out2[0], 4.0);
         } else {
             unreachable!();
         }
@@ -568,15 +566,15 @@ mod tests {
         let mut iter = buffer.zip();
 
         if let Some((observed_in1, observed_out1)) = iter.next() {
-            assert_eq!(1.0, observed_in1[0]);
-            assert_eq!(4.0, observed_out1[0]);
+            test_util::assert_f32_equal(observed_in1[0], 1.0);
+            test_util::assert_f32_equal(observed_out1[0], 4.0);
         } else {
             unreachable!();
         }
 
         if let Some((observed_in2, observed_out2)) = iter.next() {
-            assert_eq!(2.0, observed_in2[0]);
-            assert_eq!(5.0, observed_out2[0]);
+            test_util::assert_f32_equal(observed_in2[0], 2.0);
+            test_util::assert_f32_equal(observed_out2[0], 5.0);
         } else {
             unreachable!();
         }
@@ -598,14 +596,11 @@ mod tests {
         let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input
-                .into_iter()
-                .zip(output.into_iter())
-                .fold(0, |acc, (input, output)| {
-                    assert_eq!(*input - acc as f32, 0.0);
-                    assert_eq!(*output, 0.0);
-                    acc + 1
-                });
+            input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
+                test_util::assert_f32_equal(*input, acc as f32);
+                test_util::assert_f32_zero(*output);
+                acc + 1
+            });
         }
     }
 }

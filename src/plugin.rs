@@ -406,6 +406,8 @@ pub enum CanDo {
 }
 
 impl CanDo {
+    // TODO: either rename this function or implement FromStr
+    #![allow(clippy::should_implement_trait)]
     /// Converts a string to a `CanDo` instance. Any given string that does not match the predefined
     /// values will return a `CanDo::Other` value.
     pub fn from_str(s: &str) -> CanDo {
@@ -596,7 +598,7 @@ pub trait Plugin {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
-            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+            for (in_frame, out_frame) in input.iter().zip(output.iter_mut()) {
                 *out_frame = *in_frame;
             }
         }
@@ -637,7 +639,7 @@ pub trait Plugin {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
-            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+            for (in_frame, out_frame) in input.iter().zip(output.iter_mut()) {
                 *out_frame = *in_frame;
             }
         }
@@ -1024,7 +1026,7 @@ mod tests {
                     match opcode {
                         OpCode::Automate => {
                             assert_eq!(index, 123);
-                            assert_eq!(opt, 12.3);
+                            assert!((opt-12.3).abs() < std::f32::EPSILON);
                             0
                         }
                         OpCode::Version => 2400,

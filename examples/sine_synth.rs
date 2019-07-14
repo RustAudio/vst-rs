@@ -91,10 +91,9 @@ impl Plugin for SineSynth {
         }
     }
 
-    // Supresses warning about match statment only having one arm
     #[allow(unknown_lints)]
     #[allow(unused_variables)]
-    #[allow(single_match)]
+    #[allow(clippy::single_match)]
     fn process_events(&mut self, events: &Events) {
         for event in events.events() {
             match event {
@@ -116,8 +115,8 @@ impl Plugin for SineSynth {
         let per_sample = self.time_per_sample();
         let mut output_sample;
         for sample_idx in 0..samples {
-            let mut time = self.time;
-            let mut note_duration = self.note_duration;
+            let time = self.time;
+            let note_duration = self.note_duration;
             if let Some(current_note) = self.note {
                 let signal = (time * midi_pitch_to_freq(current_note) * TAU).sin();
 

@@ -69,7 +69,7 @@ pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
 /// String will be cut at `max` characters.
 fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
     unsafe {
-        use libc::{c_void, memcpy, memset};
+        use libc::{memcpy, memset};
         use std::cmp::min;
 
         let dst = dst as *mut c_void;

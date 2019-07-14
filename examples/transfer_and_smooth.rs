@@ -75,7 +75,7 @@ impl Plugin for MyPlugin {
 
             name: "transfer_and_smooth".to_string(),
             vendor: "Loonies".to_string(),
-            unique_id: 0x500007,
+            unique_id: 0x0050_0007,
             version: 100,
 
             ..Info::default()
