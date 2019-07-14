@@ -123,7 +123,7 @@ impl Plugin for DimensionExpander {
     }
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
-        let (inputs, mut outputs) = buffer.split();
+        let (inputs, outputs) = buffer.split();
 
         // Assume 2 channels
         if inputs.len() < 2 || outputs.len() < 2 {
