@@ -111,7 +111,7 @@ impl Plugin for SineSynth {
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let samples = buffer.samples();
-        let (_, outputs) = buffer.split();
+        let (_, mut outputs) = buffer.split();
         let output_count = outputs.len();
         let per_sample = self.time_per_sample();
         let mut output_sample;
