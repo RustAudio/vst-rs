@@ -1,9 +1,8 @@
 //! Plugin specific structures.
 
+use std::os::raw::c_void;
 use std::ptr;
 use std::sync::Arc;
-
-use std::os::raw::c_void;
 
 use api;
 use api::consts::VST_MAGIC;
@@ -406,6 +405,8 @@ pub enum CanDo {
 }
 
 impl CanDo {
+    // TODO: implement FromStr
+    #![allow(clippy::should_implement_trait)]
     /// Converts a string to a `CanDo` instance. Any given string that does not match the predefined
     /// values will return a `CanDo::Other` value.
     pub fn from_str(s: &str) -> CanDo {
@@ -596,7 +597,7 @@ pub trait Plugin {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
-            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+            for (in_frame, out_frame) in input.iter().zip(output.iter_mut()) {
                 *out_frame = *in_frame;
             }
         }
@@ -637,7 +638,7 @@ pub trait Plugin {
         // For each input and output
         for (input, output) in buffer.zip() {
             // For each input sample and output sample in buffer
-            for (in_frame, out_frame) in input.into_iter().zip(output.into_iter()) {
+            for (in_frame, out_frame) in input.iter().zip(output.iter_mut()) {
                 *out_frame = *in_frame;
             }
         }
