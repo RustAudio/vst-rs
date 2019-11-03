@@ -182,7 +182,6 @@ mod tests {
 
         // Verify final values
         #[allow(clippy::float_cmp)]
-        #[allow(clippy::needless_range_loop)]
         for p in 0..PARAMETERS {
             assert!((0..THREADS).any(|t| results[t][p] == values[p]));
         }
