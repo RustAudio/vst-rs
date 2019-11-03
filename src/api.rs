@@ -2,8 +2,8 @@
 
 use std::os::raw::c_void;
 
-use plugin::Plugin;
 use self::consts::*;
+use plugin::Plugin;
 use std::marker::PhantomData;
 
 /// Constant values
@@ -18,8 +18,7 @@ pub mod consts {
     pub const MAX_VENDOR_STR_LEN: usize = 64;
 
     /// VST plugins are identified by a magic number. This corresponds to 0x56737450.
-    pub const VST_MAGIC: i32 = ('V' as i32) << 24 | ('s' as i32) << 16 | ('t' as i32) << 8 |
-        ('P' as i32);
+    pub const VST_MAGIC: i32 = ('V' as i32) << 24 | ('s' as i32) << 16 | ('t' as i32) << 8 | ('P' as i32);
 }
 
 /// `VSTPluginMain` function signature.
@@ -27,34 +26,19 @@ pub type PluginMain = fn(callback: HostCallbackProc) -> *mut AEffect;
 
 /// Host callback function passed to plugin.
 /// Can be used to query host information from plugin side.
-pub type HostCallbackProc = fn(effect: *mut AEffect,
-                               opcode: i32,
-                               index: i32,
-                               value: isize,
-                               ptr: *mut c_void,
-                               opt: f32)
-                               -> isize;
+pub type HostCallbackProc =
+    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Dispatcher function used to process opcodes. Called by host.
-pub type DispatcherProc = fn(effect: *mut AEffect,
-                             opcode: i32,
-                             index: i32,
-                             value: isize,
-                             ptr: *mut c_void,
-                             opt: f32)
-                             -> isize;
+pub type DispatcherProc =
+    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
-pub type ProcessProc = fn(effect: *mut AEffect,
-                          inputs: *const *const f32,
-                          outputs: *mut *mut f32,
-                          sample_frames: i32);
+pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
 
 /// Process function used to process 64 bit floating point samples. Called by host.
-pub type ProcessProcF64 = fn(effect: *mut AEffect,
-                             inputs: *const *const f64,
-                             outputs: *mut *mut f64,
-                             sample_frames: i32);
+pub type ProcessProcF64 =
+    fn(effect: *mut AEffect, inputs: *const *const f64, outputs: *mut *mut f64, sample_frames: i32);
 
 /// Callback function used to set parameter values. Called by host.
 pub type SetParameterProc = fn(effect: *mut AEffect, index: i32, parameter: f32);
@@ -475,7 +459,7 @@ impl Events {
         EventIterator {
             current: ptr,
             end: unsafe { ptr.offset(self.num_events as isize) },
-            _marker: PhantomData
+            _marker: PhantomData,
         }
     }
 }
@@ -693,7 +677,7 @@ pub struct TimeInfo {
 
     /// Cycle Start (left locator), in Quarter Note
     pub cycle_start_pos: f64,
-    
+
     /// Cycle End (right locator), in Quarter Note
     pub cycle_end_pos: f64,
 
@@ -714,7 +698,7 @@ pub struct TimeInfo {
     pub samples_to_next_clock: i32,
 
     /// See `TimeInfoFlags`
-    pub flags: i32
+    pub flags: i32,
 }
 
 #[repr(i32)]
@@ -785,7 +769,7 @@ bitflags! {
     }
 }
 
-bitflags!{
+bitflags! {
     /// Cross platform modifier key flags.
     pub struct ModifierKey: u8 {
         /// Shift key.
@@ -842,5 +826,103 @@ bitflags! {
         const SMPTE_VALID = 1 << 14;
         /// Set if TimeInfo::samples_to_next_clock is valid.
         const VST_CLOCK_VALID = 1 << 15;
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::event;
+    use super::*;
+    use std::mem;
+
+    // This container is used because we have to store somewhere the events
+    // that are pointed to by raw pointers in the events object. We heap allocate
+    // the event so the pointer in events stays consistent when the container is moved.
+    pub struct EventContainer {
+        stored_event: Box<Event>,
+        pub events: Events,
+    }
+
+    // A convenience method which creates an api::Events object representing a midi event.
+    // This represents code that might be found in a VST host using this API.
+    fn encode_midi_message_as_events(message: [u8; 3]) -> EventContainer {
+        let midi_event: MidiEvent = MidiEvent {
+            event_type: EventType::Midi,
+            byte_size: mem::size_of::<MidiEvent>() as i32,
+            delta_frames: 0,
+            flags: 0,
+            note_length: 0,
+            note_offset: 0,
+            midi_data: [message[0], message[1], message[2]],
+            _midi_reserved: 0,
+            detune: 0,
+            note_off_velocity: 0,
+            _reserved1: 0,
+            _reserved2: 0,
+        };
+        let mut event: Event = unsafe { std::mem::transmute(midi_event) };
+        event.event_type = EventType::Midi;
+
+        let events = Events {
+            num_events: 1,
+            _reserved: 0,
+            events: [&mut event, &mut event], // Second one is a dummy
+        };
+        let mut ec = EventContainer {
+            stored_event: Box::new(event),
+            events,
+        };
+        ec.events.events[0] = &mut *(ec.stored_event); // Overwrite ptrs, since we moved the event into ec
+        ec
+    }
+
+    #[test]
+    fn encode_and_decode_gives_back_original_message() {
+        let message: [u8; 3] = [35, 16, 22];
+        let encoded = encode_midi_message_as_events(message);
+        assert_eq!(encoded.events.num_events, 1);
+        assert_eq!(encoded.events.events.len(), 2);
+        let e_vec: Vec<event::Event> = encoded.events.events().collect();
+        assert_eq!(e_vec.len(), 1);
+
+        match e_vec[0] {
+            event::Event::Midi(event::MidiEvent { data, .. }) => {
+                assert_eq!(data, message);
+            }
+            _ => {
+                panic!("Not a midi event!");
+            }
+        };
+    }
+
+    // This is a regression test for a bug fixed in PR #93
+    // We check here that calling events() on an api::Events object
+    // does not mutate the underlying events.
+    #[test]
+    fn message_survives_calling_events() {
+        let message: [u8; 3] = [35, 16, 22];
+        let encoded = encode_midi_message_as_events(message);
+
+        for e in encoded.events.events() {
+            match e {
+                event::Event::Midi(event::MidiEvent { data, .. }) => {
+                    assert_eq!(data, message);
+                }
+                _ => {
+                    panic!("Not a midi event!");
+                }
+            }
+        }
+
+        for e in encoded.events.events() {
+            match e {
+                event::Event::Midi(event::MidiEvent { data, .. }) => {
+                    assert_eq!(data, message);
+                }
+                _ => {
+                    panic!("Not a midi event!"); // FAILS here!
+                }
+            }
+        }
     }
 }

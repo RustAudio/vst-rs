@@ -3,21 +3,21 @@
 use num_traits::Float;
 
 use std::cell::UnsafeCell;
+use std::error::Error;
+use std::ffi::CString;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use std::error::Error;
 use std::{fmt, mem, ptr, slice};
-use std::ffi::CString;
 
 use libloading::Library;
 use std::os::raw::c_void;
 
-use interfaces;
-use plugin::{self, Plugin, PluginParameters, Info, Category};
-use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use api::consts::*;
+use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
+use interfaces;
+use plugin::{self, Category, Info, Plugin, PluginParameters};
 
 #[repr(usize)]
 #[derive(Clone, Copy, Debug)]
@@ -292,7 +292,6 @@ impl Drop for PluginInstance {
     }
 }
 
-
 impl<T: Host> PluginLoader<T> {
     /// Load a plugin at the given path with the given host.
     ///
@@ -395,7 +394,9 @@ impl PluginInstance {
     fn new(effect: *mut AEffect, lib: Arc<Library>) -> PluginInstance {
         use plugin::OpCode as op;
 
-        let params = Arc::new(PluginParametersInstance { effect: UnsafeCell::new(effect) });
+        let params = Arc::new(PluginParametersInstance {
+            effect: UnsafeCell::new(effect),
+        });
         let mut plug = PluginInstance {
             params,
             lib,
@@ -439,14 +440,7 @@ trait Dispatch {
     fn get_effect(&self) -> *mut AEffect;
 
     /// Send a dispatch message to the plugin.
-    fn dispatch(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        ptr: *mut c_void,
-        opt: f32,
-    ) -> isize {
+    fn dispatch(&self, opcode: plugin::OpCode, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         let dispatcher = unsafe { (*self.get_effect()).dispatcher };
         if (dispatcher as *mut u8).is_null() {
             panic!("Plugin was not loaded correctly.");
@@ -460,36 +454,16 @@ trait Dispatch {
     }
 
     /// Like `dispatch`, except takes a `&str` to send via `ptr`.
-    fn write_string(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        string: &str,
-        opt: f32,
-    ) -> isize {
+    fn write_string(&self, opcode: plugin::OpCode, index: i32, value: isize, string: &str, opt: f32) -> isize {
         let string = CString::new(string).expect("Invalid string data");
-        self.dispatch(
-            opcode,
-            index,
-            value,
-            string.as_bytes().as_ptr() as *mut c_void,
-            opt,
-        )
+        self.dispatch(opcode, index, value, string.as_bytes().as_ptr() as *mut c_void, opt)
     }
 
     fn read_string(&self, opcode: plugin::OpCode, max: usize) -> String {
         self.read_string_param(opcode, 0, 0, 0.0, max)
     }
 
-    fn read_string_param(
-        &self,
-        opcode: plugin::OpCode,
-        index: i32,
-        value: isize,
-        opt: f32,
-        max: usize,
-    ) -> String {
+    fn read_string_param(&self, opcode: plugin::OpCode, index: i32, value: isize, opt: f32, max: usize) -> String {
         let mut buf = vec![0; max];
         self.dispatch(opcode, index, value, buf.as_mut_ptr() as *mut c_void, opt);
         String::from_utf8_lossy(&buf)
@@ -520,21 +494,13 @@ impl Plugin for PluginInstance {
         self.opcode(plugin::OpCode::Initialize);
     }
 
-
     fn set_sample_rate(&mut self, rate: f32) {
         self.dispatch(plugin::OpCode::SetSampleRate, 0, 0, ptr::null_mut(), rate);
     }
 
     fn set_block_size(&mut self, size: i64) {
-        self.dispatch(
-            plugin::OpCode::SetBlockSize,
-            0,
-            size as isize,
-            ptr::null_mut(),
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::SetBlockSize, 0, size as isize, ptr::null_mut(), 0.0);
     }
-
 
     fn resume(&mut self) {
         self.dispatch(plugin::OpCode::StateChanged, 0, 1, ptr::null_mut(), 0.0);
@@ -544,11 +510,9 @@ impl Plugin for PluginInstance {
         self.dispatch(plugin::OpCode::StateChanged, 0, 0, ptr::null_mut(), 0.0);
     }
 
-
     fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         self.dispatch(plugin::OpCode::VendorSpecific, index, value, ptr, opt)
     }
-
 
     fn can_do(&self, can_do: plugin::CanDo) -> Supported {
         let s: String = can_do.into();
@@ -559,7 +523,6 @@ impl Plugin for PluginInstance {
     fn get_tail_size(&self) -> isize {
         self.opcode(plugin::OpCode::GetTailSize)
     }
-
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         if buffer.input_count() < self.info.inputs as usize {
@@ -596,15 +559,8 @@ impl Plugin for PluginInstance {
     }
 
     fn process_events(&mut self, events: &api::Events) {
-        self.dispatch(
-            plugin::OpCode::ProcessEvents,
-            0,
-            0,
-            events as *const _ as *mut _,
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::ProcessEvents, 0, 0, events as *const _ as *mut _, 0.0);
     }
-
 
     fn get_input_info(&self, input: i32) -> ChannelInfo {
         let mut props = unsafe { mem::uninitialized() };
@@ -624,7 +580,6 @@ impl Plugin for PluginInstance {
         ChannelInfo::from(props)
     }
 
-
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::clone(&self.params) as Arc<dyn PluginParameters>
     }
@@ -632,13 +587,7 @@ impl Plugin for PluginInstance {
 
 impl PluginParameters for PluginParametersInstance {
     fn change_preset(&self, preset: i32) {
-        self.dispatch(
-            plugin::OpCode::ChangePreset,
-            0,
-            preset as isize,
-            ptr::null_mut(),
-            0.0,
-        );
+        self.dispatch(plugin::OpCode::ChangePreset, 0, preset as isize, ptr::null_mut(), 0.0);
     }
 
     fn get_preset_num(&self) -> i32 {
@@ -650,44 +599,19 @@ impl PluginParameters for PluginParametersInstance {
     }
 
     fn get_preset_name(&self, preset: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetPresetName,
-            preset,
-            0,
-            0.0,
-            MAX_PRESET_NAME_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetPresetName, preset, 0, 0.0, MAX_PRESET_NAME_LEN)
     }
 
-
     fn get_parameter_label(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterLabel,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterLabel, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter_text(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterDisplay,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterDisplay, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter_name(&self, index: i32) -> String {
-        self.read_string_param(
-            plugin::OpCode::GetParameterName,
-            index,
-            0,
-            0.0,
-            MAX_PARAM_STR_LEN,
-        )
+        self.read_string_param(plugin::OpCode::GetParameterName, index, 0, 0.0, MAX_PARAM_STR_LEN)
     }
 
     fn get_parameter(&self, index: i32) -> f32 {
@@ -699,19 +623,12 @@ impl PluginParameters for PluginParametersInstance {
     }
 
     fn can_be_automated(&self, index: i32) -> bool {
-        self.dispatch(
-            plugin::OpCode::CanBeAutomated,
-            index,
-            0,
-            ptr::null_mut(),
-            0.0,
-        ) > 0
+        self.dispatch(plugin::OpCode::CanBeAutomated, index, 0, ptr::null_mut(), 0.0) > 0
     }
 
     fn string_to_parameter(&self, index: i32, text: String) -> bool {
         self.write_string(plugin::OpCode::StringToParameter, index, 0, &text, 0.0) > 0
     }
-
 
     // TODO: Editor
 
@@ -765,11 +682,11 @@ impl PluginParameters for PluginParametersInstance {
 }
 
 /// Used for constructing `AudioBuffer` instances on the host.
-/// 
+///
 /// This struct contains all necessary allocations for an `AudioBuffer` apart
 /// from the actual sample arrays. This way, the inner processing loop can
 /// be allocation free even if `AudioBuffer` instances are repeatedly created.
-/// 
+///
 /// ```rust
 /// # use vst::host::HostBuffer;
 /// # use vst::plugin::Plugin;
@@ -802,13 +719,16 @@ impl<T: Float> HostBuffer<T> {
     }
 
     /// Bind sample arrays to the `HostBuffer` to create an `AudioBuffer` to pass to a plugin.
-    /// 
+    ///
     /// # Panics
     /// This function will panic if more inputs or outputs are supplied than the `HostBuffer`
     /// was created for, or if the sample arrays do not all have the same length.
-    pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O])
-        -> AudioBuffer<'a, T>
-        where I: AsRef<[T]>, O: AsMut<[T]>, I: 'a, O: 'a
+    pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O]) -> AudioBuffer<'a, T>
+    where
+        I: AsRef<[T]>,
+        O: AsMut<[T]>,
+        I: 'a,
+        O: 'a,
     {
         // Check that number of desired inputs and outputs fit in allocation
         if input_arrays.len() > self.inputs.len() {
@@ -824,8 +744,10 @@ impl<T: Float> HostBuffer<T> {
             self.inputs[i] = input.as_ptr();
             match length {
                 None => length = Some(input.len()),
-                Some(old_length) => if input.len() != old_length {
-                    panic!("Mismatching lengths of input arrays");
+                Some(old_length) => {
+                    if input.len() != old_length {
+                        panic!("Mismatching lengths of input arrays");
+                    }
                 }
             }
         }
@@ -833,8 +755,10 @@ impl<T: Float> HostBuffer<T> {
             self.outputs[i] = output.as_mut_ptr();
             match length {
                 None => length = Some(output.len()),
-                Some(old_length) => if output.len() != old_length {
-                    panic!("Mismatching lengths of output arrays");
+                Some(old_length) => {
+                    if output.len() != old_length {
+                        panic!("Mismatching lengths of output arrays");
+                    }
                 }
             }
         }
@@ -847,7 +771,8 @@ impl<T: Float> HostBuffer<T> {
                 output_arrays.len(),
                 self.inputs.as_ptr(),
                 self.outputs.as_mut_ptr(),
-                length)
+                length,
+            )
         }
     }
 
