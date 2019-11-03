@@ -55,7 +55,7 @@ impl Default for LadderParameters {
             pole_value: AtomicFloat::new(1.),
             drive: AtomicFloat::new(0.),
             sample_rate: AtomicFloat::new(44100.),
-            g: AtomicFloat::new(0.071_358_68),
+            g: AtomicFloat::new(0.07135868),
         }
     }
 }

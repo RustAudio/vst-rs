@@ -1,9 +1,8 @@
 //! Plugin specific structures.
 
+use std::os::raw::c_void;
 use std::ptr;
 use std::sync::Arc;
-
-use std::os::raw::c_void;
 
 use api;
 use api::consts::VST_MAGIC;
@@ -406,7 +405,7 @@ pub enum CanDo {
 }
 
 impl CanDo {
-    // TODO: either rename this function or implement FromStr
+    // TODO: implement FromStr
     #![allow(clippy::should_implement_trait)]
     /// Converts a string to a `CanDo` instance. Any given string that does not match the predefined
     /// values will return a `CanDo::Other` value.
