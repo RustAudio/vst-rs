@@ -481,7 +481,6 @@ impl SendEventBuffer {
 #[cfg(test)]
 mod tests {
     use buffer::AudioBuffer;
-    use util::test_util;
 
     /// Size of buffers used in tests.
     const SIZE: usize = 1024;
@@ -494,6 +493,7 @@ mod tests {
     /// and the output channels are just 0.
     /// This test assures that when the buffers are zipped together,
     /// the input values do not change.
+    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip() {
         let in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
@@ -508,8 +508,8 @@ mod tests {
 
         for (input, output) in buffer.zip() {
             input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
-                test_util::assert_f32_equal(*input, acc as f32);
-                test_util::assert_f32_zero(*output);
+                assert_eq!(*input, acc as f32);
+                assert_eq!(*output, 0.0);
                 acc + 1
             });
         }
@@ -517,6 +517,7 @@ mod tests {
 
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of inputs when this is lower than the number of outputs.
+    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip_fewer_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
@@ -532,15 +533,15 @@ mod tests {
 
         let mut iter = buffer.zip();
         if let Some((observed_in1, observed_out1)) = iter.next() {
-            test_util::assert_f32_equal(observed_in1[0], 1.0);
-            test_util::assert_f32_equal(observed_out1[0], 3.0);
+            assert_eq!(1.0, observed_in1[0]);
+            assert_eq!(3.0, observed_out1[0]);
         } else {
             unreachable!();
         }
 
         if let Some((observed_in2, observed_out2)) = iter.next() {
-            test_util::assert_f32_equal(observed_in2[0], 2.0);
-            test_util::assert_f32_equal(observed_out2[0], 4.0);
+            assert_eq!(2.0, observed_in2[0]);
+            assert_eq!(4.0, observed_out2[0]);
         } else {
             unreachable!();
         }
@@ -550,6 +551,7 @@ mod tests {
 
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of outputs when this is lower than the number of inputs.
+    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip_more_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
@@ -566,15 +568,15 @@ mod tests {
         let mut iter = buffer.zip();
 
         if let Some((observed_in1, observed_out1)) = iter.next() {
-            test_util::assert_f32_equal(observed_in1[0], 1.0);
-            test_util::assert_f32_equal(observed_out1[0], 4.0);
+            assert_eq!(1.0, observed_in1[0]);
+            assert_eq!(4.0, observed_out1[0]);
         } else {
             unreachable!();
         }
 
         if let Some((observed_in2, observed_out2)) = iter.next() {
-            test_util::assert_f32_equal(observed_in2[0], 2.0);
-            test_util::assert_f32_equal(observed_out2[0], 5.0);
+            assert_eq!(2.0, observed_in2[0]);
+            assert_eq!(5.0, observed_out2[0]);
         } else {
             unreachable!();
         }
@@ -583,6 +585,7 @@ mod tests {
     }
 
     /// Test that creating buffers from raw pointers works.
+    #[allow(clippy::float_cmp)]
     #[test]
     fn from_raw() {
         let in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
@@ -597,8 +600,8 @@ mod tests {
 
         for (input, output) in buffer.zip() {
             input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
-                test_util::assert_f32_equal(*input, acc as f32);
-                test_util::assert_f32_zero(*output);
+                assert_eq!(*input, acc as f32);
+                assert_eq!(*output, 0.0);
                 acc + 1
             });
         }
