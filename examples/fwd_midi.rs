@@ -39,6 +39,7 @@ impl Plugin for MyPlugin {
 
     fn process_events(&mut self, events: &api::Events) {
         for e in events.events() {
+            #[allow(clippy::single_match)]
             match e {
                 Event::Midi(e) => self.events.push(e),
                 _ => (),

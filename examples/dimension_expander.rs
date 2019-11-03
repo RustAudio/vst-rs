@@ -70,7 +70,7 @@ impl DimensionExpander {
         }
 
         DimensionExpander {
-            buffers: buffers,
+            buffers,
             params: Arc::new(DimensionExpanderParameters {
                 dry_wet: AtomicFloat::new(dry_wet),
                 size: AtomicFloat::new(size),
@@ -112,7 +112,7 @@ impl Plugin for DimensionExpander {
             name: "Dimension Expander".to_string(),
             vendor: "overdrivenpotato".to_string(),
             unique_id: 243723071,
-            version: 0001,
+            version: 1,
             inputs: 2,
             outputs: 2,
             parameters: 2,
