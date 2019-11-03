@@ -1,5 +1,5 @@
 use std::mem::size_of;
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::{AtomicU32, AtomicUsize, Ordering};
 
 const USIZE_BITS: usize = size_of::<usize>() * 8;
 
@@ -13,7 +13,7 @@ fn word_and_bit(index: usize) -> (usize, usize) {
 #[derive(Default)]
 pub struct ParameterTransfer {
     // TODO: Change values to AtomicU32 when stabilized (expected in 1.34).
-    values: Vec<AtomicUsize>,
+    values: Vec<AtomicU32>,
     changed: Vec<AtomicUsize>,
 }
 
@@ -22,7 +22,7 @@ impl ParameterTransfer {
     pub fn new(parameter_count: usize) -> Self {
         let bit_words = (parameter_count + USIZE_BITS - 1) / USIZE_BITS;
         ParameterTransfer {
-            values: (0..parameter_count).map(|_| AtomicUsize::new(0)).collect(),
+            values: (0..parameter_count).map(|_| AtomicU32::new(0)).collect(),
             changed: (0..bit_words).map(|_| AtomicUsize::new(0)).collect(),
         }
     }
@@ -31,13 +31,13 @@ impl ParameterTransfer {
     /// it as changed.
     pub fn set_parameter(&self, index: usize, value: f32) {
         let (word, bit) = word_and_bit(index);
-        self.values[index].store(value.to_bits() as usize, Ordering::Relaxed);
+        self.values[index].store(value.to_bits(), Ordering::Relaxed);
         self.changed[word].fetch_or(bit, Ordering::AcqRel);
     }
 
     /// Get the current value of the parameter with index `index`.
     pub fn get_parameter(&self, index: usize) -> f32 {
-        f32::from_bits(self.values[index].load(Ordering::Relaxed) as u32)
+        f32::from_bits(self.values[index].load(Ordering::Relaxed))
     }
 
     /// Iterate over all parameters marked as changed. If `acquire` is `true`,
