@@ -39,7 +39,7 @@ libloading = "0.5"
 
 [dev-dependencies]
 time = "0.1"
-rand = "0.6.5"
+rand = "0.7"
 
 [[example]]
 name = "dimension_expander"
