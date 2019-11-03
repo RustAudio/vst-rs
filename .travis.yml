@@ -11,7 +11,7 @@ jobs:
         - cargo build --verbose
         - cargo test --verbose
         - cargo fmt --all -- --check
-        - cargo +stable clippy --all-targets --all-features -- -D warnings
+        - cargo +stable clippy --all-targets --all-features -- -A clippy::unreadable_literal -D warnings
     - stage: test
       os: osx
       before_script:
@@ -22,7 +22,7 @@ jobs:
         - cargo build --verbose
         - cargo test --verbose
         - cargo fmt --all -- --check
-        - cargo +stable clippy --all-targets --all-features -- -D warnings
+        - cargo +stable clippy --all-targets --all-features -- -A clippy::unreadable_literal -D warnings
         
     # deploy crates and documentation conditionally
     # deploy on cargo if tagged master release

@@ -60,7 +60,7 @@ impl Plugin for GainEffect {
         Info {
             name: "Gain Effect in Rust".to_string(),
             vendor: "Rust DSP".to_string(),
-            unique_id: 243_723_072,
+            unique_id: 243723072,
             version: 1,
             inputs: 2,
             outputs: 2,
