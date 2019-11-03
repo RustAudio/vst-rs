@@ -725,10 +725,8 @@ impl<T: Float> HostBuffer<T> {
     /// was created for, or if the sample arrays do not all have the same length.
     pub fn bind<'a, I, O>(&'a mut self, input_arrays: &[I], output_arrays: &mut [O]) -> AudioBuffer<'a, T>
     where
-        I: AsRef<[T]>,
-        O: AsMut<[T]>,
-        I: 'a,
-        O: 'a,
+        I: AsRef<[T]> + 'a,
+        O: AsMut<[T]> + 'a,
     {
         // Check that number of desired inputs and outputs fit in allocation
         if input_arrays.len() > self.inputs.len() {
@@ -840,7 +838,7 @@ mod tests {
 
     #[test]
     fn host_buffer() {
-        const LENGTH: usize = 1000000;
+        const LENGTH: usize = 1_000_000;
         let mut host_buffer: HostBuffer<f32> = HostBuffer::new(2, 2);
         let input_left = vec![1.0; LENGTH];
         let input_right = vec![1.0; LENGTH];

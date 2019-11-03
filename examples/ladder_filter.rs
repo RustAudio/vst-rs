@@ -55,7 +55,7 @@ impl Default for LadderParameters {
             pole_value: AtomicFloat::new(1.),
             drive: AtomicFloat::new(0.),
             sample_rate: AtomicFloat::new(44100.),
-            g: AtomicFloat::new(0.07135868087),
+            g: AtomicFloat::new(0.07135868),
         }
     }
 }
@@ -136,7 +136,7 @@ impl LadderParameters {
     }
     // returns the value used to set cutoff. for get_parameter function
     pub fn get_cutoff(&self) -> f32 {
-        1. + 0.1701297528 * (0.00005 * self.cutoff.get()).ln()
+        1. + 0.17012975 * (0.00005 * self.cutoff.get()).ln()
     }
     pub fn set_poles(&self, value: f32) {
         self.pole_value.set(value);

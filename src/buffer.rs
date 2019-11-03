@@ -506,14 +506,11 @@ mod tests {
         let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input
-                .into_iter()
-                .zip(output.into_iter())
-                .fold(0, |acc, (input, output)| {
-                    assert_eq!(*input - acc as f32, 0.0);
-                    assert_eq!(*output, 0.0);
-                    acc + 1
-                });
+            input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
+                assert_eq!(*input, acc as f32);
+                assert_eq!(*output, 0.0);
+                acc + 1
+            });
         }
     }
 
@@ -598,14 +595,11 @@ mod tests {
         let mut buffer = unsafe { AudioBuffer::from_raw(2, 2, inputs.as_ptr(), outputs.as_mut_ptr(), SIZE) };
 
         for (input, output) in buffer.zip() {
-            input
-                .into_iter()
-                .zip(output.into_iter())
-                .fold(0, |acc, (input, output)| {
-                    assert_eq!(*input - acc as f32, 0.0);
-                    assert_eq!(*output, 0.0);
-                    acc + 1
-                });
+            input.iter().zip(output.iter_mut()).fold(0, |acc, (input, output)| {
+                assert_eq!(*input, acc as f32);
+                assert_eq!(*output, 0.0);
+                acc + 1
+            });
         }
     }
 }
