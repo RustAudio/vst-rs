@@ -82,10 +82,12 @@ impl<'pt> Iterator for ParameterTransferIterator<'pt> {
     fn next(&mut self) -> Option<(usize, f32)> {
         let bits = loop {
             if self.word == self.pt.changed.len() {
-                return None
+                return None;
             }
             let bits = self.pt.changed[self.word].load(Ordering::Acquire) & self.bit.wrapping_neg();
-            if bits != 0 { break bits; }
+            if bits != 0 {
+                break bits;
+            }
             self.word += 1;
             self.bit = 1;
         };
@@ -116,13 +118,13 @@ mod tests {
 
     use crate::util::ParameterTransfer;
 
-    use std::sync::Arc;
     use std::sync::mpsc::channel;
+    use std::sync::Arc;
     use std::thread;
     use std::time::Duration;
 
-    use self::rand::{Rng, SeedableRng};
     use self::rand::rngs::StdRng;
+    use self::rand::{Rng, SeedableRng};
 
     const THREADS: usize = 3;
     const PARAMETERS: usize = 1000;

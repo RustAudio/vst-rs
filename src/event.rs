@@ -27,7 +27,6 @@ pub enum Event<'a> {
     Deprecated(api::Event),
 }
 
-
 /// A midi event.
 ///
 /// These are sent to the plugin before `Plugin::processing()` or `Plugin::processing_f64()` is
@@ -114,8 +113,7 @@ impl<'a> From<api::Event> for Event<'a> {
                     // We can safely cast the event pointer to a `SysExEvent` pointer as
                     // event_type refers to a `SysEx` type.
                     #[allow(clippy::cast_ptr_alignment)]
-                    let event: &api::SysExEvent =
-                        &*(&event as *const api::Event as *const api::SysExEvent);
+                    let event: &api::SysExEvent = &*(&event as *const api::Event as *const api::SysExEvent);
                     slice::from_raw_parts(event.system_data, event.data_size as usize)
                 },
 
