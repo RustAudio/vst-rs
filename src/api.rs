@@ -828,3 +828,101 @@ bitflags! {
         const VST_CLOCK_VALID = 1 << 15;
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::super::event;
+    use super::*;
+    use std::mem;
+
+    // This container is used because we have to store somewhere the events
+    // that are pointed to by raw pointers in the events object. We heap allocate
+    // the event so the pointer in events stays consistent when the container is moved.
+    pub struct EventContainer {
+        stored_event: Box<Event>,
+        pub events: Events,
+    }
+
+    // A convenience method which creates an api::Events object representing a midi event.
+    // This represents code that might be found in a VST host using this API.
+    fn encode_midi_message_as_events(message: [u8; 3]) -> EventContainer {
+        let midi_event: MidiEvent = MidiEvent {
+            event_type: EventType::Midi,
+            byte_size: mem::size_of::<MidiEvent>() as i32,
+            delta_frames: 0,
+            flags: 0,
+            note_length: 0,
+            note_offset: 0,
+            midi_data: [message[0], message[1], message[2]],
+            _midi_reserved: 0,
+            detune: 0,
+            note_off_velocity: 0,
+            _reserved1: 0,
+            _reserved2: 0,
+        };
+        let mut event: Event = unsafe { std::mem::transmute(midi_event) };
+        event.event_type = EventType::Midi;
+
+        let events = Events {
+            num_events: 1,
+            _reserved: 0,
+            events: [&mut event, &mut event], // Second one is a dummy
+        };
+        let mut ec = EventContainer {
+            stored_event: Box::new(event),
+            events,
+        };
+        ec.events.events[0] = &mut *(ec.stored_event); // Overwrite ptrs, since we moved the event into ec
+        ec
+    }
+
+    #[test]
+    fn encode_and_decode_gives_back_original_message() {
+        let message: [u8; 3] = [35, 16, 22];
+        let encoded = encode_midi_message_as_events(message);
+        assert_eq!(encoded.events.num_events, 1);
+        assert_eq!(encoded.events.events.len(), 2);
+        let e_vec: Vec<event::Event> = encoded.events.events().collect();
+        assert_eq!(e_vec.len(), 1);
+
+        match e_vec[0] {
+            event::Event::Midi(event::MidiEvent { data, .. }) => {
+                assert_eq!(data, message);
+            }
+            _ => {
+                panic!("Not a midi event!");
+            }
+        };
+    }
+
+    // This is a regression test for a bug fixed in PR #93
+    // We check here that calling events() on an api::Events object
+    // does not mutate the underlying events.
+    #[test]
+    fn message_survives_calling_events() {
+        let message: [u8; 3] = [35, 16, 22];
+        let encoded = encode_midi_message_as_events(message);
+
+        for e in encoded.events.events() {
+            match e {
+                event::Event::Midi(event::MidiEvent { data, .. }) => {
+                    assert_eq!(data, message);
+                }
+                _ => {
+                    panic!("Not a midi event!");
+                }
+            }
+        }
+
+        for e in encoded.events.events() {
+            match e {
+                event::Event::Midi(event::MidiEvent { data, .. }) => {
+                    assert_eq!(data, message);
+                }
+                _ => {
+                    panic!("Not a midi event!"); // FAILS here!
+                }
+            }
+        }
+    }
+}
