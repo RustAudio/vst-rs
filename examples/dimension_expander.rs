@@ -122,7 +122,6 @@ impl Plugin for DimensionExpander {
         }
     }
 
-    #[allow(clippy::float_cmp)]
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let (inputs, outputs) = buffer.split();
 

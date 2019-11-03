@@ -1014,7 +1014,6 @@ mod tests {
             }
 
             #[allow(dead_code)]
-            #[allow(clippy::float_cmp)]
             fn instance() -> *mut AEffect {
                 fn host_callback(_effect: *mut AEffect,
                                  opcode: i32,

@@ -493,7 +493,6 @@ mod tests {
     /// and the output channels are just 0.
     /// This test assures that when the buffers are zipped together,
     /// the input values do not change.
-    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip() {
         let in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();
@@ -517,7 +516,6 @@ mod tests {
 
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of inputs when this is lower than the number of outputs.
-    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip_fewer_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
@@ -551,7 +549,6 @@ mod tests {
 
     // Test that the `zip()` method returns an iterator that gives `n` elements
     // where n is the number of outputs when this is lower than the number of inputs.
-    #[allow(clippy::float_cmp)]
     #[test]
     fn buffer_zip_more_inputs_than_outputs() {
         let in1 = vec![1.0; SIZE];
@@ -585,7 +582,6 @@ mod tests {
     }
 
     /// Test that creating buffers from raw pointers works.
-    #[allow(clippy::float_cmp)]
     #[test]
     fn from_raw() {
         let in1: Vec<f32> = (0..SIZE).map(|x| x as f32).collect();

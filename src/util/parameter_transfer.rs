@@ -181,7 +181,6 @@ mod tests {
         assert!(transfer.iterate(true).next().is_none());
 
         // Verify final values
-        #[allow(clippy::float_cmp)]
         for p in 0..PARAMETERS {
             assert!((0..THREADS).any(|t| results[t][p] == values[p]));
         }
