@@ -91,7 +91,6 @@ impl Plugin for SineSynth {
         }
     }
 
-    #[allow(unknown_lints)]
     #[allow(unused_variables)]
     #[allow(clippy::single_match)]
     fn process_events(&mut self, events: &Events) {

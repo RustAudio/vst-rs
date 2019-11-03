@@ -187,7 +187,9 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it
     // can be passed into the HostCallback `wrap` method. The AEffect is then updated after the vst
     // object is created so that the host still contains a raw pointer to the AEffect struct.
-    let effect = unsafe { Box::into_raw(Box::new(mem::zeroed::<AEffect>())) };
+    let effect = unsafe {
+        Box::into_raw(Box::new(mem::MaybeUninit::zeroed().assume_init()))
+    };
 
     let host = HostCallback::wrap(callback, effect);
     if host.vst_version() == 0 {
