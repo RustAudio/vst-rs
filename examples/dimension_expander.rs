@@ -122,6 +122,7 @@ impl Plugin for DimensionExpander {
         }
     }
 
+    #[allow(clippy::float_cmp)]
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         let (inputs, outputs) = buffer.split();
 
@@ -132,7 +133,7 @@ impl Plugin for DimensionExpander {
 
         // Resize if size changed
         let size = self.params.size.get();
-        if (size - self.old_size).abs() < std::f32::EPSILON {
+        if size != self.old_size {
             self.resize(size);
         }
 

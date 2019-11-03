@@ -181,9 +181,10 @@ mod tests {
         assert!(transfer.iterate(true).next().is_none());
 
         // Verify final values
+        #[allow(clippy::float_cmp)]
         #[allow(clippy::needless_range_loop)]
         for p in 0..PARAMETERS {
-            assert!((0..THREADS).any(|t| (results[t][p] - values[p]).abs() < std::f32::EPSILON));
+            assert!((0..THREADS).any(|t| results[t][p] == values[p]));
         }
     }
 }

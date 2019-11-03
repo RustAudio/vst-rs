@@ -1014,6 +1014,7 @@ mod tests {
             }
 
             #[allow(dead_code)]
+            #[allow(clippy::float_cmp)]
             fn instance() -> *mut AEffect {
                 fn host_callback(_effect: *mut AEffect,
                                  opcode: i32,
@@ -1026,7 +1027,7 @@ mod tests {
                     match opcode {
                         OpCode::Automate => {
                             assert_eq!(index, 123);
-                            assert!((opt-12.3).abs() < std::f32::EPSILON);
+                            assert_eq!(opt, 12.3);
                             0
                         }
                         OpCode::Version => 2400,
