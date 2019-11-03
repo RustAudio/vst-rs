@@ -1,4 +1,3 @@
-
 // This example illustrates how an existing plugin can be ported to the new,
 // thread-safe API with the help of the ParameterTransfer struct.
 // It shows how the parameter iteration feature of ParameterTransfer can be
@@ -79,7 +78,7 @@ impl Plugin for MyPlugin {
             unique_id: 0x500007,
             version: 100,
 
-            .. Info::default()
+            ..Info::default()
         }
     }
 

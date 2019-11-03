@@ -39,13 +39,17 @@ struct GainEffectParameters {
 // 0.5 means it's halfway up.
 impl Default for GainEffect {
     fn default() -> GainEffect {
-        GainEffect { params: Arc::new(GainEffectParameters::default()) }
+        GainEffect {
+            params: Arc::new(GainEffectParameters::default()),
+        }
     }
 }
 
 impl Default for GainEffectParameters {
     fn default() -> GainEffectParameters {
-        GainEffectParameters { amplitude: AtomicFloat::new(0.5) }
+        GainEffectParameters {
+            amplitude: AtomicFloat::new(0.5),
+        }
     }
 }
 
@@ -122,7 +126,8 @@ impl PluginParameters for GainEffectParameters {
         match index {
             0 => "Amplitude",
             _ => "",
-        }.to_string()
+        }
+        .to_string()
     }
 }
 
