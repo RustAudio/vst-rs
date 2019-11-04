@@ -1,3 +1,6 @@
+# TODO: `clippy::needless_range_loop` is currently buggy (https://github.com/rust-lang/rust-clippy/issues/3032)
+# Remove it from this file when that bug is resolved.
+
 language: rust
 jobs:
   include:
@@ -8,21 +11,21 @@ jobs:
         - rustup component add --toolchain stable clippy-preview || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
         - rustup component add rustfmt
       script:
-        - cargo +stable clippy
         - cargo build --verbose
         - cargo test --verbose
         - cargo fmt --all -- --check
-    - 
+        - cargo +stable clippy --all-targets --all-features -- -D warnings -A clippy::unreadable_literal -A clippy::needless_range_loop -A clippy::float_cmp
+    - stage: test
       os: osx
       before_script:
         - rustup toolchain install stable
         - rustup component add --toolchain stable clippy-preview || cargo install --git https://github.com/rust-lang/rust-clippy/ --force clippy
         - rustup component add rustfmt
       script:
-        - cargo +stable clippy
         - cargo build --verbose
         - cargo test --verbose
         - cargo fmt --all -- --check
+        - cargo +stable clippy --all-targets --all-features -- -D warnings -A clippy::unreadable_literal -A clippy::needless_range_loop -A clippy::float_cmp
         
     # deploy crates and documentation conditionally
     # deploy on cargo if tagged master release
