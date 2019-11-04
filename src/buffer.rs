@@ -223,7 +223,7 @@ impl<'a, T> Outputs<'a, T> {
     }
 
     /// Mutably access channel at the given index, unchecked
-    pub fn get_mut(&self, i: usize) -> &'a mut [T] {
+    pub fn get_mut(&mut self, i: usize) -> &'a mut [T] {
         unsafe { slice::from_raw_parts_mut(self.bufs[i], self.samples) }
     }
 
