@@ -9,13 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Handle `Opcode::GetEffectName` to resolve name display issues on some hosts (https://github.com/RustAudio/vst-rs/pull/89)
+- Handle `Opcode::GetEffectName` to resolve name display issues on some hosts ([#89](https://github.com/RustAudio/vst-rs/pull/89))
 
 ### Changed
 
-- Set params to be automatable by default (https://github.com/RustAudio/vst-rs/pull/99)
-- Updated README.md to reflect org and chat changes (https://github.com/RustAudio/vst-rs/pull/90,
-  https://github.com/RustAudio/vst-rs/pull/94)
+- Set params to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
+- Updated README.md to reflect org and chat changes
+([#90](https://github.com/RustAudio/vst-rs/pull/90),
+[#94](https://github.com/RustAudio/vst-rs/pull/94))
 
 ## 0.1.0
 
