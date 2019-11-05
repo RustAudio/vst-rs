@@ -141,7 +141,7 @@ impl<'a, T> Inputs<'a, T> {
         self.len() == 0
     }
 
-    /// Access channel at the given index, unchecked
+    /// Access channel at the given index
     pub fn get(&self, i: usize) -> &'a [T] {
         unsafe { slice::from_raw_parts(self.bufs[i], self.samples) }
     }
@@ -217,12 +217,12 @@ impl<'a, T> Outputs<'a, T> {
         self.len() == 0
     }
 
-    /// Access channel at the given index, unchecked
+    /// Access channel at the given index
     pub fn get(&self, i: usize) -> &'a [T] {
         unsafe { slice::from_raw_parts(self.bufs[i], self.samples) }
     }
 
-    /// Mutably access channel at the given index, unchecked
+    /// Mutably access channel at the given index
     pub fn get_mut(&mut self, i: usize) -> &'a mut [T] {
         unsafe { slice::from_raw_parts_mut(self.bufs[i], self.samples) }
     }
@@ -295,7 +295,9 @@ impl<'a, 'b, T: Sized> IntoIterator for &'b mut Outputs<'a, T> {
 
 use event::{Event, MidiEvent, SysExEvent};
 
-/// This is used as a placeholder to pre-allocate space for a fixed number of midi events in the re-useable `SendEventBuffer`, because `SysExEvent` is larger than `MidiEvent`, so either one can be stored in a `SysExEvent`.
+/// This is used as a placeholder to pre-allocate space for a fixed number of
+/// midi events in the re-useable `SendEventBuffer`, because `SysExEvent` is
+/// larger than `MidiEvent`, so either one can be stored in a `SysExEvent`.
 pub type PlaceholderEvent = api::SysExEvent;
 
 /// This trait is used by `SendEventBuffer::send_events` to accept iterators over midi events
