@@ -7,16 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 0.2.0 - Unreleased
 
-### Added
-
-- Handle `Opcode::GetEffectName` to resolve name display issues on some hosts ([#89](https://github.com/RustAudio/vst-rs/pull/89))
-
 ### Changed
 
-- Set params to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
+- Restructured `Plugin` API to make it thread safe. This is a breaking change, which will require most plugins to be updated. See [#49](https://github.com/RustAudio/vst-rs/pull/49) and [#65](https://github.com/RustAudio/vst-rs/pull/65) for the discussion.
+- Fixed a use-after-move bug in the event iterator ([#93](https://github.com/RustAudio/vst-rs/pull/93))
+- Set parameters to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
 - Updated README.md to reflect org and chat changes
 ([#90](https://github.com/RustAudio/vst-rs/pull/90),
 [#94](https://github.com/RustAudio/vst-rs/pull/94))
+
+### Added
+
+- Handle `Opcode::GetEffectName` to resolve name display issues on some hosts ([#89](https://github.com/RustAudio/vst-rs/pull/89))
+- More examples
 
 ## 0.1.0
 
