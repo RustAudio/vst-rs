@@ -4,7 +4,6 @@ use std::os::raw::c_void;
 
 use self::consts::*;
 use plugin::Plugin;
-use std::marker::PhantomData;
 
 /// Constant values
 #[allow(missing_docs)] // For obvious constants
@@ -405,7 +404,6 @@ pub struct Events {
 
 impl Events {
     #[inline]
-    #[allow(dead_code)]
     pub(crate) fn events_raw(&self) -> &[*const Event] {
         use std::slice;
         unsafe {
@@ -453,37 +451,8 @@ impl Events {
     /// # }
     /// ```
     #[inline]
-    pub fn events(&self) -> EventIterator {
-        let ptr = self.events.as_ptr() as *const *const Event;
-        EventIterator {
-            current: ptr,
-            end: unsafe { ptr.offset(self.num_events as isize) },
-            _marker: PhantomData,
-        }
-    }
-}
-
-/// An iterator over events, returned by `api::Events::events`
-pub struct EventIterator<'a> {
-    current: *const *const Event,
-    end: *const *const Event,
-    _marker: PhantomData<&'a Event>,
-}
-
-impl<'a> Iterator for EventIterator<'a> {
-    type Item = ::event::Event<'a>;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        if self.current == self.end {
-            None
-        } else {
-            let event = unsafe {
-                let e = **self.current;
-                self.current = self.current.offset(1);
-                e
-            };
-            Some(event.into())
-        }
+    pub fn events<'a>(&'a self) -> impl Iterator<Item = ::event::Event<'a>> {
+        self.events_raw().iter().map(|ptr| unsafe { **ptr }.into())
     }
 }
 
