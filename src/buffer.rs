@@ -448,6 +448,7 @@ impl SendEventBuffer {
 
     #[inline(always)]
     fn store_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T) {
+        #[allow(clippy::suspicious_map)]
         let count = events
             .into_iter()
             .zip(self.api_events.iter_mut())
