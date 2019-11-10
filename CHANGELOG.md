@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Restructured `Plugin` API to make it thread safe. This is a breaking change, which will require most plugins to be updated. See [#49](https://github.com/RustAudio/vst-rs/pull/49) and [#65](https://github.com/RustAudio/vst-rs/pull/65) for the discussion.
-- Fixed a use-after-move bug in the event iterator ([#93](https://github.com/RustAudio/vst-rs/pull/93))
+- **Breaking change:** Restructured `Plugin` API to make it thread safe ([#49](https://github.com/RustAudio/vst-rs/pull/49), [#65](https://github.com/RustAudio/vst-rs/pull/65))
+- Fixed a use-after-move bug in the event iterator ([#93](https://github.com/RustAudio/vst-rs/pull/93), [#111](https://github.com/RustAudio/vst-rs/pull/111))
 - Set parameters to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
 - Updated README.md to reflect org and chat changes
 ([#90](https://github.com/RustAudio/vst-rs/pull/90),
