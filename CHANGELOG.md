@@ -9,17 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking change:** Restructured `Plugin` API to make it thread safe ([#49](https://github.com/RustAudio/vst-rs/pull/49), [#65](https://github.com/RustAudio/vst-rs/pull/65))
-- Fixed a use-after-move bug in the event iterator ([#93](https://github.com/RustAudio/vst-rs/pull/93), [#111](https://github.com/RustAudio/vst-rs/pull/111))
+- **Major breaking change:** Restructured `Plugin` API to make it thread safe ([#65](https://github.com/RustAudio/vst-rs/pull/65))
+- Fixed a number of unsoundness issues in the `Outputs` API ([#67](https://github.com/RustAudio/vst-rs/pull/67), [#108](https://github.com/RustAudio/vst-rs/pull/108))
 - Set parameters to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
 - Updated README.md to reflect org and chat changes
 ([#90](https://github.com/RustAudio/vst-rs/pull/90),
 [#94](https://github.com/RustAudio/vst-rs/pull/94))
 
+### Fixed
+
+- Fixed a use-after-move bug in the event iterator ([#93](https://github.com/RustAudio/vst-rs/pull/93), [#111](https://github.com/RustAudio/vst-rs/pull/111))
+
 ### Added
 
 - Handle `Opcode::GetEffectName` to resolve name display issues on some hosts ([#89](https://github.com/RustAudio/vst-rs/pull/89))
-- More examples
+- More examples ([#65](https://github.com/RustAudio/vst-rs/pull/65), [#92](https://github.com/RustAudio/vst-rs/pull/92))
 
 ## 0.1.0
 
