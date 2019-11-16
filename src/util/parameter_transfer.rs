@@ -12,7 +12,6 @@ fn word_and_bit(index: usize) -> (usize, usize) {
 /// Supports efficient iteration over parameters that changed since last iteration.
 #[derive(Default)]
 pub struct ParameterTransfer {
-    // TODO: Change values to AtomicU32 when stabilized (expected in 1.34).
     values: Vec<AtomicU32>,
     changed: Vec<AtomicUsize>,
 }

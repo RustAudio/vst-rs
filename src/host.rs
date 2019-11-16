@@ -2,15 +2,15 @@
 
 use num_traits::Float;
 
+use libloading::Library;
 use std::cell::UnsafeCell;
 use std::error::Error;
 use std::ffi::CString;
+use std::mem::MaybeUninit;
+use std::os::raw::c_void;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
-use std::{fmt, mem, ptr, slice};
-
-use libloading::Library;
-use std::os::raw::c_void;
+use std::{fmt, ptr, slice};
 
 use api::consts::*;
 use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
@@ -563,21 +563,21 @@ impl Plugin for PluginInstance {
     }
 
     fn get_input_info(&self, input: i32) -> ChannelInfo {
-        let mut props = unsafe { mem::uninitialized() };
-        let ptr = &mut props as *mut api::ChannelProperties as *mut c_void;
+        let mut props: MaybeUninit<api::ChannelProperties> = MaybeUninit::uninit();
+        let ptr = props.as_mut_ptr() as *mut c_void;
 
         self.dispatch(plugin::OpCode::GetInputInfo, input, 0, ptr, 0.0);
 
-        ChannelInfo::from(props)
+        ChannelInfo::from(unsafe { props.assume_init() })
     }
 
     fn get_output_info(&self, output: i32) -> ChannelInfo {
-        let mut props = unsafe { mem::uninitialized() };
-        let ptr = &mut props as *mut api::ChannelProperties as *mut c_void;
+        let mut props: MaybeUninit<api::ChannelProperties> = MaybeUninit::uninit();
+        let ptr = props.as_mut_ptr() as *mut c_void;
 
         self.dispatch(plugin::OpCode::GetOutputInfo, output, 0, ptr, 0.0);
 
-        ChannelInfo::from(props)
+        ChannelInfo::from(unsafe { props.assume_init() })
     }
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {

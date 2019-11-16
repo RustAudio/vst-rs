@@ -10,6 +10,11 @@
 This library is a work in progress, and as such it does not yet implement all
 functionality. It can create basic VST plugins without an editor interface.
 
+**Note:** If you are upgrading from a version prior to 0.2.0, you will need to update
+your plugin code to be compatible with the new, thread-safe plugin API. See the
+[`transfer_and_smooth`](examples/transfer_and_smooth.rs) example for a guide on how
+to port your plugin.
+
 ## Library Documentation
   - https://rustaudio.github.io/vst-rs/vst/
 

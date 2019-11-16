@@ -22,6 +22,10 @@
 //! methods concurrently with audio processing, it needs to be separate from the main `Plugin`
 //! trait.
 //!
+//! To support parameters, a plugin must provide an implementation of the `PluginParameters`
+//! trait, wrap it in an `Arc` (so it can be accessed from both threads) and
+//! return a reference to it from the `get_parameter_object` method in the `Plugin`.
+//!
 //! ## `plugin_main!` macro
 //! `plugin_main!` will export the necessary functions to create a proper VST plugin. This must be
 //! called with your VST plugin struct name in order for the vst to work.

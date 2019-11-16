@@ -6,7 +6,6 @@ use std::sync::atomic::{AtomicU32, Ordering};
 /// multiple threads when no synchronization or change notification
 /// is needed.
 pub struct AtomicFloat {
-    // TODO: Change atomic to AtomicU32 when stabilized (expected in 1.34).
     atomic: AtomicU32,
 }
 
