@@ -12,9 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Major breaking change:** Restructured `Plugin` API to make it thread safe ([#65](https://github.com/RustAudio/vst-rs/pull/65))
 - Fixed a number of unsoundness issues in the `Outputs` API ([#67](https://github.com/RustAudio/vst-rs/pull/67), [#108](https://github.com/RustAudio/vst-rs/pull/108))
 - Set parameters to be automatable by default ([#99](https://github.com/RustAudio/vst-rs/pull/99))
-- Updated README.md to reflect org and chat changes
-([#90](https://github.com/RustAudio/vst-rs/pull/90),
-[#94](https://github.com/RustAudio/vst-rs/pull/94))
+- Moved repository to the [RustAudio](https://github.com/RustAudio) organization and renamed it to `vst-rs` ([#90](https://github.com/RustAudio/vst-rs/pull/90), [#94](https://github.com/RustAudio/vst-rs/pull/94))
 
 ### Fixed
 
