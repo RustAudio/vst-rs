@@ -135,6 +135,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                         bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
                     })) as *mut _; // TODO: free memory
                 }
+                
+                return 1;
             }
         }
         OpCode::EditorOpen => {
