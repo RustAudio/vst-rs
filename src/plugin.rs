@@ -11,6 +11,7 @@ use buffer::AudioBuffer;
 use channels::ChannelInfo;
 use editor::Editor;
 use host::{self, Host};
+use std::str::FromStr;
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -404,15 +405,13 @@ pub enum CanDo {
     Other(String),
 }
 
-impl CanDo {
-    // TODO: implement FromStr
-    #![allow(clippy::should_implement_trait)]
-    /// Converts a string to a `CanDo` instance. Any given string that does not match the predefined
-    /// values will return a `CanDo::Other` value.
-    pub fn from_str(s: &str) -> CanDo {
+impl FromStr for CanDo {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         use self::CanDo::*;
 
-        match s {
+        Ok(match s {
             "sendVstEvents" => SendEvents,
             "sendVstMidiEvent" => SendMidiEvent,
             "receiveVstEvents" => ReceiveEvents,
@@ -426,7 +425,7 @@ impl CanDo {
             "midiSingleNoteTuningChange" => MidiSingleNoteTuningChange,
             "midiKeyBasedInstrumentControl" => MidiKeyBasedInstrumentControl,
             otherwise => Other(otherwise.to_string()),
-        }
+        })
     }
 }
 

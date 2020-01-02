@@ -82,7 +82,7 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.
 pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
-    use plugin::{CanDo, OpCode};
+    use plugin::OpCode;
 
     // Convert passed in opcode to enum
     let opcode = OpCode::from(opcode);
@@ -222,7 +222,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::GetVendorVersion => return plugin.get_info().version as isize,
         OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
-            let can_do = CanDo::from_str(&read_string(ptr));
+            let can_do = read_string(ptr).parse().unwrap();
             return plugin.can_do(can_do).into();
         }
         OpCode::GetTailSize => {
