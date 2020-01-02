@@ -201,7 +201,7 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
 
     trace!("Creating VST plugin instance...");
     let mut plugin = T::new(host);
-    let info = plugin.get_info().clone();
+    let info = plugin.get_info();
     let params = plugin.get_parameter_object();
     let editor = plugin.get_editor();
 
