@@ -1,7 +1,6 @@
 extern crate vst;
 
 use std::env;
-use std::error::Error;
 use std::path::Path;
 use std::process;
 use std::sync::{Arc, Mutex};
@@ -33,8 +32,8 @@ fn main() {
     println!("Loading {}...", path.to_str().unwrap());
 
     // Load the plugin
-    let mut loader = PluginLoader::load(path, Arc::clone(&host))
-        .unwrap_or_else(|e| panic!("Failed to load plugin: {}", e.description()));
+    let mut loader =
+        PluginLoader::load(path, Arc::clone(&host)).unwrap_or_else(|e| panic!("Failed to load plugin: {}", e));
 
     // Create an instance of the plugin
     let mut instance = loader.instance().unwrap();

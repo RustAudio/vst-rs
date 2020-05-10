@@ -241,7 +241,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
+                    modifier: opt.to_bits() as u8,
                 });
             }
         }
@@ -250,7 +250,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
+                    modifier: opt.to_bits() as u8,
                 });
             }
         }
