@@ -226,6 +226,10 @@ pub trait Host {
     }
 
     /// Refresh UI after the plugin's parameters changed.
+    ///
+    /// Note: some hosts will call some `PluginParameters` methods from within the `update_display`
+    /// call, including `get_parameter`, `get_parameter_label`, `get_parameter_name`
+    /// and `get_parameter_text`.
     fn update_display(&self) {}
 }
 
