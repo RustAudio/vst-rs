@@ -957,7 +957,7 @@ impl Host for HostCallback {
 
         match ptr {
             0 => None,
-            ptr => Some(unsafe { (*(ptr as *const TimeInfo)) }),
+            ptr => Some(unsafe { *(ptr as *const TimeInfo) }),
         }
     }
 

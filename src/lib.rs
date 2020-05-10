@@ -113,7 +113,7 @@ extern crate log;
 #[macro_use]
 extern crate bitflags;
 
-use std::{mem, ptr};
+use std::ptr;
 
 /// Implements `From` and `Into` for enums with `#[repr(usize)]`. Useful for interfacing with C
 /// enums.
@@ -188,12 +188,48 @@ macro_rules! plugin_main {
 /// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
 #[doc(hidden)]
 pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
-    // Create a Box containing a zeroed AEffect. This is transmuted into a *mut pointer so that it
-    // can be passed into the HostCallback `wrap` method. The AEffect is then updated after the vst
-    // object is created so that the host still contains a raw pointer to the AEffect struct.
-    let effect = unsafe { Box::into_raw(Box::new(mem::MaybeUninit::zeroed().assume_init())) };
+    // Initialize as much of the AEffect as we can before creating the plugin.
+    // In particular, initialize all the function pointers, since initializing
+    // these to zero is undefined behavior.
+    let boxed_effect = Box::new(AEffect {
+        magic: VST_MAGIC,
+        dispatcher: interfaces::dispatch, // fn pointer
 
-    let host = HostCallback::wrap(callback, effect);
+        _process: interfaces::process_deprecated, // fn pointer
+
+        setParameter: interfaces::set_parameter, // fn pointer
+        getParameter: interfaces::get_parameter, // fn pointer
+
+        numPrograms: 0, // To be updated with plugin specific value.
+        numParams: 0,   // To be updated with plugin specific value.
+        numInputs: 0,   // To be updated with plugin specific value.
+        numOutputs: 0,  // To be updated with plugin specific value.
+
+        flags: 0, // To be updated with plugin specific value.
+
+        reserved1: 0,
+        reserved2: 0,
+
+        initialDelay: 0, // To be updated with plugin specific value.
+
+        _realQualities: 0,
+        _offQualities: 0,
+        _ioRatio: 0.0,
+
+        object: ptr::null_mut(),
+        user: ptr::null_mut(),
+
+        uniqueId: 0, // To be updated with plugin specific value.
+        version: 0,  // To be updated with plugin specific value.
+
+        processReplacing: interfaces::process_replacing, // fn pointer
+        processReplacingF64: interfaces::process_replacing_f64, //fn pointer
+
+        future: [0u8; 56],
+    });
+    let raw_effect = Box::into_raw(boxed_effect);
+
+    let host = HostCallback::wrap(callback, raw_effect);
     if host.vst_version() == 0 {
         // TODO: Better criteria would probably be useful here...
         return ptr::null_mut();
@@ -206,70 +242,44 @@ pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
     let editor = plugin.get_editor();
 
     // Update AEffect in place
-    unsafe {
-        *effect = AEffect {
-            magic: VST_MAGIC,
-            dispatcher: interfaces::dispatch, // fn pointer
+    let effect = unsafe { &mut *raw_effect };
+    effect.numPrograms = info.presets;
+    effect.numParams = info.parameters;
+    effect.numInputs = info.inputs;
+    effect.numOutputs = info.outputs;
+    effect.flags = {
+        use api::PluginFlags;
 
-            _process: interfaces::process_deprecated, // fn pointer
+        let mut flag = PluginFlags::CAN_REPLACING;
 
-            setParameter: interfaces::set_parameter, // fn pointer
-            getParameter: interfaces::get_parameter, // fn pointer
-
-            numPrograms: info.presets,
-            numParams: info.parameters,
-            numInputs: info.inputs,
-            numOutputs: info.outputs,
-
-            flags: {
-                use api::PluginFlags;
-
-                let mut flag = PluginFlags::CAN_REPLACING;
-
-                if info.f64_precision {
-                    flag |= PluginFlags::CAN_DOUBLE_REPLACING;
-                }
-
-                if editor.is_some() {
-                    flag |= PluginFlags::HAS_EDITOR;
-                }
-
-                if info.preset_chunks {
-                    flag |= PluginFlags::PROGRAM_CHUNKS;
-                }
-
-                if let plugin::Category::Synth = info.category {
-                    flag |= PluginFlags::IS_SYNTH;
-                }
-
-                if info.silent_when_stopped {
-                    flag |= PluginFlags::NO_SOUND_IN_STOP;
-                }
-
-                flag.bits()
-            },
-
-            reserved1: 0,
-            reserved2: 0,
-
-            initialDelay: info.initial_delay,
-
-            _realQualities: 0,
-            _offQualities: 0,
-            _ioRatio: 0.0,
-
-            object: Box::into_raw(Box::new(Box::new(plugin) as Box<dyn Plugin>)) as *mut _,
-            user: Box::into_raw(Box::new(PluginCache::new(&info, params, editor))) as *mut _,
-
-            uniqueId: info.unique_id,
-            version: info.version,
-
-            processReplacing: interfaces::process_replacing, // fn pointer
-            processReplacingF64: interfaces::process_replacing_f64, //fn pointer
-
-            future: [0u8; 56],
+        if info.f64_precision {
+            flag |= PluginFlags::CAN_DOUBLE_REPLACING;
         }
+
+        if editor.is_some() {
+            flag |= PluginFlags::HAS_EDITOR;
+        }
+
+        if info.preset_chunks {
+            flag |= PluginFlags::PROGRAM_CHUNKS;
+        }
+
+        if let plugin::Category::Synth = info.category {
+            flag |= PluginFlags::IS_SYNTH;
+        }
+
+        if info.silent_when_stopped {
+            flag |= PluginFlags::NO_SOUND_IN_STOP;
+        }
+
+        flag.bits()
     };
+    effect.initialDelay = info.initial_delay;
+    effect.object = Box::into_raw(Box::new(Box::new(plugin) as Box<dyn Plugin>)) as *mut _;
+    effect.user = Box::into_raw(Box::new(PluginCache::new(&info, params, editor))) as *mut _;
+    effect.uniqueId = info.unique_id;
+    effect.version = info.version;
+
     effect
 }
 

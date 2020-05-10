@@ -254,22 +254,18 @@ pub enum PluginLoadError {
 
 impl fmt::Display for PluginLoadError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.description())
-    }
-}
-
-impl Error for PluginLoadError {
-    fn description(&self) -> &str {
         use self::PluginLoadError::*;
-
-        match *self {
+        let description = match self {
             InvalidPath => "Could not open the requested path",
             NotAPlugin => "The given path does not contain a VST2.4 compatible library",
             InstanceFailed => "Failed to create a plugin instance",
             InvalidApiVersion => "The plugin API version is not compatible with this library",
-        }
+        };
+        write!(f, "{}", description)
     }
 }
+
+impl Error for PluginLoadError {}
 
 /// Wrapper for an externally loaded VST plugin.
 ///
