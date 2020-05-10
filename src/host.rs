@@ -148,7 +148,7 @@ pub enum OpCode {
     /// [return]: `FSSpec` on OS X, `char*` otherwise
     GetDirectory,
     /// Tell the host that the plugin's parameters have changed, refresh the UI.
-    /// 
+    ///
     /// No arguments.
     UpdateDisplay,
     /// Tell the host that if needed, it should record automation data for a control.
