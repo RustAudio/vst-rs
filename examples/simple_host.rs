@@ -32,8 +32,8 @@ fn main() {
     println!("Loading {}...", path.to_str().unwrap());
 
     // Load the plugin
-    let mut loader = PluginLoader::load(path, Arc::clone(&host))
-        .unwrap_or_else(|e| panic!("Failed to load plugin: {}", e));
+    let mut loader =
+        PluginLoader::load(path, Arc::clone(&host)).unwrap_or_else(|e| panic!("Failed to load plugin: {}", e));
 
     // Create an instance of the plugin
     let mut instance = loader.instance().unwrap();
