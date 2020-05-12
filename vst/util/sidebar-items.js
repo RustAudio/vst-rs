@@ -1,0 +1,1 @@
+initSidebarItems({"struct":[["AtomicFloat","Simple atomic floating point variable with relaxed ordering."],["ParameterTransfer","A set of parameters that can be shared between threads."],["ParameterTransferIterator","An iterator over changed parameters. Returned by `iterate`."]]});
