@@ -965,6 +965,11 @@ impl Host for HostCallback {
     fn get_block_size(&self) -> isize {
         self.callback(self.effect, host::OpCode::GetBlockSize, 0, 0, ptr::null_mut(), 0.0)
     }
+
+    /// Refresh UI after the plugin's parameters changed.
+    fn update_display(&self) {
+        self.callback(self.effect, host::OpCode::UpdateDisplay, 0, 0, ptr::null_mut(), 0.0);
+    }
 }
 
 #[cfg(test)]

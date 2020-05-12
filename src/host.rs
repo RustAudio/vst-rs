@@ -147,7 +147,9 @@ pub enum OpCode {
     /// Get the current directory.
     /// [return]: `FSSpec` on OS X, `char*` otherwise
     GetDirectory,
-    /// No arguments. TODO: Figure out what this does.
+    /// Tell the host that the plugin's parameters have changed, refresh the UI.
+    ///
+    /// No arguments.
     UpdateDisplay,
     /// Tell the host that if needed, it should record automation data for a control.
     ///
@@ -222,6 +224,13 @@ pub trait Host {
     fn get_block_size(&self) -> isize {
         0
     }
+
+    /// Refresh UI after the plugin's parameters changed.
+    ///
+    /// Note: some hosts will call some `PluginParameters` methods from within the `update_display`
+    /// call, including `get_parameter`, `get_parameter_label`, `get_parameter_name`
+    /// and `get_parameter_text`.
+    fn update_display(&self) {}
 }
 
 /// All possible errors that can occur when loading a VST plugin.
