@@ -256,6 +256,7 @@ pub enum Supported {
     Yes,
     Maybe,
     No,
+    Custom(isize)
 }
 
 impl Supported {
@@ -281,6 +282,7 @@ impl Into<isize> for Supported {
             Yes => 1,
             Maybe => 0,
             No => -1,
+            Custom(i) => i
         }
     }
 }
