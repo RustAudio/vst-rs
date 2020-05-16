@@ -545,7 +545,7 @@ pub trait Plugin {
     fn suspend(&mut self) {}
 
     /// Vendor specific handling.
-    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+    unsafe fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
         0
     }
 
@@ -1074,6 +1074,8 @@ mod tests {
     #[test]
     fn host_callbacks() {
         let aeffect = instance();
-        (unsafe { (*aeffect).dispatcher })(aeffect, plugin::OpCode::Initialize.into(), 0, 0, ptr::null_mut(), 0.0);
+        unsafe {
+            ((*aeffect).dispatcher)(aeffect, plugin::OpCode::Initialize.into(), 0, 0, ptr::null_mut(), 0.0);
+        }
     }
 }

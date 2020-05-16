@@ -30,7 +30,7 @@ pub type HostCallbackProc =
 
 /// Dispatcher function used to process opcodes. Called by host.
 pub type DispatcherProc =
-    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+    unsafe fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
 pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);

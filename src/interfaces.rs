@@ -81,22 +81,29 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 }
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.
-pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+pub unsafe fn dispatch(
+    effect: *mut AEffect,
+    opcode: i32,
+    index: i32,
+    value: isize,
+    ptr: *mut c_void,
+    opt: f32,
+) -> isize {
     use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
     let opcode = OpCode::from(opcode);
     // Plugin handle
-    let plugin = unsafe { (*effect).get_plugin() };
-    let cache = unsafe { (*effect).get_cache() };
+    let plugin = (*effect).get_plugin();
+    let cache = (*effect).get_cache();
     let params = &cache.params;
 
     match opcode {
         OpCode::Initialize => plugin.init(),
-        OpCode::Shutdown => unsafe {
+        OpCode::Shutdown => {
             (*effect).drop_plugin();
             drop(Box::from_raw(effect))
-        },
+        }
 
         OpCode::ChangePreset => params.change_preset(value as i32),
         OpCode::GetCurrentPresetNum => return params.get_preset_num() as isize,
@@ -125,16 +132,14 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 let size = editor.size();
                 let pos = editor.position();
 
-                unsafe {
-                    // Given a Rect** structure
-                    // TODO: Investigate whether we are given a valid Rect** pointer already
-                    *(ptr as *mut *mut c_void) = Box::into_raw(Box::new(Rect {
-                        left: pos.0 as i16,              // x coord of position
-                        top: pos.1 as i16,               // y coord of position
-                        right: (pos.0 + size.0) as i16,  // x coord of pos + x coord of size
-                        bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
-                    })) as *mut _; // TODO: free memory
-                }
+                // Given a Rect** structure
+                // TODO: Investigate whether we are given a valid Rect** pointer already
+                *(ptr as *mut *mut c_void) = Box::into_raw(Box::new(Rect {
+                    left: pos.0 as i16,              // x coord of position
+                    top: pos.1 as i16,               // y coord of position
+                    right: (pos.0 + size.0) as i16,  // x coord of pos + x coord of size
+                    bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
+                })) as *mut _; // TODO: free memory
 
                 return 1;
             }
@@ -170,15 +175,13 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
             chunks.shrink_to_fit();
             let len = chunks.len() as isize; // eventually we should be using ffi::size_t
 
-            unsafe {
-                *(ptr as *mut *mut c_void) = chunks.as_ptr() as *mut c_void;
-            }
+            *(ptr as *mut *mut c_void) = chunks.as_ptr() as *mut c_void;
 
             mem::forget(chunks);
             return len;
         }
         OpCode::SetData => {
-            let chunks = unsafe { slice::from_raw_parts(ptr as *mut u8, value as usize) };
+            let chunks = slice::from_raw_parts(ptr as *mut u8, value as usize);
 
             if index == 0 {
                 params.load_bank_data(chunks);
@@ -188,7 +191,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         }
 
         OpCode::ProcessEvents => {
-            plugin.process_events(unsafe { &*(ptr as *const api::Events) });
+            plugin.process_events(&*(ptr as *const api::Events));
         }
         OpCode::CanBeAutomated => return params.can_be_automated(index) as isize,
         OpCode::StringToParameter => return params.string_to_parameter(index, read_string(ptr)) as isize,
@@ -197,18 +200,14 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
 
         OpCode::GetInputInfo => {
             if index >= 0 && index < plugin.get_info().inputs {
-                unsafe {
-                    let ptr = ptr as *mut api::ChannelProperties;
-                    *ptr = plugin.get_input_info(index).into();
-                }
+                let ptr = ptr as *mut api::ChannelProperties;
+                *ptr = plugin.get_input_info(index).into();
             }
         }
         OpCode::GetOutputInfo => {
             if index >= 0 && index < plugin.get_info().outputs {
-                unsafe {
-                    let ptr = ptr as *mut api::ChannelProperties;
-                    *ptr = plugin.get_output_info(index).into();
-                }
+                let ptr = ptr as *mut api::ChannelProperties;
+                *ptr = plugin.get_output_info(index).into();
             }
         }
         OpCode::GetCategory => {
@@ -263,8 +262,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
         OpCode::StartProcess => plugin.start_process(),
         OpCode::StopProcess => plugin.stop_process(),
 
-        OpCode::GetNumMidiInputs => return unsafe { (*effect).get_cache() }.info.midi_inputs as isize,
-        OpCode::GetNumMidiOutputs => return unsafe { (*effect).get_cache() }.info.midi_outputs as isize,
+        OpCode::GetNumMidiInputs => return (*effect).get_cache().info.midi_inputs as isize,
+        OpCode::GetNumMidiOutputs => return (*effect).get_cache().info.midi_outputs as isize,
 
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);

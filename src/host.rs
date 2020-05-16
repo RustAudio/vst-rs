@@ -538,8 +538,8 @@ impl Plugin for PluginInstance {
         }
     }
 
-    fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
-        unsafe { self.dispatch(plugin::OpCode::VendorSpecific, index, value, ptr, opt) }
+    unsafe fn vendor_specific(&mut self, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+        self.dispatch(plugin::OpCode::VendorSpecific, index, value, ptr, opt)
     }
 
     fn can_do(&self, can_do: plugin::CanDo) -> Supported {
