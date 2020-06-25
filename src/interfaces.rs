@@ -135,6 +135,8 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                         bottom: (pos.1 + size.1) as i16, // y coord of pos + y coord of size
                     })) as *mut _; // TODO: free memory
                 }
+
+                return 1;
             }
         }
         OpCode::EditorOpen => {
@@ -239,7 +241,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
+                    modifier: opt.to_bits() as u8,
                 });
             }
         }
@@ -248,7 +250,7 @@ pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
-                    modifier: unsafe { mem::transmute::<f32, i32>(opt) } as u8,
+                    modifier: opt.to_bits() as u8,
                 });
             }
         }
