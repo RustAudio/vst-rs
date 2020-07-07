@@ -1005,7 +1005,7 @@ mod tests {
 
                 fn new(host: HostCallback) -> TestPlugin {
                     TestPlugin {
-                        host: host
+                        host
                     }
                 }
 
