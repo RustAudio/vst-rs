@@ -16,6 +16,7 @@ use api::consts::*;
 use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
+use editor;
 use interfaces;
 use plugin::{self, Category, Info, Plugin, PluginParameters};
 
@@ -587,6 +588,27 @@ impl Plugin for PluginInstance {
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::clone(&self.params) as Arc<dyn PluginParameters>
+    }
+
+    fn get_editor_rect(&self) -> Option<editor::Rect> {
+        let mut rect: *mut editor::Rect = std::ptr::null_mut();
+        let rect_ptr: *mut *mut editor::Rect = &mut rect;
+
+        self.dispatch(plugin::OpCode::EditorGetRect, 0, 0, rect_ptr as *mut c_void, 0.0);
+
+        if rect != std::ptr::null_mut() {
+            Some(unsafe{ *rect }) // TODO: Who owns rect? Who should free the memory?
+        } else {
+            None
+        }
+    }
+
+    fn open_editor(&self, window_handle: *mut c_void) {
+        self.dispatch(plugin::OpCode::EditorOpen, 0, 0, window_handle, 0.0);
+    }
+
+    fn close_editor(&self) {
+        self.dispatch(plugin::OpCode::EditorClose, 0, 0, ptr::null_mut(), 0.0);
     }
 }
 
