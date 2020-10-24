@@ -470,7 +470,7 @@ impl Into<String> for CanDo {
 /// traits: The `Plugin` trait containing setup and processing methods, and
 /// the `PluginParameters` trait containing methods for parameter access.
 #[allow(unused_variables)]
-pub trait Plugin {
+pub trait Plugin : Send {
     /// This method must return an `Info` struct.
     fn get_info(&self) -> Info;
 
