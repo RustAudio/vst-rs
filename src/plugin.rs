@@ -9,7 +9,7 @@ use api::consts::VST_MAGIC;
 use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
-use editor::{Editor, Rect};
+use editor::Editor;
 use host::{self, Host};
 
 /// Plugin type. Generally either Effect or Synth.
@@ -698,20 +698,6 @@ pub trait Plugin {
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
         None
     }
-
-    /// Asks the plugin about the dimensions of its editor
-    fn get_editor_rect(&self) -> Option<Rect> {
-        None
-    }
-
-    /// Asks the plugin to open the editor in the provided window handle.
-    ///
-    /// The window handle must be a pointer to a window object native to the platform (e.g. HWND on
-    /// Windows, or NSView* on macOS).
-    fn open_editor(&self, window_handle: *mut c_void) {}
-
-    /// Asks the plugin to close the editor.
-    fn close_editor(&self) {}
 }
 
 /// Parameter object shared between the UI and processing threads.
