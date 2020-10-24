@@ -16,6 +16,7 @@ use api::consts::*;
 use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
 use buffer::AudioBuffer;
 use channels::ChannelInfo;
+use editor::{Editor, Rect};
 use interfaces;
 use plugin::{self, Category, Info, Plugin, PluginParameters};
 
@@ -283,6 +284,7 @@ pub struct PluginInstance {
     params: Arc<PluginParametersInstance>,
     lib: Arc<Library>,
     info: Info,
+    is_editor_active: bool,
 }
 
 struct PluginParametersInstance {
@@ -294,6 +296,70 @@ unsafe impl Sync for PluginParametersInstance {}
 impl Drop for PluginInstance {
     fn drop(&mut self) {
         self.dispatch(plugin::OpCode::Shutdown, 0, 0, ptr::null_mut(), 0.0);
+    }
+}
+
+/// The editor of an externally loaded VST plugin.
+pub struct PluginEditor {
+    params: Arc<PluginParametersInstance>,
+    is_open: bool,
+}
+
+impl PluginEditor {
+    fn get_rect(&self) -> Option<Rect> {
+        let mut rect: *mut Rect = std::ptr::null_mut();
+        let rect_ptr: *mut *mut Rect = &mut rect;
+
+        let result = self.params.dispatch(plugin::OpCode::EditorGetRect, 0, 0, rect_ptr as *mut c_void, 0.0);
+
+        if result == 0 || rect.is_null() {
+            return None;
+        }
+        Some(unsafe{ *rect }) // TODO: Who owns rect? Who should free the memory?
+    }
+}
+
+impl Editor for PluginEditor {
+    fn size(&self) -> (i32, i32) {
+        // Assuming coordinate origins from top-left
+        match self.get_rect() {
+            None => (0, 0),
+            Some(rect) => (
+                (rect.right - rect.left) as i32,
+                (rect.bottom - rect.top) as i32
+            ),
+        }
+    }
+
+    fn position(&self) -> (i32, i32) {
+        // Assuming coordinate origins from top-left
+        match self.get_rect() {
+            None => (0, 0),
+            Some(rect) => (
+                rect.left as i32,
+                rect.top as i32
+            ),
+        }
+    }
+
+    fn close(&mut self) {
+        self.params.dispatch(plugin::OpCode::EditorClose, 0, 0, ptr::null_mut(), 0.0);
+        self.is_open = false;
+    }
+
+    fn open(&mut self, parent: *mut c_void) -> bool {
+        let result = self.params.dispatch(plugin::OpCode::EditorOpen, 0, 0, parent, 0.0);
+
+        let opened = result == 1;
+        if opened {
+            self.is_open = true;
+        }
+
+        opened
+    }
+
+    fn is_open(&mut self) -> bool {
+        self.is_open
     }
 }
 
@@ -406,6 +472,7 @@ impl PluginInstance {
             params,
             lib,
             info: Default::default(),
+            is_editor_active: false,
         };
 
         unsafe {
@@ -587,6 +654,18 @@ impl Plugin for PluginInstance {
 
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::clone(&self.params) as Arc<dyn PluginParameters>
+    }
+
+    fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
+        if self.is_editor_active
+        {
+            // An editor is already active, the caller should be using the active editor instead of
+            // requesting for a new one.
+            return None;
+        }
+
+        self.is_editor_active = true;
+        Some(Box::new(PluginEditor{ params: self.params.clone(), is_open: false }))
     }
 }
 
