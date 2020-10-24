@@ -1021,13 +1021,14 @@ mod tests {
 
             #[allow(dead_code)]
             fn instance() -> *mut AEffect {
-                fn host_callback(_effect: *mut AEffect,
-                                 opcode: i32,
-                                 index: i32,
-                                 _value: isize,
-                                 _ptr: *mut c_void,
-                                 opt: f32)
-                                 -> isize {
+                extern "C" fn host_callback(
+                    _effect: *mut AEffect,
+                    opcode: i32,
+                    index: i32,
+                    _value: isize,
+                    _ptr: *mut c_void,
+                    opt: f32,
+                ) -> isize {
                     let opcode = OpCode::from(opcode);
                     match opcode {
                         OpCode::Automate => {
