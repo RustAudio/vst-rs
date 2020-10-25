@@ -300,12 +300,12 @@ impl Drop for PluginInstance {
 }
 
 /// The editor of an externally loaded VST plugin.
-pub struct PluginEditor {
+struct EditorInstance {
     params: Arc<PluginParametersInstance>,
     is_open: bool,
 }
 
-impl PluginEditor {
+impl EditorInstance {
     fn get_rect(&self) -> Option<Rect> {
         let mut rect: *mut Rect = std::ptr::null_mut();
         let rect_ptr: *mut *mut Rect = &mut rect;
@@ -319,7 +319,7 @@ impl PluginEditor {
     }
 }
 
-impl Editor for PluginEditor {
+impl Editor for EditorInstance {
     fn size(&self) -> (i32, i32) {
         // Assuming coordinate origins from top-left
         match self.get_rect() {
@@ -665,7 +665,7 @@ impl Plugin for PluginInstance {
         }
 
         self.is_editor_active = true;
-        Some(Box::new(PluginEditor{ params: self.params.clone(), is_open: false }))
+        Some(Box::new(EditorInstance{ params: self.params.clone(), is_open: false }))
     }
 }
 
