@@ -464,6 +464,9 @@ impl Events {
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum EventType {
+    /// Value used for uninitialized placeholder events.
+    _Placeholder = 0,
+
     /// Midi event. See `api::MidiEvent`.
     Midi = 1,
 
