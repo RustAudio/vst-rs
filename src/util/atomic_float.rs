@@ -27,3 +27,9 @@ impl AtomicFloat {
         self.atomic.store(value.to_bits(), Ordering::Relaxed)
     }
 }
+
+impl Default for AtomicFloat {
+    fn default() -> Self {
+        AtomicFloat::new(0.0)
+    }
+}
