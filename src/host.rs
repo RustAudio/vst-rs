@@ -310,12 +310,14 @@ impl EditorInstance {
         let mut rect: *mut Rect = std::ptr::null_mut();
         let rect_ptr: *mut *mut Rect = &mut rect;
 
-        let result = self.params.dispatch(plugin::OpCode::EditorGetRect, 0, 0, rect_ptr as *mut c_void, 0.0);
+        let result = self
+            .params
+            .dispatch(plugin::OpCode::EditorGetRect, 0, 0, rect_ptr as *mut c_void, 0.0);
 
         if result == 0 || rect.is_null() {
             return None;
         }
-        Some(unsafe{ *rect }) // TODO: Who owns rect? Who should free the memory?
+        Some(unsafe { *rect }) // TODO: Who owns rect? Who should free the memory?
     }
 }
 
@@ -324,10 +326,7 @@ impl Editor for EditorInstance {
         // Assuming coordinate origins from top-left
         match self.get_rect() {
             None => (0, 0),
-            Some(rect) => (
-                (rect.right - rect.left) as i32,
-                (rect.bottom - rect.top) as i32
-            ),
+            Some(rect) => ((rect.right - rect.left) as i32, (rect.bottom - rect.top) as i32),
         }
     }
 
@@ -335,15 +334,13 @@ impl Editor for EditorInstance {
         // Assuming coordinate origins from top-left
         match self.get_rect() {
             None => (0, 0),
-            Some(rect) => (
-                rect.left as i32,
-                rect.top as i32
-            ),
+            Some(rect) => (rect.left as i32, rect.top as i32),
         }
     }
 
     fn close(&mut self) {
-        self.params.dispatch(plugin::OpCode::EditorClose, 0, 0, ptr::null_mut(), 0.0);
+        self.params
+            .dispatch(plugin::OpCode::EditorClose, 0, 0, ptr::null_mut(), 0.0);
         self.is_open = false;
     }
 
@@ -657,15 +654,17 @@ impl Plugin for PluginInstance {
     }
 
     fn get_editor(&mut self) -> Option<Box<dyn Editor>> {
-        if self.is_editor_active
-        {
+        if self.is_editor_active {
             // An editor is already active, the caller should be using the active editor instead of
             // requesting for a new one.
             return None;
         }
 
         self.is_editor_active = true;
-        Some(Box::new(EditorInstance{ params: self.params.clone(), is_open: false }))
+        Some(Box::new(EditorInstance {
+            params: self.params.clone(),
+            is_open: false,
+        }))
     }
 }
 
