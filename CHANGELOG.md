@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 0.2.1
+
+### Fixed
+
+- Introduced zero-valued `EventType` variant to enable zero-initialization of `Event`, fixing a panic on Rust 1.48 and newer ([#138](https://github.com/RustAudio/vst-rs/pull/138))
+- `EditorGetRect` opcode returns `1` on success, ensuring that the provided dimensions are applied by the host ([#115](https://github.com/RustAudio/vst-rs/pull/115))
+
+### Added
+
+- Added `update_display()` method to `Host`, telling the host to update its display (after a parameter change) via the `UpdateDisplay` opcode ([#126](https://github.com/RustAudio/vst-rs/pull/126))
+- Allow plug-in to return a custom value in `can_do()` via the `Supported::Custom` enum variant ([#130](https://github.com/RustAudio/vst-rs/pull/130))
+- Added `PartialEq` and `Eq` for `Supported` ([#135](https://github.com/RustAudio/vst-rs/pull/135))
+- Implemented `get_editor()` and `Editor` interface for `PluginInstance` to enable editor support on the host side ([#136](https://github.com/RustAudio/vst-rs/pull/136))
+- Default value (`0.0`) for `AtomicFloat` ([#139](https://github.com/RustAudio/vst-rs/pull/139))
+
 ## 0.2.0
 
 ### Changed
