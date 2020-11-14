@@ -11,17 +11,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      - name: Install latest stable rust
+
+      # Installs the latest stable rust, and all components needed for the rest of the CI pipeline.
+      - name: Set up CI environment
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
           components: rustfmt, clippy
+
+      # Makes sure the code builds successfully.
       - name: Build
         run: cargo build --verbose
-      - name: Run tests
+
+      # Makes sure all of the tests pass.
+      - name: Test
         run: cargo test --verbose
-#    - name: Clippy
-#      run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unreadable_literal -A clippy::needless_range_loop -A clippy::float_cmp -A clippy::comparison-chain -A clippy::needless-doctest-main -A clippy::missing-safety-doc
+
+      # Runs Clippy on the codebase, and makes sure there are no lint warnings.
+      # Disabled for now. Re-enable if you find it useful enough to deal with it constantly breaking.
+      # - name: Clippy
+      #   run: cargo clippy --all-targets --all-features -- -D warnings -A clippy::unreadable_literal -A clippy::needless_range_loop -A clippy::float_cmp -A clippy::comparison-chain -A clippy::needless-doctest-main -A clippy::missing-safety-doc
+
+      # Makes sure the codebase is up to `cargo fmt` standards
       - name: Format check
         run: cargo fmt --all -- --check
