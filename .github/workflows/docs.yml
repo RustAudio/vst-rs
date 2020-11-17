@@ -1,0 +1,38 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Installs the latest stable rust, and all components needed for the rest of the CI pipeline.
+      - name: Set up CI environment
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      # Sanity check: make sure the release builds
+      - name: Build
+        run: cargo build --verbose
+
+      # Sanity check: make sure all tests in the release pass
+      - name: Test
+        run: cargo test --verbose
+
+      # Generate docs and push to documentation branch
+      - name: Generate docs
+        env:
+          GH_ENCRYPTED_TOKEN: ${{ secrets.GH_ENCRYPTED_TOKEN }}
+        run: |
+          cargo doc --all --no-deps
+          echo '<meta http-equiv=refresh content=0;url=vst/index.html>' > target/doc/index.html
+          sudo pip install ghp-import
+          ghp-import -n target/doc
+          git push -fq https://${GH_ENCRYPTED_TOKEN}@github.com/${GITHUB_REPOSITORY}.git gh-pages
