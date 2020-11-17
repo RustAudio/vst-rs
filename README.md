@@ -26,7 +26,7 @@ include the crate directly from the official [Github repository](https://github.
 
 ```toml
 # get from crates.io.
-vst = "0.2.0"
+vst = "0.2.1"
 ```
 ```toml
 # get directly from Github.  This might be unstable!
