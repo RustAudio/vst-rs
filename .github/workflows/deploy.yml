@@ -2,10 +2,11 @@ name: Deploy
 
 on:
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
@@ -28,5 +29,5 @@ jobs:
       # Only works on github releases (tagged commits)
       - name: Deploy to crates.io
         env:
-          CRATESIO_ENCRYPTED_TOKEN: ${{ secrets.CRATESIO_ENCRYPTED_TOKEN }}
-        run: cargo publish --token $CRATESIO_ENCRYPTED_TOKEN --manifest-path Cargo.toml
+          CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --token $CRATES_IO_TOKEN --manifest-path Cargo.toml
