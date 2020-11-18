@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/channels.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>channels.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css"><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../vst/index.html'><div class='logo-container'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source to the Rust file `src/channels.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>channels.rs.html -- source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="shortcut icon" href="../../favicon.ico"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../vst/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><pre class="line-numbers"><span id="1">  1</span>
 <span id="2">  2</span>
 <span id="3">  3</span>
 <span id="4">  4</span>
@@ -378,7 +379,7 @@
         <span class="ident">short_name</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>,
         <span class="ident">active</span>: <span class="ident">bool</span>,
         <span class="ident">arrangement_type</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">SpeakerArrangementType</span><span class="op">&gt;</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChannelInfo</span> {
+    ) <span class="op">-&gt;</span> <span class="ident">ChannelInfo</span> {
         <span class="ident">ChannelInfo</span> {
             <span class="ident">name</span>: <span class="ident">name</span>.<span class="ident">clone</span>(),
 
@@ -397,7 +398,7 @@
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">api</span>::<span class="ident">ChannelProperties</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChannelInfo</span> {
     <span class="doccomment">/// Convert to the VST api equivalent of this structure.</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">ChannelProperties</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">api</span>::<span class="ident">ChannelProperties</span> {
         <span class="ident">api</span>::<span class="ident">ChannelProperties</span> {
             <span class="ident">name</span>: {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">label</span> <span class="op">=</span> [<span class="number">0</span>; <span class="ident">MAX_LABEL</span> <span class="kw">as</span> <span class="ident">usize</span>];
@@ -409,13 +410,13 @@
             <span class="ident">flags</span>: {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">flag</span> <span class="op">=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">empty</span>();
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">active</span> {
-                    <span class="ident">flag</span> <span class="op">|</span><span class="op">=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">ACTIVE</span>
+                    <span class="ident">flag</span> <span class="op">|=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">ACTIVE</span>
                 }
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">arrangement_type</span>.<span class="ident">is_left_stereo</span>() {
-                    <span class="ident">flag</span> <span class="op">|</span><span class="op">=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">STEREO</span>
+                    <span class="ident">flag</span> <span class="op">|=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">STEREO</span>
                 }
                 <span class="kw">if</span> <span class="self">self</span>.<span class="ident">arrangement_type</span>.<span class="ident">is_speaker_type</span>() {
-                    <span class="ident">flag</span> <span class="op">|</span><span class="op">=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">SPEAKER</span>
+                    <span class="ident">flag</span> <span class="op">|=</span> <span class="ident">api</span>::<span class="ident">ChannelFlags</span>::<span class="ident">SPEAKER</span>
                 }
                 <span class="ident">flag</span>.<span class="ident">bits</span>()
             },
@@ -433,7 +434,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">api</span>::<span class="ident">ChannelProperties</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">ChannelInfo</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">api</span>: <span class="ident">api</span>::<span class="ident">ChannelProperties</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChannelInfo</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">api</span>: <span class="ident">api</span>::<span class="ident">ChannelProperties</span>) <span class="op">-&gt;</span> <span class="ident">ChannelInfo</span> {
         <span class="ident">ChannelInfo</span> {
             <span class="ident">name</span>: <span class="ident">String</span>::<span class="ident">from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">api</span>.<span class="ident">name</span>).<span class="ident">to_string</span>(),
             <span class="ident">short_name</span>: <span class="ident">String</span>::<span class="ident">from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">api</span>.<span class="ident">short_name</span>).<span class="ident">to_string</span>(),
@@ -546,14 +547,14 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">SpeakerArrangementType</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SpeakerArrangementType</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-&gt;</span> <span class="ident">SpeakerArrangementType</span> {
         <span class="ident">SpeakerArrangementType</span>::<span class="ident">Mono</span>
     }
 }
 
 <span class="kw">impl</span> <span class="ident">SpeakerArrangementType</span> {
     <span class="doccomment">/// Determine whether this channel is part of a surround speaker arrangement.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_speaker_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_speaker_type</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">SpeakerArrangementType</span>::<span class="ident">Surround</span>(..) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="bool-val">true</span>
         } <span class="kw">else</span> {
@@ -562,7 +563,7 @@
     }
 
     <span class="doccomment">/// Determine whether this channel is the left speaker in a stereo pair.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_left_stereo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">is_left_stereo</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">bool</span> {
         <span class="kw">if</span> <span class="kw">let</span> <span class="ident">SpeakerArrangementType</span>::<span class="ident">Stereo</span>(<span class="kw">_</span>, <span class="ident">StereoChannel</span>::<span class="ident">Left</span>) <span class="op">=</span> <span class="kw-2">*</span><span class="self">self</span> {
             <span class="bool-val">true</span>
         } <span class="kw">else</span> {
@@ -573,62 +574,62 @@
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">api</span>::<span class="ident">SpeakerArrangementType</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SpeakerArrangementType</span> {
     <span class="doccomment">/// Convert to VST API arrangement type.</span>
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">api</span>::<span class="ident">SpeakerArrangementType</span> {
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-&gt;</span> <span class="ident">api</span>::<span class="ident">SpeakerArrangementType</span> {
         <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ArrangementTarget</span>::{<span class="ident">Cinema</span>, <span class="ident">Music</span>};
         <span class="kw">use</span> <span class="self">self</span>::<span class="ident">SpeakerArrangementType</span>::<span class="kw-2">*</span>;
         <span class="kw">use</span> <span class="ident">api</span>::<span class="ident">SpeakerArrangementType</span> <span class="kw">as</span> <span class="ident">Raw</span>;
 
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">Custom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Custom</span>,
-            <span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Empty</span>,
-            <span class="ident">Mono</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Mono</span>,
-            <span class="ident">Stereo</span>(<span class="ident">conf</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Custom</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Custom</span>,
+            <span class="ident">Empty</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Empty</span>,
+            <span class="ident">Mono</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Mono</span>,
+            <span class="ident">Stereo</span>(<span class="ident">conf</span>, <span class="kw">_</span>) <span class="op">=&gt;</span> {
                 <span class="kw">match</span> <span class="ident">conf</span> {
                     <span class="comment">// Stereo channels.</span>
-                    <span class="ident">StereoConfig</span>::<span class="ident">L_R</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Stereo</span>,
-                    <span class="ident">StereoConfig</span>::<span class="ident">Ls_Rs</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoSurround</span>,
-                    <span class="ident">StereoConfig</span>::<span class="ident">Lc_Rc</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoCenter</span>,
-                    <span class="ident">StereoConfig</span>::<span class="ident">Sl_Sr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoSide</span>,
-                    <span class="ident">StereoConfig</span>::<span class="ident">C_Lfe</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoCLfe</span>,
+                    <span class="ident">StereoConfig</span>::<span class="ident">L_R</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Stereo</span>,
+                    <span class="ident">StereoConfig</span>::<span class="ident">Ls_Rs</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoSurround</span>,
+                    <span class="ident">StereoConfig</span>::<span class="ident">Lc_Rc</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoCenter</span>,
+                    <span class="ident">StereoConfig</span>::<span class="ident">Sl_Sr</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoSide</span>,
+                    <span class="ident">StereoConfig</span>::<span class="ident">C_Lfe</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">StereoCLfe</span>,
                 }
             }
-            <span class="ident">Surround</span>(<span class="ident">conf</span>) <span class="op">=</span><span class="op">&gt;</span> {
+            <span class="ident">Surround</span>(<span class="ident">conf</span>) <span class="op">=&gt;</span> {
                 <span class="kw">match</span> <span class="ident">conf</span> {
                     <span class="comment">// Surround channels.</span>
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_0</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music30</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_0</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema30</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_0</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music30</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_0</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema30</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_1</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music31</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_1</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema31</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_1</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music31</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S3_1</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema31</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_0</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music40</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_0</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema40</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_0</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music40</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_0</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema40</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_1</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music41</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_1</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema41</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_1</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music41</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S4_1</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema41</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S5_0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround50</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S5_1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround51</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S5_0</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround50</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S5_1</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround51</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_0</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music60</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_0</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema60</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_0</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music60</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_0</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema60</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_1</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music61</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_1</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema61</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_1</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music61</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S6_1</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema61</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_0</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music70</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_0</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema70</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_0</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music70</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_0</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema70</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_1</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music71</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_1</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema71</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_1</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music71</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S7_1</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema71</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_0</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music80</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_0</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema80</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_0</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music80</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_0</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema80</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_1</span>(<span class="ident">Music</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music81</span>,
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_1</span>(<span class="ident">Cinema</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema81</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_1</span>(<span class="ident">Music</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Music81</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S8_1</span>(<span class="ident">Cinema</span>) <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Cinema81</span>,
 
-                    <span class="ident">SurroundConfig</span>::<span class="ident">S10_2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround102</span>,
+                    <span class="ident">SurroundConfig</span>::<span class="ident">S10_2</span> <span class="op">=&gt;</span> <span class="ident">Raw</span>::<span class="ident">Surround102</span>,
                 }
             }
         }
@@ -640,7 +641,7 @@
 <span class="doccomment">/// We implement `From&lt;ChannelProperties&gt;` as `SpeakerArrangementType` contains extra info about</span>
 <span class="doccomment">/// stereo speakers found in the channel flags.</span>
 <span class="kw">impl</span> <span class="ident">From</span><span class="op">&lt;</span><span class="ident">api</span>::<span class="ident">ChannelProperties</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">SpeakerArrangementType</span> {
-    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">api</span>: <span class="ident">api</span>::<span class="ident">ChannelProperties</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">SpeakerArrangementType</span> {
+    <span class="kw">fn</span> <span class="ident">from</span>(<span class="ident">api</span>: <span class="ident">api</span>::<span class="ident">ChannelProperties</span>) <span class="op">-&gt;</span> <span class="ident">SpeakerArrangementType</span> {
         <span class="kw">use</span> <span class="self">self</span>::<span class="ident">ArrangementTarget</span>::{<span class="ident">Cinema</span>, <span class="ident">Music</span>};
         <span class="kw">use</span> <span class="self">self</span>::<span class="ident">SpeakerArrangementType</span>::<span class="kw-2">*</span>;
         <span class="kw">use</span> <span class="self">self</span>::<span class="ident">SurroundConfig</span>::<span class="kw-2">*</span>;
@@ -656,52 +657,52 @@
         };
 
         <span class="kw">match</span> <span class="ident">api</span>.<span class="ident">arrangement_type</span> {
-            <span class="ident">Raw</span>::<span class="ident">Custom</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Custom</span>,
-            <span class="ident">Raw</span>::<span class="ident">Empty</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Empty</span>,
-            <span class="ident">Raw</span>::<span class="ident">Mono</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Mono</span>,
+            <span class="ident">Raw</span>::<span class="ident">Custom</span> <span class="op">=&gt;</span> <span class="ident">Custom</span>,
+            <span class="ident">Raw</span>::<span class="ident">Empty</span> <span class="op">=&gt;</span> <span class="ident">Empty</span>,
+            <span class="ident">Raw</span>::<span class="ident">Mono</span> <span class="op">=&gt;</span> <span class="ident">Mono</span>,
 
-            <span class="ident">Raw</span>::<span class="ident">Stereo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">L_R</span>, <span class="ident">stereo</span>),
-            <span class="ident">Raw</span>::<span class="ident">StereoSurround</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Ls_Rs</span>, <span class="ident">stereo</span>),
-            <span class="ident">Raw</span>::<span class="ident">StereoCenter</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Lc_Rc</span>, <span class="ident">stereo</span>),
-            <span class="ident">Raw</span>::<span class="ident">StereoSide</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Sl_Sr</span>, <span class="ident">stereo</span>),
-            <span class="ident">Raw</span>::<span class="ident">StereoCLfe</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">C_Lfe</span>, <span class="ident">stereo</span>),
+            <span class="ident">Raw</span>::<span class="ident">Stereo</span> <span class="op">=&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">L_R</span>, <span class="ident">stereo</span>),
+            <span class="ident">Raw</span>::<span class="ident">StereoSurround</span> <span class="op">=&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Ls_Rs</span>, <span class="ident">stereo</span>),
+            <span class="ident">Raw</span>::<span class="ident">StereoCenter</span> <span class="op">=&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Lc_Rc</span>, <span class="ident">stereo</span>),
+            <span class="ident">Raw</span>::<span class="ident">StereoSide</span> <span class="op">=&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">Sl_Sr</span>, <span class="ident">stereo</span>),
+            <span class="ident">Raw</span>::<span class="ident">StereoCLfe</span> <span class="op">=&gt;</span> <span class="ident">Stereo</span>(<span class="ident">StereoConfig</span>::<span class="ident">C_Lfe</span>, <span class="ident">stereo</span>),
 
-            <span class="ident">Raw</span>::<span class="ident">Music30</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_0</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema30</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_0</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music30</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_0</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema30</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_0</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music31</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_1</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema31</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_1</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music31</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_1</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema31</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S3_1</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music40</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_0</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema40</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_0</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music40</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_0</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema40</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_0</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music41</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_1</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema41</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_1</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music41</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_1</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema41</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S4_1</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Surround50</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S5_0</span>),
-            <span class="ident">Raw</span>::<span class="ident">Surround51</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S5_1</span>),
+            <span class="ident">Raw</span>::<span class="ident">Surround50</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S5_0</span>),
+            <span class="ident">Raw</span>::<span class="ident">Surround51</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S5_1</span>),
 
-            <span class="ident">Raw</span>::<span class="ident">Music60</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_0</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema60</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_0</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music60</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_0</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema60</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_0</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music61</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_1</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema61</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_1</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music61</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_1</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema61</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S6_1</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music70</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_0</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema70</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_0</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music70</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_0</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema70</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_0</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music71</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_1</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema71</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_1</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music71</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_1</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema71</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S7_1</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music80</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_0</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema80</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_0</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music80</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_0</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema80</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_0</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Music81</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_1</span>(<span class="ident">Music</span>)),
-            <span class="ident">Raw</span>::<span class="ident">Cinema81</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_1</span>(<span class="ident">Cinema</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Music81</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_1</span>(<span class="ident">Music</span>)),
+            <span class="ident">Raw</span>::<span class="ident">Cinema81</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S8_1</span>(<span class="ident">Cinema</span>)),
 
-            <span class="ident">Raw</span>::<span class="ident">Surround102</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Surround</span>(<span class="ident">S10_2</span>),
+            <span class="ident">Raw</span>::<span class="ident">Surround102</span> <span class="op">=&gt;</span> <span class="ident">Surround</span>(<span class="ident">S10_2</span>),
         }
     }
 }
 </pre></div>
-</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "vst";</script><script src="../../aliases.js"></script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
+</section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "vst";</script><script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script><script defer src="../../search-index.js"></script></body></html>
