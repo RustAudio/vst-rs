@@ -31,4 +31,4 @@ jobs:
       - name: Deploy to crates.io
         env:
           CRATESIO_ENCRYPTED_TOKEN: ${{ secrets.CRATESIO_ENCRYPTED_TOKEN }}
-        run: cargo publish --token $CRATESIO_ENCRYPTED_TOKEN --manifest-path Cargo.toml
+        run: cargo publish --dry-run --token $CRATESIO_ENCRYPTED_TOKEN --manifest-path Cargo.toml
