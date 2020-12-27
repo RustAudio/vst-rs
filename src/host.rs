@@ -192,6 +192,12 @@ pub trait Host {
     /// Automate a parameter; the value has been changed.
     fn automate(&self, index: i32, value: f32) {}
 
+    /// Signal that automation of a parameter started (the knob has been touched / mouse button down).
+    fn begin_edit(&self, index: i32) { }
+
+    /// Signal that automation of a parameter ended (the knob is no longer been touched / mouse button up).
+    fn end_edit(&self, index: i32) { }
+
     /// Get the plugin ID of the currently loading plugin.
     ///
     /// This is only useful for shell plugins where this value will change the plugin returned.

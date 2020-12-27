@@ -295,6 +295,8 @@ pub fn host_dispatch(
     match OpCode::from(opcode) {
         OpCode::Version => return 2400,
         OpCode::Automate => host.automate(index, opt),
+        OpCode::BeginEdit => host.begin_edit(index),
+        OpCode::EndEdit => host.end_edit(index),
 
         OpCode::Idle => host.idle(),
 

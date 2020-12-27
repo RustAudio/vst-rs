@@ -898,11 +898,26 @@ impl HostCallback {
 }
 
 impl Host for HostCallback {
+    /// Signal the host that the value for the parameter has changed.
+    ///
+    /// Make sure to also call `begin_edit` and `end_edit` when a parameter
+    /// has been touched. This is important for the host to determine
+    /// if a user interaction is happening and the automation should be recorded.
     fn automate(&self, index: i32, value: f32) {
         if self.is_effect_valid() {
             // TODO: Investigate removing this check, should be up to host
             self.callback(self.effect, host::OpCode::Automate, index, 0, ptr::null_mut(), value);
         }
+    }
+
+    /// Signal the host the start of a parameter change a gesture (mouse down on knob dragging).
+    fn begin_edit(&self, index: i32) {
+        self.callback(self.effect, host::OpCode::BeginEdit, index, 0, ptr::null_mut(), 0.0);
+    }
+
+    /// Signal the host the end of a parameter change gesture (mouse up after knob dragging).
+    fn end_edit(&self, index: i32) {
+        self.callback(self.effect, host::OpCode::EndEdit, index, 0, ptr::null_mut(), 0.0);
     }
 
     fn get_plugin_id(&self) -> i32 {
@@ -1014,7 +1029,9 @@ mod tests {
                     assert_eq!(2400, self.host.vst_version());
                     assert_eq!(9876, self.host.get_plugin_id());
                     // Callback will assert these.
+                    self.host.begin_edit(123);
                     self.host.automate(123, 12.3);
+                    self.host.end_edit(123);
                     self.host.idle();
                 }
             }
@@ -1030,11 +1047,19 @@ mod tests {
                                  -> isize {
                     let opcode = OpCode::from(opcode);
                     match opcode {
+                        OpCode::BeginEdit => {
+                            assert_eq!(index, 123);
+                            true
+                        },
                         OpCode::Automate => {
                             assert_eq!(index, 123);
                             assert_eq!(opt, 12.3);
                             0
-                        }
+                        },
+                        OpCode::EndEdit => {
+                            assert_eq!(index, 123);
+                            true
+                        },
                         OpCode::Version => 2400,
                         OpCode::CurrentId => 9876,
                         OpCode::Idle => 0,
