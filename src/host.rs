@@ -193,10 +193,10 @@ pub trait Host {
     fn automate(&self, index: i32, value: f32) {}
 
     /// Signal that automation of a parameter started (the knob has been touched / mouse button down).
-    fn begin_edit(&self, index: i32) { }
+    fn begin_edit(&self, index: i32) {}
 
     /// Signal that automation of a parameter ended (the knob is no longer been touched / mouse button up).
-    fn end_edit(&self, index: i32) { }
+    fn end_edit(&self, index: i32) {}
 
     /// Get the plugin ID of the currently loading plugin.
     ///
