@@ -1049,7 +1049,7 @@ mod tests {
                     match opcode {
                         OpCode::BeginEdit => {
                             assert_eq!(index, 123);
-                            true
+                            0
                         },
                         OpCode::Automate => {
                             assert_eq!(index, 123);
@@ -1058,7 +1058,7 @@ mod tests {
                         },
                         OpCode::EndEdit => {
                             assert_eq!(index, 123);
-                            true
+                            0
                         },
                         OpCode::Version => 2400,
                         OpCode::CurrentId => 9876,
