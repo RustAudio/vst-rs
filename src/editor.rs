@@ -93,7 +93,8 @@ impl_clike!(KnobMode);
 #[repr(usize)]
 #[derive(Debug, Copy, Clone)]
 pub enum Key {
-    Back = 1,
+    None = 0,
+    Back,
     Tab,
     Clear,
     Return,
