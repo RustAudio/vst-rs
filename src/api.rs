@@ -455,6 +455,8 @@ impl Events {
     /// # use vst::event::{Event, MidiEvent};
     /// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
+    /// #     fn new(host: HostCallback) -> Self { Self { host, send_buf: Default::default() } }
+    /// #
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// fn process_events(&mut self, events: &api::Events) {

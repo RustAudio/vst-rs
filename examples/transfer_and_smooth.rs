@@ -21,7 +21,6 @@ const TWO_PI: f32 = 2.0 * f32::consts::PI;
 
 // 1. Define a struct to hold parameters. Put a ParameterTransfer inside it,
 // plus optionally a HostCallback.
-#[derive(Default)]
 struct MyPluginParameters {
     #[allow(dead_code)]
     host: HostCallback,
@@ -29,7 +28,6 @@ struct MyPluginParameters {
 }
 
 // 2. Put an Arc reference to your parameter struct in your main Plugin struct.
-#[derive(Default)]
 struct MyPlugin {
     params: Arc<MyPluginParameters>,
     states: Vec<Smoothed>,

@@ -5,7 +5,7 @@ extern crate vst;
 extern crate time;
 
 use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, Info, Plugin, PluginParameters};
+use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::util::AtomicFloat;
 
 use std::collections::VecDeque;
@@ -42,12 +42,6 @@ struct DimensionExpander {
 struct DimensionExpanderParameters {
     dry_wet: AtomicFloat,
     size: AtomicFloat,
-}
-
-impl Default for DimensionExpander {
-    fn default() -> DimensionExpander {
-        DimensionExpander::new(0.12, 0.66)
-    }
 }
 
 impl DimensionExpander {
@@ -107,6 +101,10 @@ impl DimensionExpander {
 }
 
 impl Plugin for DimensionExpander {
+    fn new(_host: HostCallback) -> Self {
+        DimensionExpander::new(0.12, 0.66)
+    }
+
     fn get_info(&self) -> Info {
         Info {
             name: "Dimension Expander".to_string(),

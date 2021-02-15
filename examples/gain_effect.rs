@@ -5,7 +5,7 @@ extern crate vst;
 extern crate time;
 
 use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, Info, Plugin, PluginParameters};
+use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
 use vst::util::AtomicFloat;
 
 use std::sync::Arc;
@@ -33,18 +33,6 @@ struct GainEffectParameters {
     amplitude: AtomicFloat,
 }
 
-// All plugins using the `vst` crate will either need to implement the `Default`
-// trait, or derive from it.  By implementing the trait, we can set a default value.
-// Note that controls will always return a value from 0 - 1.  Setting a default to
-// 0.5 means it's halfway up.
-impl Default for GainEffect {
-    fn default() -> GainEffect {
-        GainEffect {
-            params: Arc::new(GainEffectParameters::default()),
-        }
-    }
-}
-
 impl Default for GainEffectParameters {
     fn default() -> GainEffectParameters {
         GainEffectParameters {
@@ -56,6 +44,14 @@ impl Default for GainEffectParameters {
 // All plugins using `vst` also need to implement the `Plugin` trait.  Here, we
 // define functions that give necessary info to our host.
 impl Plugin for GainEffect {
+    fn new(_host: HostCallback) -> Self {
+        // Note that controls will always return a value from 0 - 1.
+        // Setting a default to 0.5 means it's halfway up.
+        GainEffect {
+            params: Arc::new(GainEffectParameters::default()),
+        }
+    }
+
     fn get_info(&self) -> Info {
         Info {
             name: "Gain Effect in Rust".to_string(),

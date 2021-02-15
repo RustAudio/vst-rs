@@ -24,9 +24,10 @@ impl MyPlugin {
 
 impl Plugin for MyPlugin {
     fn new(host: HostCallback) -> Self {
-        let mut p = MyPlugin::default();
-        p.host = host;
-        p
+        MyPlugin {
+            host,
+            ..Default::default()
+        }
     }
 
     fn get_info(&self) -> Info {
