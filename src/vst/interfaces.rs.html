@@ -352,6 +352,13 @@
 <span id="349">349</span>
 <span id="350">350</span>
 <span id="351">351</span>
+<span id="352">352</span>
+<span id="353">353</span>
+<span id="354">354</span>
+<span id="355">355</span>
+<span id="356">356</span>
+<span id="357">357</span>
+<span id="358">358</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Function interfaces for VST 2.4 API.</span>
 
@@ -368,7 +375,7 @@
 <span class="kw">use</span> <span class="ident">host</span>::<span class="ident">Host</span>;
 
 <span class="doccomment">/// Deprecated process function.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_deprecated</span>(
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">process_deprecated</span>(
     <span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
     <span class="ident">_raw_inputs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">f32</span>,
     <span class="ident">_raw_outputs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">f32</span>,
@@ -377,7 +384,7 @@
 }
 
 <span class="doccomment">/// VST2.4 replacing function.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_replacing</span>(
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">process_replacing</span>(
     <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
     <span class="ident">raw_inputs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">f32</span>,
     <span class="ident">raw_outputs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">f32</span>,
@@ -393,7 +400,7 @@
 }
 
 <span class="doccomment">/// VST2.4 replacing function with `f64` values.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">process_replacing_f64</span>(
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">process_replacing_f64</span>(
     <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
     <span class="ident">raw_inputs</span>: <span class="kw-2">*</span><span class="kw">const</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">f64</span>,
     <span class="ident">raw_outputs</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">f64</span>,
@@ -408,12 +415,12 @@
 }
 
 <span class="doccomment">/// VST2.4 set parameter function.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">set_parameter</span>(<span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">f32</span>) {
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">set_parameter</span>(<span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">f32</span>) {
     <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">effect</span>).<span class="ident">get_params</span>() }.<span class="ident">set_parameter</span>(<span class="ident">index</span>, <span class="ident">value</span>);
 }
 
 <span class="doccomment">/// VST2.4 get parameter function.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">get_parameter</span>(<span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">get_parameter</span>(<span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
     <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">effect</span>).<span class="ident">get_params</span>() }.<span class="ident">get_parameter</span>(<span class="ident">index</span>)
 }
 
@@ -434,7 +441,14 @@
 }
 
 <span class="doccomment">/// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">dispatch</span>(<span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>, <span class="ident">opcode</span>: <span class="ident">i32</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">isize</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">opt</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+<span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">dispatch</span>(
+    <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
+    <span class="ident">opcode</span>: <span class="ident">i32</span>,
+    <span class="ident">index</span>: <span class="ident">i32</span>,
+    <span class="ident">value</span>: <span class="ident">isize</span>,
+    <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+    <span class="ident">opt</span>: <span class="ident">f32</span>,
+) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
     <span class="kw">use</span> <span class="ident">plugin</span>::{<span class="ident">CanDo</span>, <span class="ident">OpCode</span>};
 
     <span class="comment">// Convert passed in opcode to enum</span>

@@ -756,7 +756,7 @@
 
     <span class="macro">plugin_main</span><span class="macro">!</span>(<span class="ident">TestPlugin</span>);
 
-    <span class="kw">fn</span> <span class="ident">pass_callback</span>(
+    <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">pass_callback</span>(
         <span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
         <span class="ident">_opcode</span>: <span class="ident">i32</span>,
         <span class="ident">_index</span>: <span class="ident">i32</span>,
@@ -767,7 +767,7 @@
         <span class="number">1</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">fail_callback</span>(
+    <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">fail_callback</span>(
         <span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
         <span class="ident">_opcode</span>: <span class="ident">i32</span>,
         <span class="ident">_index</span>: <span class="ident">i32</span>,

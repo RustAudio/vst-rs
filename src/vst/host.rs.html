@@ -1848,7 +1848,7 @@
 <span class="kw">static</span> <span class="kw-2">mut</span> <span class="ident">LOAD_POINTER</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span> <span class="op">=</span> <span class="number">0</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>;
 
 <span class="doccomment">/// Function passed to plugin to handle dispatching host opcodes.</span>
-<span class="kw">fn</span> <span class="ident">callback_wrapper</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Host</span><span class="op">&gt;</span>(
+<span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">callback_wrapper</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Host</span><span class="op">&gt;</span>(
     <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
     <span class="ident">opcode</span>: <span class="ident">i32</span>,
     <span class="ident">index</span>: <span class="ident">i32</span>,

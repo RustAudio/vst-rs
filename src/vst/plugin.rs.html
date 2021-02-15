@@ -1105,6 +1105,7 @@
 <span id="1102">1102</span>
 <span id="1103">1103</span>
 <span id="1104">1104</span>
+<span id="1105">1105</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Plugin specific structures.</span>
 
@@ -1578,7 +1579,7 @@
 <span class="doccomment">/// traits: The `Plugin` trait containing setup and processing methods, and</span>
 <span class="doccomment">/// the `PluginParameters` trait containing methods for parameter access.</span>
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Plugin</span> : <span class="ident">Send</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Plugin</span>: <span class="ident">Send</span> {
     <span class="doccomment">/// This method must return an `Info` struct.</span>
     <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span>;
 
@@ -2146,13 +2147,14 @@
 
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
             <span class="kw">fn</span> <span class="ident">instance</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span> {
-                <span class="kw">fn</span> <span class="ident">host_callback</span>(<span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
-                                 <span class="ident">opcode</span>: <span class="ident">i32</span>,
-                                 <span class="ident">index</span>: <span class="ident">i32</span>,
-                                 <span class="ident">_value</span>: <span class="ident">isize</span>,
-                                 <span class="ident">_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
-                                 <span class="ident">opt</span>: <span class="ident">f32</span>)
-                                 <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+                <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">host_callback</span>(
+                    <span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
+                    <span class="ident">opcode</span>: <span class="ident">i32</span>,
+                    <span class="ident">index</span>: <span class="ident">i32</span>,
+                    <span class="ident">_value</span>: <span class="ident">isize</span>,
+                    <span class="ident">_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+                    <span class="ident">opt</span>: <span class="ident">f32</span>,
+                ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
                     <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">OpCode</span>::<span class="ident">from</span>(<span class="ident">opcode</span>);
                     <span class="kw">match</span> <span class="ident">opcode</span> {
                         <span class="ident">OpCode</span>::<span class="ident">BeginEdit</span> <span class="op">=</span><span class="op">&gt;</span> {
