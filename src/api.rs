@@ -28,24 +28,25 @@ pub type PluginMain = fn(callback: HostCallbackProc) -> *mut AEffect;
 /// Host callback function passed to plugin.
 /// Can be used to query host information from plugin side.
 pub type HostCallbackProc =
-    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+    extern "C" fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Dispatcher function used to process opcodes. Called by host.
 pub type DispatcherProc =
-    fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
+    extern "C" fn(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize;
 
 /// Process function used to process 32 bit floating point samples. Called by host.
-pub type ProcessProc = fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
+pub type ProcessProc =
+    extern "C" fn(effect: *mut AEffect, inputs: *const *const f32, outputs: *mut *mut f32, sample_frames: i32);
 
 /// Process function used to process 64 bit floating point samples. Called by host.
 pub type ProcessProcF64 =
-    fn(effect: *mut AEffect, inputs: *const *const f64, outputs: *mut *mut f64, sample_frames: i32);
+    extern "C" fn(effect: *mut AEffect, inputs: *const *const f64, outputs: *mut *mut f64, sample_frames: i32);
 
 /// Callback function used to set parameter values. Called by host.
-pub type SetParameterProc = fn(effect: *mut AEffect, index: i32, parameter: f32);
+pub type SetParameterProc = extern "C" fn(effect: *mut AEffect, index: i32, parameter: f32);
 
 /// Callback function used to get parameter values. Called by host.
-pub type GetParameterProc = fn(effect: *mut AEffect, index: i32) -> f32;
+pub type GetParameterProc = extern "C" fn(effect: *mut AEffect, index: i32) -> f32;
 
 /// Used with the VST API to pass around plugin information.
 #[allow(non_snake_case)]

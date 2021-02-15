@@ -470,7 +470,7 @@ impl Into<String> for CanDo {
 /// traits: The `Plugin` trait containing setup and processing methods, and
 /// the `PluginParameters` trait containing methods for parameter access.
 #[allow(unused_variables)]
-pub trait Plugin : Send {
+pub trait Plugin: Send {
     /// This method must return an `Info` struct.
     fn get_info(&self) -> Info;
 
@@ -1038,13 +1038,14 @@ mod tests {
 
             #[allow(dead_code)]
             fn instance() -> *mut AEffect {
-                fn host_callback(_effect: *mut AEffect,
-                                 opcode: i32,
-                                 index: i32,
-                                 _value: isize,
-                                 _ptr: *mut c_void,
-                                 opt: f32)
-                                 -> isize {
+                extern "C" fn host_callback(
+                    _effect: *mut AEffect,
+                    opcode: i32,
+                    index: i32,
+                    _value: isize,
+                    _ptr: *mut c_void,
+                    opt: f32,
+                ) -> isize {
                     let opcode = OpCode::from(opcode);
                     match opcode {
                         OpCode::BeginEdit => {

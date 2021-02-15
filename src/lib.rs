@@ -318,7 +318,7 @@ mod tests {
 
     plugin_main!(TestPlugin);
 
-    fn pass_callback(
+    extern "C" fn pass_callback(
         _effect: *mut AEffect,
         _opcode: i32,
         _index: i32,
@@ -329,7 +329,7 @@ mod tests {
         1
     }
 
-    fn fail_callback(
+    extern "C" fn fail_callback(
         _effect: *mut AEffect,
         _opcode: i32,
         _index: i32,

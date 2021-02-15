@@ -13,7 +13,7 @@ use editor::{Key, KeyCode, KnobMode, Rect};
 use host::Host;
 
 /// Deprecated process function.
-pub fn process_deprecated(
+pub extern "C" fn process_deprecated(
     _effect: *mut AEffect,
     _raw_inputs: *const *const f32,
     _raw_outputs: *mut *mut f32,
@@ -22,7 +22,7 @@ pub fn process_deprecated(
 }
 
 /// VST2.4 replacing function.
-pub fn process_replacing(
+pub extern "C" fn process_replacing(
     effect: *mut AEffect,
     raw_inputs: *const *const f32,
     raw_outputs: *mut *mut f32,
@@ -38,7 +38,7 @@ pub fn process_replacing(
 }
 
 /// VST2.4 replacing function with `f64` values.
-pub fn process_replacing_f64(
+pub extern "C" fn process_replacing_f64(
     effect: *mut AEffect,
     raw_inputs: *const *const f64,
     raw_outputs: *mut *mut f64,
@@ -53,12 +53,12 @@ pub fn process_replacing_f64(
 }
 
 /// VST2.4 set parameter function.
-pub fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
+pub extern "C" fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
     unsafe { (*effect).get_params() }.set_parameter(index, value);
 }
 
 /// VST2.4 get parameter function.
-pub fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
+pub extern "C" fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
     unsafe { (*effect).get_params() }.get_parameter(index)
 }
 
@@ -79,7 +79,14 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 }
 
 /// VST2.4 dispatch function. This function handles dispatching all opcodes to the VST plugin.
-pub fn dispatch(effect: *mut AEffect, opcode: i32, index: i32, value: isize, ptr: *mut c_void, opt: f32) -> isize {
+pub extern "C" fn dispatch(
+    effect: *mut AEffect,
+    opcode: i32,
+    index: i32,
+    value: isize,
+    ptr: *mut c_void,
+    opt: f32,
+) -> isize {
     use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum

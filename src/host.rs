@@ -891,7 +891,7 @@ impl<T: Float> HostBuffer<T> {
 static mut LOAD_POINTER: *mut c_void = 0 as *mut c_void;
 
 /// Function passed to plugin to handle dispatching host opcodes.
-fn callback_wrapper<T: Host>(
+extern "C" fn callback_wrapper<T: Host>(
     effect: *mut AEffect,
     opcode: i32,
     index: i32,
