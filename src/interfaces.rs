@@ -30,8 +30,7 @@ pub extern "C" fn process_replacing(
 ) {
     // Handle to the VST
     let plugin = unsafe { (*effect).get_plugin() };
-    let cache = unsafe { (*effect).get_cache() };
-    let info = &mut cache.info;
+    let info = unsafe { (*effect).get_info() };
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
     let mut buffer =
         unsafe { AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize) };
@@ -46,8 +45,7 @@ pub extern "C" fn process_replacing_f64(
     samples: i32,
 ) {
     let plugin = unsafe { (*effect).get_plugin() };
-    let cache = unsafe { (*effect).get_cache() };
-    let info = &mut cache.info;
+    let info = unsafe { (*effect).get_info() };
     let (input_count, output_count) = (info.inputs as usize, info.outputs as usize);
     let mut buffer =
         unsafe { AudioBuffer::from_raw(input_count, output_count, raw_inputs, raw_outputs, samples as usize) };
@@ -56,12 +54,12 @@ pub extern "C" fn process_replacing_f64(
 
 /// VST2.4 set parameter function.
 pub extern "C" fn set_parameter(effect: *mut AEffect, index: i32, value: f32) {
-    unsafe { (*effect).get_cache() }.params.set_parameter(index, value);
+    unsafe { (*effect).get_params() }.set_parameter(index, value);
 }
 
 /// VST2.4 get parameter function.
 pub extern "C" fn get_parameter(effect: *mut AEffect, index: i32) -> f32 {
-    unsafe { (*effect).get_cache() }.params.get_parameter(index)
+    unsafe { (*effect).get_params() }.get_parameter(index)
 }
 
 /// Copy a string into a destination buffer.
@@ -93,13 +91,14 @@ pub extern "C" fn dispatch(
 
     // Convert passed in opcode to enum
     let opcode = OpCode::from(opcode);
-    // Plugin handle
-    let plugin = unsafe { (*effect).get_plugin() };
-    let cache = unsafe { (*effect).get_cache() };
-    let params = &cache.params;
+    // Only query plugin or editor when needed to avoid creating multiple
+    // concurrent mutable references to the same object.
+    let get_plugin = || unsafe { (*effect).get_plugin() };
+    let get_editor = || unsafe { (*effect).get_editor() };
+    let params = unsafe { (*effect).get_params() };
 
     match opcode {
-        OpCode::Initialize => plugin.init(),
+        OpCode::Initialize => get_plugin().init(),
         OpCode::Shutdown => unsafe {
             (*effect).drop_plugin();
             drop(Box::from_raw(effect))
@@ -117,18 +116,18 @@ pub extern "C" fn dispatch(
         OpCode::GetParameterDisplay => return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN),
         OpCode::GetParameterName => return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
-        OpCode::SetSampleRate => plugin.set_sample_rate(opt),
-        OpCode::SetBlockSize => plugin.set_block_size(value as i64),
+        OpCode::SetSampleRate => get_plugin().set_sample_rate(opt),
+        OpCode::SetBlockSize => get_plugin().set_block_size(value as i64),
         OpCode::StateChanged => {
             if value == 1 {
-                plugin.resume();
+                get_plugin().resume();
             } else {
-                plugin.suspend();
+                get_plugin().suspend();
             }
         }
 
         OpCode::EditorGetRect => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 let size = editor.size();
                 let pos = editor.position();
 
@@ -147,7 +146,7 @@ pub extern "C" fn dispatch(
             }
         }
         OpCode::EditorOpen => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 // `ptr` is a window handle to the parent window.
                 // See the documentation for `Editor::open` for details.
                 if editor.open(ptr) {
@@ -156,13 +155,13 @@ pub extern "C" fn dispatch(
             }
         }
         OpCode::EditorClose => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 editor.close();
             }
         }
 
         OpCode::EditorIdle => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 editor.idle();
             }
         }
@@ -195,7 +194,7 @@ pub extern "C" fn dispatch(
         }
 
         OpCode::ProcessEvents => {
-            plugin.process_events(unsafe { &*(ptr as *const api::Events) });
+            get_plugin().process_events(unsafe { &*(ptr as *const api::Events) });
         }
         OpCode::CanBeAutomated => return params.can_be_automated(index) as isize,
         OpCode::StringToParameter => return params.string_to_parameter(index, read_string(ptr)) as isize,
@@ -203,40 +202,40 @@ pub extern "C" fn dispatch(
         OpCode::GetPresetName => return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
         OpCode::GetInputInfo => {
-            if index >= 0 && index < plugin.get_info().inputs {
+            if index >= 0 && index < get_plugin().get_info().inputs {
                 unsafe {
                     let ptr = ptr as *mut api::ChannelProperties;
-                    *ptr = plugin.get_input_info(index).into();
+                    *ptr = get_plugin().get_input_info(index).into();
                 }
             }
         }
         OpCode::GetOutputInfo => {
-            if index >= 0 && index < plugin.get_info().outputs {
+            if index >= 0 && index < get_plugin().get_info().outputs {
                 unsafe {
                     let ptr = ptr as *mut api::ChannelProperties;
-                    *ptr = plugin.get_output_info(index).into();
+                    *ptr = get_plugin().get_output_info(index).into();
                 }
             }
         }
         OpCode::GetCategory => {
-            return plugin.get_info().category.into();
+            return get_plugin().get_info().category.into();
         }
 
-        OpCode::GetEffectName => return copy_string(ptr, &plugin.get_info().name, MAX_VENDOR_STR_LEN),
+        OpCode::GetEffectName => return copy_string(ptr, &get_plugin().get_info().name, MAX_VENDOR_STR_LEN),
 
-        OpCode::GetVendorName => return copy_string(ptr, &plugin.get_info().vendor, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductName => return copy_string(ptr, &plugin.get_info().name, MAX_PRODUCT_STR_LEN),
-        OpCode::GetVendorVersion => return plugin.get_info().version as isize,
-        OpCode::VendorSpecific => return plugin.vendor_specific(index, value, ptr, opt),
+        OpCode::GetVendorName => return copy_string(ptr, &get_plugin().get_info().vendor, MAX_VENDOR_STR_LEN),
+        OpCode::GetProductName => return copy_string(ptr, &get_plugin().get_info().name, MAX_PRODUCT_STR_LEN),
+        OpCode::GetVendorVersion => return get_plugin().get_info().version as isize,
+        OpCode::VendorSpecific => return get_plugin().vendor_specific(index, value, ptr, opt),
         OpCode::CanDo => {
             let can_do = CanDo::from_str(&read_string(ptr));
-            return plugin.can_do(can_do).into();
+            return get_plugin().can_do(can_do).into();
         }
         OpCode::GetTailSize => {
-            if plugin.get_tail_size() == 0 {
+            if get_plugin().get_tail_size() == 0 {
                 return 1;
             } else {
-                return plugin.get_tail_size();
+                return get_plugin().get_tail_size();
             }
         }
 
@@ -244,7 +243,7 @@ pub extern "C" fn dispatch(
         OpCode::GetApiVersion => return 2400,
 
         OpCode::EditorKeyDown => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 editor.key_down(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
@@ -253,7 +252,7 @@ pub extern "C" fn dispatch(
             }
         }
         OpCode::EditorKeyUp => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 editor.key_up(KeyCode {
                     character: index as u8 as char,
                     key: Key::from(value),
@@ -262,16 +261,16 @@ pub extern "C" fn dispatch(
             }
         }
         OpCode::EditorSetKnobMode => {
-            if let Some(ref mut editor) = cache.editor {
+            if let Some(ref mut editor) = get_editor() {
                 editor.set_knob_mode(KnobMode::from(value));
             }
         }
 
-        OpCode::StartProcess => plugin.start_process(),
-        OpCode::StopProcess => plugin.stop_process(),
+        OpCode::StartProcess => get_plugin().start_process(),
+        OpCode::StopProcess => get_plugin().stop_process(),
 
-        OpCode::GetNumMidiInputs => return unsafe { (*effect).get_cache() }.info.midi_inputs as isize,
-        OpCode::GetNumMidiOutputs => return unsafe { (*effect).get_cache() }.info.midi_outputs as isize,
+        OpCode::GetNumMidiInputs => return unsafe { (*effect).get_info() }.midi_inputs as isize,
+        OpCode::GetNumMidiOutputs => return unsafe { (*effect).get_info() }.midi_outputs as isize,
 
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);
@@ -302,6 +301,8 @@ pub fn host_dispatch(
     match OpCode::from(opcode) {
         OpCode::Version => return 2400,
         OpCode::Automate => host.automate(index, opt),
+        OpCode::BeginEdit => host.begin_edit(index),
+        OpCode::EndEdit => host.end_edit(index),
 
         OpCode::Idle => host.idle(),
 

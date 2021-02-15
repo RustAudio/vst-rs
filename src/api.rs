@@ -1,9 +1,11 @@
 //! Structures and types for interfacing with the VST 2.4 API.
 
 use std::os::raw::c_void;
+use std::sync::Arc;
 
 use self::consts::*;
-use plugin::Plugin;
+use editor::Editor;
+use plugin::{Info, Plugin, PluginParameters};
 
 /// Constant values
 #[allow(missing_docs)] // For obvious constants
@@ -131,21 +133,34 @@ pub struct AEffect {
 
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
+    /// Caller is responsible for not calling this function concurrently.
     // Supresses warning about returning a reference to a box
     #[allow(clippy::borrowed_box)]
-    pub unsafe fn get_plugin(&mut self) -> &mut Box<dyn Plugin> {
+    pub unsafe fn get_plugin(&self) -> &mut Box<dyn Plugin> {
         //FIXME: find a way to do this without resorting to transmuting via a box
         &mut *(self.object as *mut Box<dyn Plugin>)
+    }
+
+    /// Return handle to Info object. Only works for plugins created using this library.
+    pub unsafe fn get_info(&self) -> &Info {
+        &(*(self.user as *mut super::PluginCache)).info
+    }
+
+    /// Return handle to PluginParameters object. Only works for plugins created using this library.
+    pub unsafe fn get_params(&self) -> &Arc<dyn PluginParameters> {
+        &(*(self.user as *mut super::PluginCache)).params
+    }
+
+    /// Return handle to Editor object. Only works for plugins created using this library.
+    /// Caller is responsible for not calling this function concurrently.
+    pub unsafe fn get_editor(&self) -> &mut Option<Box<dyn Editor>> {
+        &mut (*(self.user as *mut super::PluginCache)).editor
     }
 
     /// Drop the Plugin object. Only works for plugins created using this library.
     pub unsafe fn drop_plugin(&mut self) {
         drop(Box::from_raw(self.object as *mut Box<dyn Plugin>));
         drop(Box::from_raw(self.user as *mut super::PluginCache));
-    }
-
-    pub(crate) unsafe fn get_cache(&mut self) -> &mut super::PluginCache {
-        &mut *(self.user as *mut _)
     }
 }
 
@@ -628,6 +643,8 @@ pub struct SysExEvent {
     /// Reserved for future use. Should be 0.
     pub _reserved2: isize,
 }
+
+unsafe impl Send for SysExEvent {}
 
 #[repr(C)]
 #[derive(Clone, Default, Copy)]

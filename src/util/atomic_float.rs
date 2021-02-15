@@ -33,3 +33,27 @@ impl Default for AtomicFloat {
         AtomicFloat::new(0.0)
     }
 }
+
+impl std::fmt::Debug for AtomicFloat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Debug::fmt(&self.get(), f)
+    }
+}
+
+impl std::fmt::Display for AtomicFloat {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        std::fmt::Display::fmt(&self.get(), f)
+    }
+}
+
+impl From<f32> for AtomicFloat {
+    fn from(value: f32) -> Self {
+        AtomicFloat::new(value)
+    }
+}
+
+impl From<AtomicFloat> for f32 {
+    fn from(value: AtomicFloat) -> Self {
+        value.get()
+    }
+}

@@ -1,5 +1,4 @@
 # vst-rs
-[![Travis Build][trav-img]][trav-url]
 [![crates.io][crates-img]][crates-url]
 [![dependency status](https://deps.rs/repo/github/rustaudio/vst-rs/status.svg)](https://deps.rs/repo/github/rustaudio/vst-rs)
 [![Discord Chat][discord-img]][discord-url]
@@ -16,7 +15,10 @@ your plugin code to be compatible with the new, thread-safe plugin API. See the
 to port your plugin.
 
 ## Library Documentation
-  - https://rustaudio.github.io/vst-rs/vst/
+
+Documentation for **released** versions can be found [here](https://docs.rs/vst/).
+
+Development documentation (current `master` branch) can be found [here](https://rustaudio.github.io/vst-rs/vst/).
 
 ## Crate
 This crate is available on [crates.io](https://crates.io/crates/vst).  If you prefer the bleeding-edge, you can also
@@ -24,7 +26,7 @@ include the crate directly from the official [Github repository](https://github.
 
 ```toml
 # get from crates.io.
-vst = "0.2.0"
+vst = "0.2.1"
 ```
 ```toml
 # get directly from Github.  This might be unstable!
@@ -81,8 +83,6 @@ name = "basicvst"
 crate-type = ["cdylib"]
 ```
 
-[trav-img]: https://travis-ci.org/rustaudio/vst-rs.svg?branch=master
-[trav-url]: https://travis-ci.org/rustaudio/vst-rs
 [crates-img]: https://img.shields.io/crates/v/vst.svg
 [crates-url]: https://crates.io/crates/vst
 [discord-img]: https://img.shields.io/discord/590254806208217089.svg?label=Discord&logo=discord&color=blue

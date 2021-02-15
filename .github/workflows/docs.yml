@@ -1,0 +1,46 @@
+name: Docs
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # Installs the latest stable rust, and all components needed for the rest of the CI pipeline.
+      - name: Set up CI environment
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      # Sanity check: make sure the release builds
+      - name: Build
+        run: cargo build --verbose
+
+      # Sanity check: make sure all tests in the release pass
+      - name: Test
+        run: cargo test --verbose
+
+      # Generate docs
+      # TODO: what does the last line here do?
+      - name: Generate docs
+        env:
+          GH_ENCRYPTED_TOKEN: ${{ secrets.GH_ENCRYPTED_TOKEN }}
+        run: |
+          cargo doc --all --no-deps
+          echo '<meta http-equiv=refresh content=0;url=vst/index.html>' > target/doc/index.html
+
+      # Push docs to github pages (branch `gh-pages`)
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: target/doc

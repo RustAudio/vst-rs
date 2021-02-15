@@ -1,0 +1,33 @@
+name: Deploy
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Installs the latest stable rust, and all components needed for the rest of the CI pipeline.
+      - name: Set up CI environment
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      # Sanity check: make sure the release builds
+      - name: Build
+        run: cargo build --verbose
+
+      # Sanity check: make sure all tests in the release pass
+      - name: Test
+        run: cargo test --verbose
+
+      # Deploy to crates.io
+      # Only works on github releases (tagged commits)
+      - name: Deploy to crates.io
+        env:
+          CRATES_IO_TOKEN: ${{ secrets.CRATES_IO_TOKEN }}
+        run: cargo publish --token $CRATES_IO_TOKEN --manifest-path Cargo.toml

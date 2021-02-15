@@ -1,6 +1,6 @@
 [package]
 name = "vst"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
 	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
 	"Boscop",
@@ -23,7 +23,6 @@ description = "VST 2.4 API implementation in rust. Create plugins or hosts."
 
 readme = "README.md"
 repository = "https://github.com/rustaudio/vst-rs"
-documentation = "https://rustaudio.github.io/vst-rs/vst/"
 
 license = "MIT"
 keywords = ["vst", "vst2", "plugin"]
