@@ -297,6 +297,7 @@ struct PluginParametersInstance {
     effect: UnsafeCell<*mut AEffect>,
 }
 
+unsafe impl Send for PluginParametersInstance {}
 unsafe impl Sync for PluginParametersInstance {}
 
 impl Drop for PluginInstance {
