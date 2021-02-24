@@ -31,6 +31,7 @@ struct LadderFilter {
     // In this we find it by trapezoidal integration to avoid the unit delay
     s: [f32; 4],
 }
+
 struct LadderParameters {
     // the "cutoff" parameter. Determines how heavy filtering is
     cutoff: AtomicFloat,
@@ -46,6 +47,7 @@ struct LadderParameters {
     // a drive parameter. Just used to increase the volume, which results in heavier distortion
     drive: AtomicFloat,
 }
+
 impl Default for LadderParameters {
     fn default() -> LadderParameters {
         LadderParameters {
@@ -59,6 +61,7 @@ impl Default for LadderParameters {
         }
     }
 }
+
 // member methods for the struct
 impl LadderFilter {
     // the state needs to be updated after each process. Found by trapezoidal integration
@@ -68,6 +71,7 @@ impl LadderFilter {
         self.s[2] = 2. * self.vout[2] - self.s[2];
         self.s[3] = 2. * self.vout[3] - self.s[3];
     }
+
     // performs a complete filter process (mystran's method)
     fn tick_pivotal(&mut self, input: f32) {
         if self.params.drive.get() > 0. {
@@ -78,6 +82,7 @@ impl LadderFilter {
         }
         self.update_state();
     }
+
     // nonlinear ladder filter function with distortion.
     fn run_ladder_nonlinear(&mut self, input: f32) {
         let mut a = [1f32; 5];
@@ -110,6 +115,7 @@ impl LadderFilter {
         self.vout[1] = g1 * (self.params.g.get() * a[2] * self.vout[0] + self.s[1]);
         self.vout[2] = g2 * (self.params.g.get() * a[3] * self.vout[1] + self.s[2]);
     }
+
     // linear version without distortion
     pub fn run_ladder_linear(&mut self, input: f32) {
         // denominators of solutions of individual stages. Simplifies the math a bit
@@ -127,6 +133,7 @@ impl LadderFilter {
         self.vout[2] = g0 * (self.params.g.get() * self.vout[1] + self.s[2]);
     }
 }
+
 impl LadderParameters {
     pub fn set_cutoff(&self, value: f32) {
         // cutoff formula gives us a natural feeling cutoff knob that spends more time in the low frequencies
@@ -134,15 +141,18 @@ impl LadderParameters {
         // bilinear transformation for g gives us a very accurate cutoff
         self.g.set((PI * self.cutoff.get() / (self.sample_rate.get())).tan());
     }
+
     // returns the value used to set cutoff. for get_parameter function
     pub fn get_cutoff(&self) -> f32 {
         1. + 0.17012975 * (0.00005 * self.cutoff.get()).ln()
     }
+
     pub fn set_poles(&self, value: f32) {
         self.pole_value.set(value);
         self.poles.store(((value * 3.).round()) as usize, Ordering::Relaxed);
     }
 }
+
 impl PluginParameters for LadderParameters {
     // get_parameter has to return the value used in set_parameter
     fn get_parameter(&self, index: i32) -> f32 {
@@ -154,6 +164,7 @@ impl PluginParameters for LadderParameters {
             _ => 0.0,
         }
     }
+
     fn set_parameter(&self, index: i32, value: f32) {
         match index {
             0 => self.set_cutoff(value),
@@ -173,6 +184,7 @@ impl PluginParameters for LadderParameters {
             _ => "".to_string(),
         }
     }
+
     fn get_parameter_label(&self, index: i32) -> String {
         match index {
             0 => "Hz".to_string(),
@@ -194,6 +206,7 @@ impl PluginParameters for LadderParameters {
         }
     }
 }
+
 impl Plugin for LadderFilter {
     fn new(_host: HostCallback) -> Self {
         LadderFilter {
@@ -202,9 +215,11 @@ impl Plugin for LadderFilter {
             params: Arc::new(LadderParameters::default()),
         }
     }
+
     fn set_sample_rate(&mut self, rate: f32) {
         self.params.sample_rate.set(rate);
     }
+
     fn get_info(&self) -> Info {
         Info {
             name: "LadderFilter".to_string(),
@@ -216,6 +231,7 @@ impl Plugin for LadderFilter {
             ..Default::default()
         }
     }
+
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {
         for (input_buffer, output_buffer) in buffer.zip() {
             for (input_sample, output_sample) in input_buffer.iter().zip(output_buffer) {
@@ -225,8 +241,10 @@ impl Plugin for LadderFilter {
             }
         }
     }
+
     fn get_parameter_object(&mut self) -> Arc<dyn PluginParameters> {
         Arc::clone(&self.params) as Arc<dyn PluginParameters>
     }
 }
+
 plugin_main!(LadderFilter);
