@@ -37,7 +37,7 @@ bitflags = "1"
 libloading = "0.7"
 
 [dev-dependencies]
-time = "0.1"
+time = "0.2"
 rand = "0.7"
 
 [[example]]
