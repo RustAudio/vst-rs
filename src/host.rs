@@ -411,22 +411,23 @@ impl<T: Host> PluginLoader<T> {
     ///     `/Library/Audio/Plug-Ins/VST/iZotope Ozone 5.vst/Contents/MacOS/PluginHooksVST`
     pub fn load(path: &Path, host: Arc<Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
         // Try loading the library at the given path
-        let lib = match Library::new(path) {
-            Ok(l) => l,
-            Err(_) => return Err(PluginLoadError::InvalidPath),
-        };
+        unsafe {
+            let lib = match Library::new(path) {
+                Ok(l) => l,
+                Err(_) => return Err(PluginLoadError::InvalidPath),
+            };
 
-        Ok(PluginLoader {
-            main: unsafe {
-                // Search the library for the VSTAPI entry point
-                match lib.get(b"VSTPluginMain") {
-                    Ok(s) => *s,
-                    _ => return Err(PluginLoadError::NotAPlugin),
-                }
-            },
-            lib: Arc::new(lib),
-            host,
-        })
+            Ok(PluginLoader {
+                main:
+                    // Search the library for the VSTAPI entry point
+                    match lib.get(b"VSTPluginMain") {
+                        Ok(s) => *s,
+                        _ => return Err(PluginLoadError::NotAPlugin),
+                    },
+                lib: Arc::new(lib),
+                host,
+            })
+        }
     }
 
     /// Call the VST entry point and retrieve a (possibly null) pointer.
