@@ -34,13 +34,11 @@ vst = { git = "https://github.com/rustaudio/vst-rs" }
 ```
 
 ## Usage
-To create a plugin, simply create a type which implements `plugin::Plugin` and
-`std::default::Default`. Then call the macro `plugin_main!`, which will export
-the necessary functions and handle dealing with the rest of the API.
+To create a plugin, simply create a type which implements the `Plugin` trait. Then call the `plugin_main` macro, which will export the necessary functions and handle dealing with the rest of the API.
 
 ## Example Plugin
-A simple plugin that bears no functionality. The provided Cargo.toml has a
-crate-type directive which builds a dynamic library, usable by any VST host.
+A simple plugin that bears no functionality. The provided `Cargo.toml` has a
+`crate-type` directive which builds a dynamic library, usable by any VST host.
 
 `src/lib.rs`
 
@@ -48,17 +46,19 @@ crate-type directive which builds a dynamic library, usable by any VST host.
 #[macro_use]
 extern crate vst;
 
-use vst::plugin::{Info, Plugin};
+use vst::plugin::{HostCallback, Info, Plugin};
 
-#[derive(Default)]
 struct BasicPlugin;
 
 impl Plugin for BasicPlugin {
+    fn new(_host: HostCallback) -> Self {
+        BasicPlugin
+    }
+
     fn get_info(&self) -> Info {
         Info {
             name: "Basic Plugin".to_string(),
             unique_id: 1357, // Used by hosts to differentiate between plugins.
-
             ..Default::default()
         }
     }

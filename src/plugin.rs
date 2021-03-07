@@ -454,8 +454,8 @@ impl Into<String> for CanDo {
 
 /// Must be implemented by all VST plugins.
 ///
-/// All methods except `get_info` provide a default implementation which does nothing and can be
-/// safely overridden.
+/// All methods except `new` and `get_info` provide a default implementation
+/// which does nothing and can be safely overridden.
 ///
 /// At any time, a plugin is in one of two states: *suspended* or *resumed*.
 /// While a plugin is in the *suspended* state, various processing parameters,
@@ -487,7 +487,6 @@ pub trait Plugin: Send {
     /// # use vst::plugin::{Plugin, Info};
     /// use vst::plugin::HostCallback;
     ///
-    /// # #[derive(Default)]
     /// struct ExamplePlugin {
     ///     host: HostCallback
     /// }
@@ -495,7 +494,7 @@ pub trait Plugin: Send {
     /// impl Plugin for ExamplePlugin {
     ///     fn new(host: HostCallback) -> ExamplePlugin {
     ///         ExamplePlugin {
-    ///             host: host
+    ///             host
     ///         }
     ///     }
     ///
@@ -516,10 +515,7 @@ pub trait Plugin: Send {
     /// ```
     fn new(host: HostCallback) -> Self
     where
-        Self: Sized + Default,
-    {
-        Default::default()
-    }
+        Self: Sized;
 
     /// Called when plugin is fully initialized.
     ///
@@ -566,11 +562,13 @@ pub trait Plugin: Send {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst::plugin::{Info, Plugin};
+    /// # use vst::plugin::{HostCallback, Info, Plugin};
     /// # use vst::buffer::AudioBuffer;
     /// #
     /// # struct ExamplePlugin;
     /// # impl Plugin for ExamplePlugin {
+    /// #     fn new(_host: HostCallback) -> Self { Self }
+    /// #
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
@@ -607,11 +605,13 @@ pub trait Plugin: Send {
     ///
     /// # Example
     /// ```no_run
-    /// # use vst::plugin::{Info, Plugin};
+    /// # use vst::plugin::{HostCallback, Info, Plugin};
     /// # use vst::buffer::AudioBuffer;
     /// #
     /// # struct ExamplePlugin;
     /// # impl Plugin for ExamplePlugin {
+    /// #     fn new(_host: HostCallback) -> Self { Self }
+    /// #
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// // Processor that clips samples above 0.4 or below -0.4:
@@ -789,31 +789,8 @@ impl PluginParameters for DummyPluginParameters {}
 ///
 /// # Panics
 ///
-/// All methods in this struct will panic if the plugin has not yet been initialized. In practice,
-/// this can only occur if the plugin queries the host for information when `Default::default()` is
-/// called.
-///
-/// ```should_panic
-/// # use vst::plugin::{Info, Plugin, HostCallback};
-/// struct ExamplePlugin;
-///
-/// impl Default for ExamplePlugin {
-///     fn default() -> ExamplePlugin {
-///         // Will panic, don't do this. If needed, you can query
-///         // the host during initialization via Vst::new()
-///         let host: HostCallback = Default::default();
-///         let version = host.vst_version();
-///
-///         // ...
-/// #         ExamplePlugin
-///     }
-/// }
-/// #
-/// # impl Plugin for ExamplePlugin {
-/// #     fn get_info(&self) -> Info { Default::default() }
-/// # }
-/// # fn main() { let plugin: ExamplePlugin = Default::default(); }
-/// ```
+/// All methods in this struct will panic if the `HostCallback` was constructed using
+/// `Default::default()` rather than being set to the value passed to `Plugin::new`.
 #[derive(Copy, Clone)]
 pub struct HostCallback {
     callback: Option<HostCallbackProc>,

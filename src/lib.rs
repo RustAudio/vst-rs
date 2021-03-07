@@ -37,12 +37,15 @@
 //! #[macro_use]
 //! extern crate vst;
 //!
-//! use vst::plugin::{Info, Plugin};
+//! use vst::plugin::{HostCallback, Info, Plugin};
 //!
-//! #[derive(Default)]
 //! struct BasicPlugin;
 //!
 //! impl Plugin for BasicPlugin {
+//!     fn new(_host: HostCallback) -> Self {
+//!         BasicPlugin
+//!     }
+//!
 //!     fn get_info(&self) -> Info {
 //!         Info {
 //!             name: "Basic Plugin".to_string(),
@@ -159,8 +162,7 @@ use plugin::{HostCallback, Plugin};
 
 /// Exports the necessary symbols for the plugin to be used by a VST host.
 ///
-/// This macro takes a type which must implement the traits `plugin::Plugin` and
-/// `std::default::Default`.
+/// This macro takes a type which must implement the `Plugin` trait.
 #[macro_export]
 macro_rules! plugin_main {
     ($t:ty) => {
@@ -187,7 +189,7 @@ macro_rules! plugin_main {
 
 /// Initializes a VST plugin and returns a raw pointer to an AEffect struct.
 #[doc(hidden)]
-pub fn main<T: Plugin + Default>(callback: HostCallbackProc) -> *mut AEffect {
+pub fn main<T: Plugin>(callback: HostCallbackProc) -> *mut AEffect {
     // Initialize as much of the AEffect as we can before creating the plugin.
     // In particular, initialize all the function pointers, since initializing
     // these to zero is undefined behavior.
@@ -292,12 +294,15 @@ mod tests {
     use api::consts::VST_MAGIC;
     use api::AEffect;
     use interfaces;
-    use plugin::{Info, Plugin};
+    use plugin::{HostCallback, Info, Plugin};
 
-    #[derive(Default)]
     struct TestPlugin;
 
     impl Plugin for TestPlugin {
+        fn new(_host: HostCallback) -> Self {
+            TestPlugin
+        }
+
         fn get_info(&self) -> Info {
             Info {
                 name: "Test Plugin".to_string(),

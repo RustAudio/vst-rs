@@ -18,7 +18,7 @@ use buffer::AudioBuffer;
 use channels::ChannelInfo;
 use editor::{Editor, Rect};
 use interfaces;
-use plugin::{self, Category, Info, Plugin, PluginParameters};
+use plugin::{self, Category, HostCallback, Info, Plugin, PluginParameters};
 
 #[repr(usize)]
 #[derive(Clone, Copy, Debug)]
@@ -564,6 +564,11 @@ impl Dispatch for PluginParametersInstance {
 impl Plugin for PluginInstance {
     fn get_info(&self) -> plugin::Info {
         self.info.clone()
+    }
+
+    fn new(_host: HostCallback) -> Self {
+        // Plugin::new is only called on client side and PluginInstance is only used on host side
+        unreachable!()
     }
 
     fn init(&mut self) {

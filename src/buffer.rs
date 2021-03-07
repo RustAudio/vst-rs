@@ -419,6 +419,8 @@ impl SendEventBuffer {
     /// # use vst::event::*;
     /// # struct ExamplePlugin { host: HostCallback, send_buffer: SendEventBuffer }
     /// # impl Plugin for ExamplePlugin {
+    /// #     fn new(host: HostCallback) -> Self { Self { host, send_buffer: Default::default() } }
+    /// #
     /// #     fn get_info(&self) -> Info { Default::default() }
     /// #
     /// fn process(&mut self, buffer: &mut AudioBuffer<f32>){
