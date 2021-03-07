@@ -1083,29 +1083,6 @@
 <span id="1080">1080</span>
 <span id="1081">1081</span>
 <span id="1082">1082</span>
-<span id="1083">1083</span>
-<span id="1084">1084</span>
-<span id="1085">1085</span>
-<span id="1086">1086</span>
-<span id="1087">1087</span>
-<span id="1088">1088</span>
-<span id="1089">1089</span>
-<span id="1090">1090</span>
-<span id="1091">1091</span>
-<span id="1092">1092</span>
-<span id="1093">1093</span>
-<span id="1094">1094</span>
-<span id="1095">1095</span>
-<span id="1096">1096</span>
-<span id="1097">1097</span>
-<span id="1098">1098</span>
-<span id="1099">1099</span>
-<span id="1100">1100</span>
-<span id="1101">1101</span>
-<span id="1102">1102</span>
-<span id="1103">1103</span>
-<span id="1104">1104</span>
-<span id="1105">1105</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Plugin specific structures.</span>
 
@@ -1563,8 +1540,8 @@
 
 <span class="doccomment">/// Must be implemented by all VST plugins.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// All methods except `get_info` provide a default implementation which does nothing and can be</span>
-<span class="doccomment">/// safely overridden.</span>
+<span class="doccomment">/// All methods except `new` and `get_info` provide a default implementation</span>
+<span class="doccomment">/// which does nothing and can be safely overridden.</span>
 <span class="doccomment">///</span>
 <span class="doccomment">/// At any time, a plugin is in one of two states: *suspended* or *resumed*.</span>
 <span class="doccomment">/// While a plugin is in the *suspended* state, various processing parameters,</span>
@@ -1596,7 +1573,6 @@
     <span class="doccomment">/// # use vst::plugin::{Plugin, Info};</span>
     <span class="doccomment">/// use vst::plugin::HostCallback;</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// # #[derive(Default)]</span>
     <span class="doccomment">/// struct ExamplePlugin {</span>
     <span class="doccomment">///     host: HostCallback</span>
     <span class="doccomment">/// }</span>
@@ -1604,7 +1580,7 @@
     <span class="doccomment">/// impl Plugin for ExamplePlugin {</span>
     <span class="doccomment">///     fn new(host: HostCallback) -&gt; ExamplePlugin {</span>
     <span class="doccomment">///         ExamplePlugin {</span>
-    <span class="doccomment">///             host: host</span>
+    <span class="doccomment">///             host</span>
     <span class="doccomment">///         }</span>
     <span class="doccomment">///     }</span>
     <span class="doccomment">///</span>
@@ -1625,10 +1601,7 @@
     <span class="doccomment">/// ```</span>
     <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">HostCallback</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
     <span class="kw">where</span>
-        <span class="self">Self</span>: <span class="ident">Sized</span> <span class="op">+</span> <span class="ident">Default</span>,
-    {
-        <span class="ident">Default</span>::<span class="ident">default</span>()
-    }
+        <span class="self">Self</span>: <span class="ident">Sized</span>;
 
     <span class="doccomment">/// Called when plugin is fully initialized.</span>
     <span class="doccomment">///</span>
@@ -1675,11 +1648,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use vst::plugin::{Info, Plugin};</span>
+    <span class="doccomment">/// # use vst::plugin::{HostCallback, Info, Plugin};</span>
     <span class="doccomment">/// # use vst::buffer::AudioBuffer;</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # struct ExamplePlugin;</span>
     <span class="doccomment">/// # impl Plugin for ExamplePlugin {</span>
+    <span class="doccomment">/// #     fn new(_host: HostCallback) -&gt; Self { Self }</span>
+    <span class="doccomment">/// #</span>
     <span class="doccomment">/// #     fn get_info(&amp;self) -&gt; Info { Default::default() }</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// // Processor that clips samples above 0.4 or below -0.4:</span>
@@ -1716,11 +1691,13 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">/// ```no_run</span>
-    <span class="doccomment">/// # use vst::plugin::{Info, Plugin};</span>
+    <span class="doccomment">/// # use vst::plugin::{HostCallback, Info, Plugin};</span>
     <span class="doccomment">/// # use vst::buffer::AudioBuffer;</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// # struct ExamplePlugin;</span>
     <span class="doccomment">/// # impl Plugin for ExamplePlugin {</span>
+    <span class="doccomment">/// #     fn new(_host: HostCallback) -&gt; Self { Self }</span>
+    <span class="doccomment">/// #</span>
     <span class="doccomment">/// #     fn get_info(&amp;self) -&gt; Info { Default::default() }</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// // Processor that clips samples above 0.4 or below -0.4:</span>
@@ -1898,31 +1875,8 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// # Panics</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// All methods in this struct will panic if the plugin has not yet been initialized. In practice,</span>
-<span class="doccomment">/// this can only occur if the plugin queries the host for information when `Default::default()` is</span>
-<span class="doccomment">/// called.</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// ```should_panic</span>
-<span class="doccomment">/// # use vst::plugin::{Info, Plugin, HostCallback};</span>
-<span class="doccomment">/// struct ExamplePlugin;</span>
-<span class="doccomment">///</span>
-<span class="doccomment">/// impl Default for ExamplePlugin {</span>
-<span class="doccomment">///     fn default() -&gt; ExamplePlugin {</span>
-<span class="doccomment">///         // Will panic, don&#39;t do this. If needed, you can query</span>
-<span class="doccomment">///         // the host during initialization via Vst::new()</span>
-<span class="doccomment">///         let host: HostCallback = Default::default();</span>
-<span class="doccomment">///         let version = host.vst_version();</span>
-<span class="doccomment">///</span>
-<span class="doccomment">///         // ...</span>
-<span class="doccomment">/// #         ExamplePlugin</span>
-<span class="doccomment">///     }</span>
-<span class="doccomment">/// }</span>
-<span class="doccomment">/// #</span>
-<span class="doccomment">/// # impl Plugin for ExamplePlugin {</span>
-<span class="doccomment">/// #     fn get_info(&amp;self) -&gt; Info { Default::default() }</span>
-<span class="doccomment">/// # }</span>
-<span class="doccomment">/// # fn main() { let plugin: ExamplePlugin = Default::default(); }</span>
-<span class="doccomment">/// ```</span>
+<span class="doccomment">/// All methods in this struct will panic if the `HostCallback` was constructed using</span>
+<span class="doccomment">/// `Default::default()` rather than being set to the value passed to `Plugin::new`.</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HostCallback</span> {
     <span class="ident">callback</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HostCallbackProc</span><span class="op">&gt;</span>,

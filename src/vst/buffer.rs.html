@@ -609,6 +609,8 @@
 <span id="606">606</span>
 <span id="607">607</span>
 <span id="608">608</span>
+<span id="609">609</span>
+<span id="610">610</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Buffers to safely work with audio samples.</span>
 
@@ -1031,6 +1033,8 @@
     <span class="doccomment">/// # use vst::event::*;</span>
     <span class="doccomment">/// # struct ExamplePlugin { host: HostCallback, send_buffer: SendEventBuffer }</span>
     <span class="doccomment">/// # impl Plugin for ExamplePlugin {</span>
+    <span class="doccomment">/// #     fn new(host: HostCallback) -&gt; Self { Self { host, send_buffer: Default::default() } }</span>
+    <span class="doccomment">/// #</span>
     <span class="doccomment">/// #     fn get_info(&amp;self) -&gt; Info { Default::default() }</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// fn process(&amp;mut self, buffer: &amp;mut AudioBuffer&lt;f32&gt;){</span>

@@ -435,6 +435,11 @@
 <span id="432">432</span>
 <span id="433">433</span>
 <span id="434">434</span>
+<span id="435">435</span>
+<span id="436">436</span>
+<span id="437">437</span>
+<span id="438">438</span>
+<span id="439">439</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="attribute">#![<span class="ident">warn</span>(<span class="ident">missing_docs</span>)]</span>
 
@@ -475,12 +480,15 @@
 <span class="doccomment">//! #[macro_use]</span>
 <span class="doccomment">//! extern crate vst;</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! use vst::plugin::{Info, Plugin};</span>
+<span class="doccomment">//! use vst::plugin::{HostCallback, Info, Plugin};</span>
 <span class="doccomment">//!</span>
-<span class="doccomment">//! #[derive(Default)]</span>
 <span class="doccomment">//! struct BasicPlugin;</span>
 <span class="doccomment">//!</span>
 <span class="doccomment">//! impl Plugin for BasicPlugin {</span>
+<span class="doccomment">//!     fn new(_host: HostCallback) -&gt; Self {</span>
+<span class="doccomment">//!         BasicPlugin</span>
+<span class="doccomment">//!     }</span>
+<span class="doccomment">//!</span>
 <span class="doccomment">//!     fn get_info(&amp;self) -&gt; Info {</span>
 <span class="doccomment">//!         Info {</span>
 <span class="doccomment">//!             name: &quot;Basic Plugin&quot;.to_string(),</span>
@@ -597,8 +605,7 @@
 
 <span class="doccomment">/// Exports the necessary symbols for the plugin to be used by a VST host.</span>
 <span class="doccomment">///</span>
-<span class="doccomment">/// This macro takes a type which must implement the traits `plugin::Plugin` and</span>
-<span class="doccomment">/// `std::default::Default`.</span>
+<span class="doccomment">/// This macro takes a type which must implement the `Plugin` trait.</span>
 <span class="attribute">#[<span class="ident">macro_export</span>]</span>
 <span class="macro">macro_rules</span><span class="macro">!</span> <span class="ident">plugin_main</span> {
     (<span class="macro-nonterminal">$</span><span class="macro-nonterminal">t</span>:<span class="ident">ty</span>) <span class="op">=</span><span class="op">&gt;</span> {
@@ -625,7 +632,7 @@
 
 <span class="doccomment">/// Initializes a VST plugin and returns a raw pointer to an AEffect struct.</span>
 <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Plugin</span> <span class="op">+</span> <span class="ident">Default</span><span class="op">&gt;</span>(<span class="ident">callback</span>: <span class="ident">HostCallbackProc</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span> {
+<span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">main</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">Plugin</span><span class="op">&gt;</span>(<span class="ident">callback</span>: <span class="ident">HostCallbackProc</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span> {
     <span class="comment">// Initialize as much of the AEffect as we can before creating the plugin.</span>
     <span class="comment">// In particular, initialize all the function pointers, since initializing</span>
     <span class="comment">// these to zero is undefined behavior.</span>
@@ -730,12 +737,15 @@
     <span class="kw">use</span> <span class="ident">api</span>::<span class="ident">consts</span>::<span class="ident">VST_MAGIC</span>;
     <span class="kw">use</span> <span class="ident">api</span>::<span class="ident">AEffect</span>;
     <span class="kw">use</span> <span class="ident">interfaces</span>;
-    <span class="kw">use</span> <span class="ident">plugin</span>::{<span class="ident">Info</span>, <span class="ident">Plugin</span>};
+    <span class="kw">use</span> <span class="ident">plugin</span>::{<span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>};
 
-    <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Default</span>)]</span>
     <span class="kw">struct</span> <span class="ident">TestPlugin</span>;
 
     <span class="kw">impl</span> <span class="ident">Plugin</span> <span class="kw">for</span> <span class="ident">TestPlugin</span> {
+        <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_host</span>: <span class="ident">HostCallback</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
+            <span class="ident">TestPlugin</span>
+        }
+
         <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span> {
             <span class="ident">Info</span> {
                 <span class="ident">name</span>: <span class="string">&quot;Test Plugin&quot;</span>.<span class="ident">to_string</span>(),

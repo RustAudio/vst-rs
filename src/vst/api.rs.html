@@ -922,6 +922,8 @@
 <span id="919">919</span>
 <span id="920">920</span>
 <span id="921">921</span>
+<span id="922">922</span>
+<span id="923">923</span>
 </pre><div class="example-wrap"><pre class="rust ">
 <span class="doccomment">//! Structures and types for interfacing with the VST 2.4 API.</span>
 
@@ -1380,6 +1382,8 @@
     <span class="doccomment">/// # use vst::event::{Event, MidiEvent};</span>
     <span class="doccomment">/// # struct ExamplePlugin { host: HostCallback, send_buf: SendEventBuffer }</span>
     <span class="doccomment">/// # impl Plugin for ExamplePlugin {</span>
+    <span class="doccomment">/// #     fn new(host: HostCallback) -&gt; Self { Self { host, send_buf: Default::default() } }</span>
+    <span class="doccomment">/// #</span>
     <span class="doccomment">/// #     fn get_info(&amp;self) -&gt; Info { Default::default() }</span>
     <span class="doccomment">/// #</span>
     <span class="doccomment">/// fn process_events(&amp;mut self, events: &amp;api::Events) {</span>
