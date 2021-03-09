@@ -458,6 +458,12 @@ impl SendEventBuffer {
         }
     }
 
+    /// Clears the buffer
+    #[inline(always)]
+    pub fn clear(&mut self) {
+        self.set_num_events(0);
+    }
+
     #[inline(always)]
     fn buf_as_api_events(buf: &mut [u8]) -> &mut api::Events {
         #[allow(clippy::cast_ptr_alignment)]
