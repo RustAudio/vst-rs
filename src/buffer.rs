@@ -370,7 +370,6 @@ impl<'a> WriteIntoPlaceholder for Event<'a> {
 
 use api;
 use host::Host;
-use plugin::Plugin;
 use std::mem;
 
 /// This buffer is used for sending midi events through the VST interface.
@@ -437,19 +436,10 @@ impl SendEventBuffer {
         host.process_events(self.events());
     }
 
-    /// Sends events from the host to a plugin.
+    /// Stores events in the buffer, replacing the buffer's current content.
+    /// Use this in [`process_events`](crate::Plugin::process_events) to store received input events, then read them in [`process`](crate::Plugin::process) using [`events`](SendEventBuffer::events).
     #[inline(always)]
-    pub fn send_events_to_plugin<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(
-        &mut self,
-        events: T,
-        plugin: &mut dyn Plugin,
-    ) {
-        self.store_events(events);
-        plugin.process_events(self.events());
-    }
-
-    #[inline(always)]
-    fn store_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T) {
+    pub fn store_events<T: IntoIterator<Item = U>, U: WriteIntoPlaceholder>(&mut self, events: T) {
         #[allow(clippy::suspicious_map)]
         let count = events
             .into_iter()
@@ -459,8 +449,9 @@ impl SendEventBuffer {
         self.set_num_events(count);
     }
 
+    /// Returns a reference to the stored events
     #[inline(always)]
-    fn events(&self) -> &api::Events {
+    pub fn events(&self) -> &api::Events {
         #[allow(clippy::cast_ptr_alignment)]
         unsafe {
             &*(self.buf.as_ptr() as *const api::Events)
