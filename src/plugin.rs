@@ -977,7 +977,7 @@ mod tests {
         ($($attr:meta) *) => {
             use std::os::raw::c_void;
 
-            use main;
+            use init::main;
             use api::AEffect;
             use host::{Host, OpCode};
             use plugin::{HostCallback, Info, Plugin};

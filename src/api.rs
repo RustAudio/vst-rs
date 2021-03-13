@@ -4,6 +4,7 @@ use std::os::raw::c_void;
 use std::sync::Arc;
 
 use self::consts::*;
+use cache::PluginCache;
 use editor::Editor;
 use plugin::{Info, Plugin, PluginParameters};
 
@@ -134,7 +135,7 @@ pub struct AEffect {
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
     /// Caller is responsible for not calling this function concurrently.
-    // Supresses warning about returning a reference to a box
+    // Suppresses warning about returning a reference to a box
     #[allow(clippy::borrowed_box)]
     pub unsafe fn get_plugin(&self) -> &mut Box<dyn Plugin> {
         //FIXME: find a way to do this without resorting to transmuting via a box
@@ -143,24 +144,24 @@ impl AEffect {
 
     /// Return handle to Info object. Only works for plugins created using this library.
     pub unsafe fn get_info(&self) -> &Info {
-        &(*(self.user as *mut super::PluginCache)).info
+        &(*(self.user as *mut PluginCache)).info
     }
 
     /// Return handle to PluginParameters object. Only works for plugins created using this library.
     pub unsafe fn get_params(&self) -> &Arc<dyn PluginParameters> {
-        &(*(self.user as *mut super::PluginCache)).params
+        &(*(self.user as *mut PluginCache)).params
     }
 
     /// Return handle to Editor object. Only works for plugins created using this library.
     /// Caller is responsible for not calling this function concurrently.
     pub unsafe fn get_editor(&self) -> &mut Option<Box<dyn Editor>> {
-        &mut (*(self.user as *mut super::PluginCache)).editor
+        &mut (*(self.user as *mut PluginCache)).editor
     }
 
     /// Drop the Plugin object. Only works for plugins created using this library.
     pub unsafe fn drop_plugin(&mut self) {
         drop(Box::from_raw(self.object as *mut Box<dyn Plugin>));
-        drop(Box::from_raw(self.user as *mut super::PluginCache));
+        drop(Box::from_raw(self.user as *mut PluginCache));
     }
 }
 
