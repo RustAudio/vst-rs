@@ -1,4 +1,5 @@
-#![warn(missing_docs)]
+#![allow(clippy::mut_from_ref)]
+#![deny(missing_docs, unused_imports)]
 
 //! A rust implementation of the VST2.4 API.
 //!
