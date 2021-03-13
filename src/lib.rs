@@ -1,5 +1,4 @@
-#![allow(clippy::mut_from_ref)]
-#![deny(missing_docs, unused_imports)]
+#![warn(missing_docs)]
 
 //! A rust implementation of the VST2.4 API.
 //!
@@ -116,6 +115,12 @@ extern crate num_traits;
 extern crate log;
 #[macro_use]
 extern crate bitflags;
+#[cfg(doctest)]
+#[macro_use]
+extern crate doc_comment;
+
+#[cfg(doctest)]
+doctest!("../README.md");
 
 #[macro_use]
 mod macros;
@@ -130,5 +135,4 @@ pub mod event;
 pub mod host;
 pub mod init;
 pub mod plugin;
-
 pub mod util;

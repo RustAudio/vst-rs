@@ -43,9 +43,6 @@ A simple plugin that bears no functionality. The provided `Cargo.toml` has a
 `src/lib.rs`
 
 ```rust
-#[macro_use]
-extern crate vst;
-
 use vst::plugin::{HostCallback, Info, Plugin};
 
 struct BasicPlugin;
@@ -64,7 +61,7 @@ impl Plugin for BasicPlugin {
     }
 }
 
-plugin_main!(BasicPlugin); // Important!
+vst::plugin_main!(BasicPlugin); // Important!
 ```
 
 `Cargo.toml`
@@ -97,8 +94,8 @@ To package your VST as a loadable bundle you may use the `osx_vst_bundler.sh` sc
 
 Example: 
 
-```
-./osx_vst_bundler.sh Plugin target/release/plugin.dylib
+```sh
+$ ./osx_vst_bundler.sh Plugin target/release/plugin.dylib
 Creates a Plugin.vst bundle
 ```
 
