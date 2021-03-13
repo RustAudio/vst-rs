@@ -14,7 +14,7 @@
 //!
 //! ## `Plugin` Trait
 //! All methods in this trait have a default implementation except for the `get_info` method which
-//! must be implemented by the plugin. Any of the default implementations may be overriden for
+//! must be implemented by the plugin. Any of the default implementations may be overridden for
 //! custom functionality; the defaults do nothing on their own.
 //!
 //! ## `PluginParameters` Trait
@@ -152,7 +152,7 @@ pub mod event;
 pub mod host;
 mod interfaces;
 pub mod plugin;
-
+pub mod prelude;
 pub mod util;
 
 use api::consts::VST_MAGIC;

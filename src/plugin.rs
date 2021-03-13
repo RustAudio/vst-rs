@@ -67,7 +67,7 @@ pub enum OpCode {
     /// [index]: parameter
     /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "db", "ms", etc)
     GetParameterLabel,
-    /// [index]: paramter
+    /// [index]: parameter
     /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "0.5", "ROOM", etc).
     GetParameterDisplay,
     /// [index]: parameter
@@ -738,7 +738,7 @@ pub trait PluginParameters: Sync {
         format!("Param {}", index)
     }
 
-    /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
+    /// Get the value of parameter at `index`. Should be value between 0.0 and 1.0.
     fn get_parameter(&self, index: i32) -> f32 {
         0.0
     }

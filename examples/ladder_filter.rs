@@ -16,9 +16,7 @@ use std::f32::consts::PI;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 
-use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
-use vst::util::AtomicFloat;
+use vst::prelude::*;
 
 // this is a 4-pole filter with resonance, which is why there's 4 states and vouts
 #[derive(Clone)]

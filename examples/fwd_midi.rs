@@ -2,9 +2,7 @@
 extern crate vst;
 
 use vst::api;
-use vst::buffer::{AudioBuffer, SendEventBuffer};
-use vst::event::{Event, MidiEvent};
-use vst::plugin::{CanDo, HostCallback, Info, Plugin};
+use vst::prelude::*;
 
 plugin_main!(MyPlugin); // Important!
 

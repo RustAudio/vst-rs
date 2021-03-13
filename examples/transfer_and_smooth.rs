@@ -10,9 +10,7 @@ extern crate vst;
 use std::f32;
 use std::sync::Arc;
 
-use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
-use vst::util::ParameterTransfer;
+use vst::prelude::*;
 
 const PARAMETER_COUNT: usize = 100;
 const BASE_FREQUENCY: f32 = 5.0;
