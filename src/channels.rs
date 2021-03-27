@@ -201,20 +201,12 @@ impl Default for SpeakerArrangementType {
 impl SpeakerArrangementType {
     /// Determine whether this channel is part of a surround speaker arrangement.
     pub fn is_speaker_type(&self) -> bool {
-        if let SpeakerArrangementType::Surround(..) = *self {
-            true
-        } else {
-            false
-        }
+        matches!(*self, SpeakerArrangementType::Surround(..))
     }
 
     /// Determine whether this channel is the left speaker in a stereo pair.
     pub fn is_left_stereo(&self) -> bool {
-        if let SpeakerArrangementType::Stereo(_, StereoChannel::Left) = *self {
-            true
-        } else {
-            false
-        }
+        matches!(*self, SpeakerArrangementType::Stereo(_, StereoChannel::Left))
     }
 }
 
