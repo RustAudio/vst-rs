@@ -48,6 +48,7 @@ extern crate vst;
 
 use vst::plugin::{HostCallback, Info, Plugin};
 
+#[derive(Default)]
 struct BasicPlugin;
 
 impl Plugin for BasicPlugin {
