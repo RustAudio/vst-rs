@@ -1,9 +1,11 @@
 //! Host specific structures.
 
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 use num_traits::Float;
 
 use libloading::Library;
 use std::cell::UnsafeCell;
+use std::convert::TryFrom;
 use std::error::Error;
 use std::ffi::CString;
 use std::mem::MaybeUninit;
@@ -20,8 +22,8 @@ use editor::{Editor, Rect};
 use interfaces;
 use plugin::{self, Category, HostCallback, Info, Plugin, PluginParameters};
 
-#[repr(usize)]
-#[derive(Clone, Copy, Debug)]
+#[repr(i32)]
+#[derive(Clone, Copy, Debug, TryFromPrimitive, IntoPrimitive)]
 #[doc(hidden)]
 pub enum OpCode {
     /// [index]: parameter index
@@ -184,7 +186,6 @@ pub enum OpCode {
     /// Deprecated.
     _GetInputSpeakerArrangement,
 }
-impl_clike!(OpCode);
 
 /// Implemented by all VST hosts.
 #[allow(unused_variables)]
@@ -498,7 +499,7 @@ impl PluginInstance {
                 unique_id: effect.uniqueId,
                 version: effect.version,
 
-                category: Category::from(plug.opcode(op::GetCategory)),
+                category: Category::try_from(plug.opcode(op::GetCategory)).unwrap_or(Category::Unknown),
 
                 initial_delay: effect.initialDelay,
 
