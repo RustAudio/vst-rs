@@ -1,6 +1,6 @@
 //! All VST plugin editor related functionality.
 
-use num_enum::{TryFromPrimitive, IntoPrimitive};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use std::os::raw::c_void;
 

@@ -113,8 +113,12 @@ pub extern "C" fn dispatch(
             return copy_string(ptr, &params.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        Ok(OpCode::GetParameterLabel) => return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN),
-        Ok(OpCode::GetParameterDisplay) => return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN),
+        Ok(OpCode::GetParameterLabel) => {
+            return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN)
+        }
+        Ok(OpCode::GetParameterDisplay) => {
+            return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN)
+        }
         Ok(OpCode::GetParameterName) => return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
         Ok(OpCode::SetSampleRate) => get_plugin().set_sample_rate(opt),

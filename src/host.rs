@@ -1,6 +1,6 @@
 //! Host specific structures.
 
-use num_enum::{TryFromPrimitive, IntoPrimitive};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 use num_traits::Float;
 
 use libloading::Library;

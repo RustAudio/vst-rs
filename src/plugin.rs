@@ -1,6 +1,6 @@
 //! Plugin specific structures.
 
-use num_enum::{TryFromPrimitive, IntoPrimitive};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
 
 use std::os::raw::c_void;
 use std::ptr;
