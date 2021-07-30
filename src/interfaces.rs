@@ -3,6 +3,7 @@
 #![doc(hidden)]
 
 use std::cell::Cell;
+use std::convert::TryFrom;
 use std::os::raw::{c_char, c_void};
 use std::{mem, slice};
 
@@ -90,7 +91,7 @@ pub extern "C" fn dispatch(
     use plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
-    let opcode = OpCode::from(opcode);
+    let opcode = OpCode::try_from(opcode);
     // Only query plugin or editor when needed to avoid creating multiple
     // concurrent mutable references to the same object.
     let get_plugin = || unsafe { (*effect).get_plugin() };
@@ -98,27 +99,27 @@ pub extern "C" fn dispatch(
     let params = unsafe { (*effect).get_params() };
 
     match opcode {
-        OpCode::Initialize => get_plugin().init(),
-        OpCode::Shutdown => unsafe {
+        Ok(OpCode::Initialize) => get_plugin().init(),
+        Ok(OpCode::Shutdown) => unsafe {
             (*effect).drop_plugin();
             drop(Box::from_raw(effect))
         },
 
-        OpCode::ChangePreset => params.change_preset(value as i32),
-        OpCode::GetCurrentPresetNum => return params.get_preset_num() as isize,
-        OpCode::SetCurrentPresetName => params.set_preset_name(read_string(ptr)),
-        OpCode::GetCurrentPresetName => {
+        Ok(OpCode::ChangePreset) => params.change_preset(value as i32),
+        Ok(OpCode::GetCurrentPresetNum) => return params.get_preset_num() as isize,
+        Ok(OpCode::SetCurrentPresetName) => params.set_preset_name(read_string(ptr)),
+        Ok(OpCode::GetCurrentPresetName) => {
             let num = params.get_preset_num();
             return copy_string(ptr, &params.get_preset_name(num), MAX_PRESET_NAME_LEN);
         }
 
-        OpCode::GetParameterLabel => return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterDisplay => return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN),
-        OpCode::GetParameterName => return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN),
+        Ok(OpCode::GetParameterLabel) => return copy_string(ptr, &params.get_parameter_label(index), MAX_PARAM_STR_LEN),
+        Ok(OpCode::GetParameterDisplay) => return copy_string(ptr, &params.get_parameter_text(index), MAX_PARAM_STR_LEN),
+        Ok(OpCode::GetParameterName) => return copy_string(ptr, &params.get_parameter_name(index), MAX_PARAM_STR_LEN),
 
-        OpCode::SetSampleRate => get_plugin().set_sample_rate(opt),
-        OpCode::SetBlockSize => get_plugin().set_block_size(value as i64),
-        OpCode::StateChanged => {
+        Ok(OpCode::SetSampleRate) => get_plugin().set_sample_rate(opt),
+        Ok(OpCode::SetBlockSize) => get_plugin().set_block_size(value as i64),
+        Ok(OpCode::StateChanged) => {
             if value == 1 {
                 get_plugin().resume();
             } else {
@@ -126,7 +127,7 @@ pub extern "C" fn dispatch(
             }
         }
 
-        OpCode::EditorGetRect => {
+        Ok(OpCode::EditorGetRect) => {
             if let Some(ref mut editor) = get_editor() {
                 let size = editor.size();
                 let pos = editor.position();
@@ -145,7 +146,7 @@ pub extern "C" fn dispatch(
                 return 1;
             }
         }
-        OpCode::EditorOpen => {
+        Ok(OpCode::EditorOpen) => {
             if let Some(ref mut editor) = get_editor() {
                 // `ptr` is a window handle to the parent window.
                 // See the documentation for `Editor::open` for details.
@@ -154,19 +155,19 @@ pub extern "C" fn dispatch(
                 }
             }
         }
-        OpCode::EditorClose => {
+        Ok(OpCode::EditorClose) => {
             if let Some(ref mut editor) = get_editor() {
                 editor.close();
             }
         }
 
-        OpCode::EditorIdle => {
+        Ok(OpCode::EditorIdle) => {
             if let Some(ref mut editor) = get_editor() {
                 editor.idle();
             }
         }
 
-        OpCode::GetData => {
+        Ok(OpCode::GetData) => {
             let mut chunks = if index == 0 {
                 params.get_bank_data()
             } else {
@@ -183,7 +184,7 @@ pub extern "C" fn dispatch(
             mem::forget(chunks);
             return len;
         }
-        OpCode::SetData => {
+        Ok(OpCode::SetData) => {
             let chunks = unsafe { slice::from_raw_parts(ptr as *mut u8, value as usize) };
 
             if index == 0 {
@@ -193,15 +194,15 @@ pub extern "C" fn dispatch(
             }
         }
 
-        OpCode::ProcessEvents => {
+        Ok(OpCode::ProcessEvents) => {
             get_plugin().process_events(unsafe { &*(ptr as *const api::Events) });
         }
-        OpCode::CanBeAutomated => return params.can_be_automated(index) as isize,
-        OpCode::StringToParameter => return params.string_to_parameter(index, read_string(ptr)) as isize,
+        Ok(OpCode::CanBeAutomated) => return params.can_be_automated(index) as isize,
+        Ok(OpCode::StringToParameter) => return params.string_to_parameter(index, read_string(ptr)) as isize,
 
-        OpCode::GetPresetName => return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN),
+        Ok(OpCode::GetPresetName) => return copy_string(ptr, &params.get_preset_name(index), MAX_PRESET_NAME_LEN),
 
-        OpCode::GetInputInfo => {
+        Ok(OpCode::GetInputInfo) => {
             if index >= 0 && index < get_plugin().get_info().inputs {
                 unsafe {
                     let ptr = ptr as *mut api::ChannelProperties;
@@ -209,7 +210,7 @@ pub extern "C" fn dispatch(
                 }
             }
         }
-        OpCode::GetOutputInfo => {
+        Ok(OpCode::GetOutputInfo) => {
             if index >= 0 && index < get_plugin().get_info().outputs {
                 unsafe {
                     let ptr = ptr as *mut api::ChannelProperties;
@@ -217,21 +218,21 @@ pub extern "C" fn dispatch(
                 }
             }
         }
-        OpCode::GetCategory => {
+        Ok(OpCode::GetCategory) => {
             return get_plugin().get_info().category.into();
         }
 
-        OpCode::GetEffectName => return copy_string(ptr, &get_plugin().get_info().name, MAX_VENDOR_STR_LEN),
+        Ok(OpCode::GetEffectName) => return copy_string(ptr, &get_plugin().get_info().name, MAX_VENDOR_STR_LEN),
 
-        OpCode::GetVendorName => return copy_string(ptr, &get_plugin().get_info().vendor, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductName => return copy_string(ptr, &get_plugin().get_info().name, MAX_PRODUCT_STR_LEN),
-        OpCode::GetVendorVersion => return get_plugin().get_info().version as isize,
-        OpCode::VendorSpecific => return get_plugin().vendor_specific(index, value, ptr, opt),
-        OpCode::CanDo => {
+        Ok(OpCode::GetVendorName) => return copy_string(ptr, &get_plugin().get_info().vendor, MAX_VENDOR_STR_LEN),
+        Ok(OpCode::GetProductName) => return copy_string(ptr, &get_plugin().get_info().name, MAX_PRODUCT_STR_LEN),
+        Ok(OpCode::GetVendorVersion) => return get_plugin().get_info().version as isize,
+        Ok(OpCode::VendorSpecific) => return get_plugin().vendor_specific(index, value, ptr, opt),
+        Ok(OpCode::CanDo) => {
             let can_do = CanDo::from_str(&read_string(ptr));
             return get_plugin().can_do(can_do).into();
         }
-        OpCode::GetTailSize => {
+        Ok(OpCode::GetTailSize) => {
             if get_plugin().get_tail_size() == 0 {
                 return 1;
             } else {
@@ -240,37 +241,43 @@ pub extern "C" fn dispatch(
         }
 
         //OpCode::GetParamInfo => { /*TODO*/ }
-        OpCode::GetApiVersion => return 2400,
+        Ok(OpCode::GetApiVersion) => return 2400,
 
-        OpCode::EditorKeyDown => {
+        Ok(OpCode::EditorKeyDown) => {
             if let Some(ref mut editor) = get_editor() {
-                editor.key_down(KeyCode {
-                    character: index as u8 as char,
-                    key: Key::from(value),
-                    modifier: opt.to_bits() as u8,
-                });
+                if let Ok(key) = Key::try_from(value) {
+                    editor.key_down(KeyCode {
+                        character: index as u8 as char,
+                        key,
+                        modifier: opt.to_bits() as u8,
+                    });
+                }
             }
         }
-        OpCode::EditorKeyUp => {
+        Ok(OpCode::EditorKeyUp) => {
             if let Some(ref mut editor) = get_editor() {
-                editor.key_up(KeyCode {
-                    character: index as u8 as char,
-                    key: Key::from(value),
-                    modifier: opt.to_bits() as u8,
-                });
+                if let Ok(key) = Key::try_from(value) {
+                    editor.key_up(KeyCode {
+                        character: index as u8 as char,
+                        key,
+                        modifier: opt.to_bits() as u8,
+                    });
+                }
             }
         }
-        OpCode::EditorSetKnobMode => {
+        Ok(OpCode::EditorSetKnobMode) => {
             if let Some(ref mut editor) = get_editor() {
-                editor.set_knob_mode(KnobMode::from(value));
+                if let Ok(knob_mode) = KnobMode::try_from(value) {
+                    editor.set_knob_mode(knob_mode);
+                }
             }
         }
 
-        OpCode::StartProcess => get_plugin().start_process(),
-        OpCode::StopProcess => get_plugin().stop_process(),
+        Ok(OpCode::StartProcess) => get_plugin().start_process(),
+        Ok(OpCode::StopProcess) => get_plugin().stop_process(),
 
-        OpCode::GetNumMidiInputs => return unsafe { (*effect).get_info() }.midi_inputs as isize,
-        OpCode::GetNumMidiOutputs => return unsafe { (*effect).get_info() }.midi_outputs as isize,
+        Ok(OpCode::GetNumMidiInputs) => return unsafe { (*effect).get_info() }.midi_inputs as isize,
+        Ok(OpCode::GetNumMidiOutputs) => return unsafe { (*effect).get_info() }.midi_outputs as isize,
 
         _ => {
             debug!("Unimplemented opcode ({:?})", opcode);
@@ -298,27 +305,28 @@ pub fn host_dispatch(
 ) -> isize {
     use host::OpCode;
 
-    match OpCode::from(opcode) {
-        OpCode::Version => return 2400,
-        OpCode::Automate => host.automate(index, opt),
-        OpCode::BeginEdit => host.begin_edit(index),
-        OpCode::EndEdit => host.end_edit(index),
+    let opcode = OpCode::try_from(opcode);
+    match opcode {
+        Ok(OpCode::Version) => return 2400,
+        Ok(OpCode::Automate) => host.automate(index, opt),
+        Ok(OpCode::BeginEdit) => host.begin_edit(index),
+        Ok(OpCode::EndEdit) => host.end_edit(index),
 
-        OpCode::Idle => host.idle(),
+        Ok(OpCode::Idle) => host.idle(),
 
         // ...
-        OpCode::CanDo => {
+        Ok(OpCode::CanDo) => {
             info!("Plugin is asking if host can: {}.", read_string(ptr));
         }
 
-        OpCode::GetVendorVersion => return host.get_info().0,
-        OpCode::GetVendorString => return copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
-        OpCode::GetProductString => return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
-        OpCode::ProcessEvents => {
+        Ok(OpCode::GetVendorVersion) => return host.get_info().0,
+        Ok(OpCode::GetVendorString) => return copy_string(ptr, &host.get_info().1, MAX_VENDOR_STR_LEN),
+        Ok(OpCode::GetProductString) => return copy_string(ptr, &host.get_info().2, MAX_PRODUCT_STR_LEN),
+        Ok(OpCode::ProcessEvents) => {
             host.process_events(unsafe { &*(ptr as *const api::Events) });
         }
 
-        OpCode::GetTime => {
+        Ok(OpCode::GetTime) => {
             return match host.get_time_info(value as i32) {
                 None => 0,
                 Some(result) => {
@@ -333,10 +341,10 @@ pub fn host_dispatch(
                 }
             };
         }
-        OpCode::GetBlockSize => return host.get_block_size(),
+        Ok(OpCode::GetBlockSize) => return host.get_block_size(),
 
-        unimplemented => {
-            trace!("VST: Got unimplemented host opcode ({:?})", unimplemented);
+        _ => {
+            trace!("VST: Got unimplemented host opcode ({:?})", opcode);
             trace!(
                 "Arguments; effect: {:?}, index: {}, value: {}, ptr: {:?}, opt: {}",
                 effect,
