@@ -77,13 +77,13 @@ pub struct SysExEvent<'a> {
     pub delta_frames: i32,
 }
 
-impl<'a> From<api::Event> for Event<'a> {
-    fn from(event: api::Event) -> Event<'a> {
+impl<'a> From<&api::Event> for Event<'a> {
+    fn from(event: &api::Event) -> Event<'a> {
         use api::EventType::*;
 
         match event.event_type {
             Midi => {
-                let event: api::MidiEvent = unsafe { mem::transmute(event) };
+                let event: api::MidiEvent = unsafe { mem::transmute(*event) };
 
                 let length = if event.note_length > 0 {
                     Some(event.note_length)
@@ -113,14 +113,14 @@ impl<'a> From<api::Event> for Event<'a> {
                     // We can safely cast the event pointer to a `SysExEvent` pointer as
                     // event_type refers to a `SysEx` type.
                     #[allow(clippy::cast_ptr_alignment)]
-                    let event: &api::SysExEvent = &*(&event as *const api::Event as *const api::SysExEvent);
+                    let event: &api::SysExEvent = &*(event as *const api::Event as *const api::SysExEvent);
                     slice::from_raw_parts(event.system_data, event.data_size as usize)
                 },
 
                 delta_frames: event.delta_frames,
             }),
 
-            _ => Event::Deprecated(event),
+            _ => Event::Deprecated(*event),
         }
     }
 }

@@ -474,7 +474,7 @@ impl Events {
     #[inline]
     #[allow(clippy::needless_lifetimes)]
     pub fn events<'a>(&'a self) -> impl Iterator<Item = ::event::Event<'a>> {
-        self.events_raw().iter().map(|ptr| unsafe { **ptr }.into())
+        self.events_raw().iter().map(|ptr| unsafe { &**ptr }.into())
     }
 }
 
