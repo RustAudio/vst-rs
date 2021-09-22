@@ -77,13 +77,20 @@ pub struct SysExEvent<'a> {
     pub delta_frames: i32,
 }
 
-impl<'a> From<&api::Event> for Event<'a> {
-    fn from(event: &api::Event) -> Event<'a> {
+impl<'a> Event<'a> {
+    /// Creates a high-level event from the given low-level API event.
+    ///
+    /// # Safety
+    ///
+    /// You must ensure that the given pointer refers to a valid event of the correct event type.
+    /// For example, if the event type is [`api::EventType::SysEx`], it should point to a
+    /// [`SysExEvent`]. In case of a [`SysExEvent`], `system_data` and `data_size` must be correct.
+    pub unsafe fn from_raw_event(event: *const api::Event) -> Event<'a> {
         use api::EventType::*;
-
+        let event = &*event;
         match event.event_type {
             Midi => {
-                let event: api::MidiEvent = unsafe { mem::transmute(*event) };
+                let event: api::MidiEvent = mem::transmute(*event);
 
                 let length = if event.note_length > 0 {
                     Some(event.note_length)
@@ -109,7 +116,7 @@ impl<'a> From<&api::Event> for Event<'a> {
             }
 
             SysEx => Event::SysEx(SysExEvent {
-                payload: unsafe {
+                payload: {
                     // We can safely cast the event pointer to a `SysExEvent` pointer as
                     // event_type refers to a `SysEx` type.
                     #[allow(clippy::cast_ptr_alignment)]
