@@ -134,7 +134,7 @@ pub struct AEffect {
 impl AEffect {
     /// Return handle to Plugin object. Only works for plugins created using this library.
     /// Caller is responsible for not calling this function concurrently.
-    // Supresses warning about returning a reference to a box
+    // Suppresses warning about returning a reference to a box
     #[allow(clippy::borrowed_box)]
     pub unsafe fn get_plugin(&self) -> &mut Box<dyn Plugin> {
         //FIXME: find a way to do this without resorting to transmuting via a box
@@ -480,7 +480,7 @@ impl Events {
     }
 }
 
-/// The type of event that has occured. See `api::Event.event_type`.
+/// The type of event that has occurred. See `api::Event.event_type`.
 #[repr(i32)]
 #[derive(Copy, Clone, Debug)]
 pub enum EventType {
