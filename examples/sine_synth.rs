@@ -3,10 +3,7 @@
 #[macro_use]
 extern crate vst;
 
-use vst::api::{Events, Supported};
-use vst::buffer::AudioBuffer;
-use vst::event::Event;
-use vst::plugin::{CanDo, Category, HostCallback, Info, Plugin};
+use vst::prelude::*;
 
 use std::f64::consts::PI;
 

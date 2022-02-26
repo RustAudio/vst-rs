@@ -128,7 +128,7 @@ pub mod event;
 pub mod host;
 mod interfaces;
 pub mod plugin;
-
+pub mod prelude;
 pub mod util;
 
 use api::consts::VST_MAGIC;

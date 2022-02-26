@@ -3,14 +3,11 @@
 #[macro_use]
 extern crate vst;
 
-use vst::buffer::AudioBuffer;
-use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
-use vst::util::AtomicFloat;
-
 use std::collections::VecDeque;
 use std::f64::consts::PI;
 use std::sync::Arc;
 use std::time::{SystemTime, UNIX_EPOCH};
+use vst::prelude::*;
 
 /// Calculate the length in samples for a delay. Size ranges from 0.0 to 1.0.
 fn delay(index: usize, mut size: f32) -> isize {
