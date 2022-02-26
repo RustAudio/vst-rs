@@ -331,8 +331,8 @@
             <span class="ident">thread::spawn</span>(<span class="kw">move</span> <span class="op">|</span><span class="op">|</span> {
                 <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">values</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0f32</span>; <span class="ident">PARAMETERS</span>];
                 <span class="kw">for</span> <span class="kw">_</span> <span class="kw">in</span> <span class="number">0</span>..<span class="ident">UPDATES</span> {
-                    <span class="kw">let</span> <span class="ident">p</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">t_rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>, <span class="ident">PARAMETERS</span>);
-                    <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">t_rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>, <span class="number">1.0</span>);
+                    <span class="kw">let</span> <span class="ident">p</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="ident">t_rng</span>.<span class="ident">gen_range</span>(<span class="number">0</span>..<span class="ident">PARAMETERS</span>);
+                    <span class="kw">let</span> <span class="ident">v</span>: <span class="ident">f32</span> <span class="op">=</span> <span class="ident">t_rng</span>.<span class="ident">gen_range</span>(<span class="number">0.0</span>..<span class="number">1.0</span>);
                     <span class="ident">values</span>[<span class="ident">p</span>] <span class="op">=</span> <span class="ident">v</span>;
                     <span class="ident">t_transfer</span>.<span class="ident">set_parameter</span>(<span class="ident">p</span>, <span class="ident">v</span>);
                 }
