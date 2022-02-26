@@ -267,10 +267,11 @@ mod tests {
 
     use std::os::raw::c_void;
 
-    use api::consts::VST_MAGIC;
-    use api::AEffect;
-    use interfaces;
-    use plugin::{HostCallback, Info, Plugin};
+    use crate::{
+        api::{consts::VST_MAGIC, AEffect},
+        interfaces,
+        plugin::{HostCallback, Info, Plugin},
+    };
 
     struct TestPlugin;
 

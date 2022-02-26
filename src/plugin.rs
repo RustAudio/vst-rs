@@ -6,13 +6,13 @@ use std::os::raw::c_void;
 use std::ptr;
 use std::sync::Arc;
 
-use api;
-use api::consts::VST_MAGIC;
-use api::{AEffect, HostCallbackProc, Supported, TimeInfo};
-use buffer::AudioBuffer;
-use channels::ChannelInfo;
-use editor::Editor;
-use host::{self, Host};
+use crate::{
+    api::{self, consts::VST_MAGIC, AEffect, HostCallbackProc, Supported, TimeInfo},
+    buffer::AudioBuffer,
+    channels::ChannelInfo,
+    editor::Editor,
+    host::{self, Host},
+};
 
 /// Plugin type. Generally either Effect or Synth.
 ///
@@ -968,7 +968,7 @@ impl Host for HostCallback {
 mod tests {
     use std::ptr;
 
-    use plugin;
+    use crate::plugin;
 
     /// Create a plugin instance.
     ///
@@ -978,10 +978,10 @@ mod tests {
             use std::convert::TryFrom;
             use std::os::raw::c_void;
 
-            use main;
-            use api::AEffect;
-            use host::{Host, OpCode};
-            use plugin::{HostCallback, Info, Plugin};
+            use crate::main;
+            use crate::api::AEffect;
+            use crate::host::{Host, OpCode};
+            use crate::plugin::{HostCallback, Info, Plugin};
 
             $(#[$attr]) *
             struct TestPlugin {

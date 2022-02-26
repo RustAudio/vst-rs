@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
-use editor::Editor;
-use plugin::{Info, PluginParameters};
+use crate::{editor::Editor, prelude::*};
 
 pub(crate) struct PluginCache {
     pub info: Info,

@@ -1,8 +1,8 @@
 //! Meta data for dealing with input / output channels. Not all hosts use this so it is not
 //! necessary for plugin functionality.
 
-use api;
-use api::consts::{MAX_LABEL, MAX_SHORT_LABEL};
+use crate::api;
+use crate::api::consts::{MAX_LABEL, MAX_SHORT_LABEL};
 
 /// Information about an input / output channel. This isn't necessary for a channel to function but
 /// informs the host how the channel is meant to be used.

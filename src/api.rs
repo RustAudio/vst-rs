@@ -4,8 +4,10 @@ use std::os::raw::c_void;
 use std::sync::Arc;
 
 use self::consts::*;
-use editor::Editor;
-use plugin::{Info, Plugin, PluginParameters};
+use crate::{
+    editor::Editor,
+    plugin::{Info, Plugin, PluginParameters},
+};
 
 /// Constant values
 #[allow(missing_docs)] // For obvious constants
@@ -473,10 +475,10 @@ impl Events {
     /// ```
     #[inline]
     #[allow(clippy::needless_lifetimes)]
-    pub fn events<'a>(&'a self) -> impl Iterator<Item = ::event::Event<'a>> {
+    pub fn events<'a>(&'a self) -> impl Iterator<Item = crate::event::Event<'a>> {
         self.events_raw()
             .iter()
-            .map(|ptr| unsafe { ::event::Event::from_raw_event(*ptr) })
+            .map(|ptr| unsafe { crate::event::Event::from_raw_event(*ptr) })
     }
 }
 
