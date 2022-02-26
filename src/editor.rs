@@ -1,5 +1,7 @@
 //! All VST plugin editor related functionality.
 
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+
 use std::os::raw::c_void;
 
 /// Implemented by plugin editors.
@@ -78,20 +80,19 @@ pub struct KeyCode {
 }
 
 /// Allows host to set how a parameter knob works.
-#[repr(usize)]
-#[derive(Copy, Clone, Debug)]
+#[repr(isize)]
+#[derive(Copy, Clone, Debug, TryFromPrimitive, IntoPrimitive)]
 #[allow(missing_docs)]
 pub enum KnobMode {
     Circular,
     CircularRelative,
     Linear,
 }
-impl_clike!(KnobMode);
 
 /// Platform independent key codes.
 #[allow(missing_docs)]
-#[repr(usize)]
-#[derive(Debug, Copy, Clone)]
+#[repr(isize)]
+#[derive(Debug, Copy, Clone, TryFromPrimitive, IntoPrimitive)]
 pub enum Key {
     None = 0,
     Back,
@@ -152,4 +153,3 @@ pub enum Key {
     Alt,
     Equals,
 }
-impl_clike!(Key);

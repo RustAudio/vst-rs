@@ -9,14 +9,15 @@ plugin_main!(MyPlugin); // Important!
 #[derive(Default)]
 struct MyPlugin {
     host: HostCallback,
-    events: Vec<MidiEvent>,
+    recv_buffer: SendEventBuffer,
     send_buffer: SendEventBuffer,
 }
 
 impl MyPlugin {
     fn send_midi(&mut self) {
-        self.send_buffer.send_events(&self.events, &mut self.host);
-        self.events.clear();
+        self.send_buffer
+            .send_events(self.recv_buffer.events().events(), &mut self.host);
+        self.recv_buffer.clear();
     }
 }
 
@@ -37,13 +38,7 @@ impl Plugin for MyPlugin {
     }
 
     fn process_events(&mut self, events: &api::Events) {
-        for e in events.events() {
-            #[allow(clippy::single_match)]
-            match e {
-                Event::Midi(e) => self.events.push(e),
-                _ => (),
-            }
-        }
+        self.recv_buffer.store_events(events.events());
     }
 
     fn process(&mut self, buffer: &mut AudioBuffer<f32>) {

@@ -1,5 +1,7 @@
 //! Plugin specific structures.
 
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+
 use std::os::raw::c_void;
 use std::ptr;
 use std::sync::Arc;
@@ -16,8 +18,8 @@ use host::{self, Host};
 ///
 /// Other types are not necessary to build a plugin and are only useful for the host to categorize
 /// the plugin.
-#[repr(usize)]
-#[derive(Clone, Copy, Debug)]
+#[repr(isize)]
+#[derive(Clone, Copy, Debug, TryFromPrimitive, IntoPrimitive)]
 pub enum Category {
     /// Unknown / not implemented
     Unknown,
@@ -44,10 +46,9 @@ pub enum Category {
     /// Tone generator, etc.
     Generator,
 }
-impl_clike!(Category);
 
-#[repr(usize)]
-#[derive(Clone, Copy, Debug)]
+#[repr(i32)]
+#[derive(Clone, Copy, Debug, TryFromPrimitive, IntoPrimitive)]
 #[doc(hidden)]
 pub enum OpCode {
     /// Called when plugin is initialized.
@@ -199,7 +200,7 @@ pub enum OpCode {
     /// [ptr]: "Can do" string.
     /// [return]: 1 = yes, 0 = maybe, -1 = no.
     CanDo,
-    /// [return]: tail size (e.g. reverb time). 0 is defualt, 1 means no tail.
+    /// [return]: tail size (e.g. reverb time). 0 is default, 1 means no tail.
     GetTailSize,
 
     /// Deprecated.
@@ -292,7 +293,6 @@ pub enum OpCode {
     /// [return]: number of used MIDI Outputs (1-15).
     GetNumMidiOutputs,
 }
-impl_clike!(OpCode);
 
 /// A structure representing static plugin information.
 #[derive(Clone, Debug)]
@@ -476,7 +476,7 @@ pub trait Plugin: Send {
 
     /// Called during initialization to pass a `HostCallback` to the plugin.
     ///
-    /// This method can be overriden to set `host` as a field in the plugin struct.
+    /// This method can be overridden to set `host` as a field in the plugin struct.
     ///
     /// # Example
     ///
@@ -975,6 +975,7 @@ mod tests {
     /// This is a macro to allow you to specify attributes on the created struct.
     macro_rules! make_plugin {
         ($($attr:meta) *) => {
+            use std::convert::TryFrom;
             use std::os::raw::c_void;
 
             use main;
@@ -1023,24 +1024,23 @@ mod tests {
                     _ptr: *mut c_void,
                     opt: f32,
                 ) -> isize {
-                    let opcode = OpCode::from(opcode);
-                    match opcode {
-                        OpCode::BeginEdit => {
+                    match OpCode::try_from(opcode) {
+                        Ok(OpCode::BeginEdit) => {
                             assert_eq!(index, 123);
                             0
                         },
-                        OpCode::Automate => {
+                        Ok(OpCode::Automate) => {
                             assert_eq!(index, 123);
                             assert_eq!(opt, 12.3);
                             0
                         },
-                        OpCode::EndEdit => {
+                        Ok(OpCode::EndEdit) => {
                             assert_eq!(index, 123);
                             0
                         },
-                        OpCode::Version => 2400,
-                        OpCode::CurrentId => 9876,
-                        OpCode::Idle => 0,
+                        Ok(OpCode::Version) => 2400,
+                        Ok(OpCode::CurrentId) => 9876,
+                        Ok(OpCode::Idle) => 0,
                         _ => 0
                     }
                 }

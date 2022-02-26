@@ -35,6 +35,7 @@ num-traits = "0.2"
 libc = "0.2"
 bitflags = "1"
 libloading = "0.5"
+num_enum = "0.5.2"
 
 [dev-dependencies]
 time = "0.1"
