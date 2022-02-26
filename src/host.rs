@@ -413,15 +413,13 @@ impl<T: Host> PluginLoader<T> {
     pub fn load(path: &Path, host: Arc<Mutex<T>>) -> Result<PluginLoader<T>, PluginLoadError> {
         // Try loading the library at the given path
         unsafe {
-            let lib = 
-                match Library::new(path) {
-                    Ok(l) => l,
-                    Err(_) => return Err(PluginLoadError::InvalidPath),
-                
+            let lib = match Library::new(path) {
+                Ok(l) => l,
+                Err(_) => return Err(PluginLoadError::InvalidPath),
             };
 
             Ok(PluginLoader {
-                main: 
+                main:
                     // Search the library for the VSTAPI entry point
                     match lib.get(b"VSTPluginMain") {
                         Ok(s) => *s,
