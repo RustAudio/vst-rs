@@ -6,8 +6,8 @@ extern crate vst;
 use std::collections::VecDeque;
 use std::f64::consts::PI;
 use std::sync::Arc;
-use vst::prelude::*;
 use std::time::{SystemTime, UNIX_EPOCH};
+use vst::prelude::*;
 
 /// Calculate the length in samples for a delay. Size ranges from 0.0 to 1.0.
 fn delay(index: usize, mut size: f32) -> isize {
