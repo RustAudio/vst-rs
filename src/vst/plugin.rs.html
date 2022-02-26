@@ -1,4 +1,6 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;plugin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>plugin.rs - source</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg"><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a href='../../vst/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input"name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav><section id="main" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="Source of the Rust file `src&#x2F;plugin.rs`."><meta name="keywords" content="rust, rustlang, rust-lang"><title>plugin.rs - source</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../../dark.css" disabled><link rel="stylesheet" type="text/css" href="../../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../../storage.js"></script><script src="../../crates.js"></script><script defer src="../../main.js"></script><script defer src="../../source-script.js"></script><script defer src="../../source-files.js"></script>
+    <noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../../favicon.svg"></head><body class="rustdoc source"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../../vst/index.html"><div class="logo-container"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></div>
+        </a></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../../vst/index.html"><img class="rust-logo" src="../../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><div class="example-wrap"><pre class="line-numbers"><span id="1">   1</span>
 <span id="2">   2</span>
 <span id="3">   3</span>
 <span id="4">   4</span>
@@ -1080,8 +1082,7 @@
 <span id="1080">1080</span>
 <span id="1081">1081</span>
 <span id="1082">1082</span>
-</pre><pre class="rust">
-<span class="doccomment">//! Plugin specific structures.</span>
+</pre><pre class="rust"><code><span class="doccomment">//! Plugin specific structures.</span>
 
 <span class="kw">use</span> <span class="ident">num_enum</span>::{<span class="ident">IntoPrimitive</span>, <span class="ident">TryFromPrimitive</span>};
 
@@ -1151,7 +1152,7 @@
     <span class="doccomment">/// [index]: parameter</span>
     <span class="doccomment">/// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. &quot;db&quot;, &quot;ms&quot;, etc)</span>
     <span class="ident">GetParameterLabel</span>,
-    <span class="doccomment">/// [index]: paramter</span>
+    <span class="doccomment">/// [index]: parameter</span>
     <span class="doccomment">/// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. &quot;0.5&quot;, &quot;ROOM&quot;, etc).</span>
     <span class="ident">GetParameterDisplay</span>,
     <span class="doccomment">/// [index]: parameter</span>
@@ -1283,7 +1284,7 @@
     <span class="doccomment">/// [ptr]: &quot;Can do&quot; string.</span>
     <span class="doccomment">/// [return]: 1 = yes, 0 = maybe, -1 = no.</span>
     <span class="ident">CanDo</span>,
-    <span class="doccomment">/// [return]: tail size (e.g. reverb time). 0 is defualt, 1 means no tail.</span>
+    <span class="doccomment">/// [return]: tail size (e.g. reverb time). 0 is default, 1 means no tail.</span>
     <span class="ident">GetTailSize</span>,
 
     <span class="doccomment">/// Deprecated.</span>
@@ -1439,7 +1440,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">Info</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">Info</span> {
         <span class="ident">Info</span> {
             <span class="ident">name</span>: <span class="string">&quot;VST&quot;</span>.<span class="ident">to_string</span>(),
             <span class="ident">vendor</span>: <span class="ident">String::new</span>(),
@@ -1492,45 +1493,45 @@
     <span class="attribute">#![<span class="ident">allow</span>(<span class="ident">clippy::should_implement_trait</span>)]</span>
     <span class="doccomment">/// Converts a string to a `CanDo` instance. Any given string that does not match the predefined</span>
     <span class="doccomment">/// values will return a `CanDo::Other` value.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">CanDo</span> {
-        <span class="kw">use</span> <span class="self">self</span><span class="ident">::CanDo</span>::<span class="kw-2">*</span>;
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">from_str</span>(<span class="ident">s</span>: <span class="kw-2">&amp;</span><span class="ident">str</span>) -&gt; <span class="ident">CanDo</span> {
+        <span class="kw">use</span> <span class="ident"><span class="self">self</span>::CanDo</span>::<span class="kw-2">*</span>;
 
         <span class="kw">match</span> <span class="ident">s</span> {
-            <span class="string">&quot;sendVstEvents&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SendEvents</span>,
-            <span class="string">&quot;sendVstMidiEvent&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">SendMidiEvent</span>,
-            <span class="string">&quot;receiveVstEvents&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReceiveEvents</span>,
-            <span class="string">&quot;receiveVstMidiEvent&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReceiveMidiEvent</span>,
-            <span class="string">&quot;receiveVstTimeInfo&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReceiveTimeInfo</span>,
-            <span class="string">&quot;offline&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Offline</span>,
-            <span class="string">&quot;midiProgramNames&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MidiProgramNames</span>,
-            <span class="string">&quot;bypass&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Bypass</span>,
+            <span class="string">&quot;sendVstEvents&quot;</span> =&gt; <span class="ident">SendEvents</span>,
+            <span class="string">&quot;sendVstMidiEvent&quot;</span> =&gt; <span class="ident">SendMidiEvent</span>,
+            <span class="string">&quot;receiveVstEvents&quot;</span> =&gt; <span class="ident">ReceiveEvents</span>,
+            <span class="string">&quot;receiveVstMidiEvent&quot;</span> =&gt; <span class="ident">ReceiveMidiEvent</span>,
+            <span class="string">&quot;receiveVstTimeInfo&quot;</span> =&gt; <span class="ident">ReceiveTimeInfo</span>,
+            <span class="string">&quot;offline&quot;</span> =&gt; <span class="ident">Offline</span>,
+            <span class="string">&quot;midiProgramNames&quot;</span> =&gt; <span class="ident">MidiProgramNames</span>,
+            <span class="string">&quot;bypass&quot;</span> =&gt; <span class="ident">Bypass</span>,
 
-            <span class="string">&quot;receiveVstSysexEvent&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">ReceiveSysExEvent</span>,
-            <span class="string">&quot;midiSingleNoteTuningChange&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MidiSingleNoteTuningChange</span>,
-            <span class="string">&quot;midiKeyBasedInstrumentControl&quot;</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">MidiKeyBasedInstrumentControl</span>,
-            <span class="ident">otherwise</span> <span class="op">=</span><span class="op">&gt;</span> <span class="ident">Other</span>(<span class="ident">otherwise</span>.<span class="ident">to_string</span>()),
+            <span class="string">&quot;receiveVstSysexEvent&quot;</span> =&gt; <span class="ident">ReceiveSysExEvent</span>,
+            <span class="string">&quot;midiSingleNoteTuningChange&quot;</span> =&gt; <span class="ident">MidiSingleNoteTuningChange</span>,
+            <span class="string">&quot;midiKeyBasedInstrumentControl&quot;</span> =&gt; <span class="ident">MidiKeyBasedInstrumentControl</span>,
+            <span class="ident">otherwise</span> =&gt; <span class="ident">Other</span>(<span class="ident">otherwise</span>.<span class="ident">to_string</span>()),
         }
     }
 }
 
 <span class="kw">impl</span> <span class="ident">Into</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span> <span class="kw">for</span> <span class="ident">CanDo</span> {
-    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
-        <span class="kw">use</span> <span class="self">self</span><span class="ident">::CanDo</span>::<span class="kw-2">*</span>;
+    <span class="kw">fn</span> <span class="ident">into</span>(<span class="self">self</span>) -&gt; <span class="ident">String</span> {
+        <span class="kw">use</span> <span class="ident"><span class="self">self</span>::CanDo</span>::<span class="kw-2">*</span>;
 
         <span class="kw">match</span> <span class="self">self</span> {
-            <span class="ident">SendEvents</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sendVstEvents&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">SendMidiEvent</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;sendVstMidiEvent&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">ReceiveEvents</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;receiveVstEvents&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">ReceiveMidiEvent</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;receiveVstMidiEvent&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">ReceiveTimeInfo</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;receiveVstTimeInfo&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Offline</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;offline&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">MidiProgramNames</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;midiProgramNames&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Bypass</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;bypass&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">SendEvents</span> =&gt; <span class="string">&quot;sendVstEvents&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">SendMidiEvent</span> =&gt; <span class="string">&quot;sendVstMidiEvent&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">ReceiveEvents</span> =&gt; <span class="string">&quot;receiveVstEvents&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">ReceiveMidiEvent</span> =&gt; <span class="string">&quot;receiveVstMidiEvent&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">ReceiveTimeInfo</span> =&gt; <span class="string">&quot;receiveVstTimeInfo&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Offline</span> =&gt; <span class="string">&quot;offline&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">MidiProgramNames</span> =&gt; <span class="string">&quot;midiProgramNames&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Bypass</span> =&gt; <span class="string">&quot;bypass&quot;</span>.<span class="ident">to_string</span>(),
 
-            <span class="ident">ReceiveSysExEvent</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;receiveVstSysexEvent&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">MidiSingleNoteTuningChange</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;midiSingleNoteTuningChange&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">MidiKeyBasedInstrumentControl</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;midiKeyBasedInstrumentControl&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">Other</span>(<span class="ident">other</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="ident">other</span>,
+            <span class="ident">ReceiveSysExEvent</span> =&gt; <span class="string">&quot;receiveVstSysexEvent&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">MidiSingleNoteTuningChange</span> =&gt; <span class="string">&quot;midiSingleNoteTuningChange&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">MidiKeyBasedInstrumentControl</span> =&gt; <span class="string">&quot;midiKeyBasedInstrumentControl&quot;</span>.<span class="ident">to_string</span>(),
+            <span class="ident">Other</span>(<span class="ident">other</span>) =&gt; <span class="ident">other</span>,
         }
     }
 }
@@ -1555,11 +1556,11 @@
 <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">unused_variables</span>)]</span>
 <span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Plugin</span>: <span class="ident">Send</span> {
     <span class="doccomment">/// This method must return an `Info` struct.</span>
-    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span>;
+    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Info</span>;
 
     <span class="doccomment">/// Called during initialization to pass a `HostCallback` to the plugin.</span>
     <span class="doccomment">///</span>
-    <span class="doccomment">/// This method can be overriden to set `host` as a field in the plugin struct.</span>
+    <span class="doccomment">/// This method can be overridden to set `host` as a field in the plugin struct.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// # Example</span>
     <span class="doccomment">///</span>
@@ -1596,48 +1597,48 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// # fn main() {}</span>
     <span class="doccomment">/// ```</span>
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">HostCallback</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span>
+    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">HostCallback</span>) -&gt; <span class="self">Self</span>
     <span class="kw">where</span>
         <span class="self">Self</span>: <span class="ident">Sized</span>;
 
     <span class="doccomment">/// Called when plugin is fully initialized.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *suspended* state.</span>
-    <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+    <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
         <span class="macro">trace!</span>(<span class="string">&quot;Initialized vst plugin.&quot;</span>);
     }
 
     <span class="doccomment">/// Called when sample rate is changed by host.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *suspended* state.</span>
-    <span class="kw">fn</span> <span class="ident">set_sample_rate</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">rate</span>: <span class="ident">f32</span>) {}
+    <span class="kw">fn</span> <span class="ident">set_sample_rate</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">rate</span>: <span class="ident">f32</span>) {}
 
     <span class="doccomment">/// Called when block size is changed by host.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *suspended* state.</span>
-    <span class="kw">fn</span> <span class="ident">set_block_size</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">i64</span>) {}
+    <span class="kw">fn</span> <span class="ident">set_block_size</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">size</span>: <span class="ident">i64</span>) {}
 
     <span class="doccomment">/// Called to transition the plugin into the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">resume</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+    <span class="kw">fn</span> <span class="ident">resume</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
 
     <span class="doccomment">/// Called to transition the plugin into the *suspended* state.</span>
-    <span class="kw">fn</span> <span class="ident">suspend</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+    <span class="kw">fn</span> <span class="ident">suspend</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
 
     <span class="doccomment">/// Vendor specific handling.</span>
-    <span class="kw">fn</span> <span class="ident">vendor_specific</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">isize</span>, <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">opt</span>: <span class="ident">f32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">vendor_specific</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">isize</span>, <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">opt</span>: <span class="ident">f32</span>) -&gt; <span class="ident">isize</span> {
         <span class="number">0</span>
     }
 
     <span class="doccomment">/// Return whether plugin supports specified action.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *suspended* state.</span>
-    <span class="kw">fn</span> <span class="ident">can_do</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">can_do</span>: <span class="ident">CanDo</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Supported</span> {
+    <span class="kw">fn</span> <span class="ident">can_do</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">can_do</span>: <span class="ident">CanDo</span>) -&gt; <span class="ident">Supported</span> {
         <span class="macro">info!</span>(<span class="string">&quot;Host is asking if plugin can: {:?}.&quot;</span>, <span class="ident">can_do</span>);
         <span class="ident">Supported::Maybe</span>
     }
 
     <span class="doccomment">/// Get the tail size of plugin when it is stopped. Used in offline processing as well.</span>
-    <span class="kw">fn</span> <span class="ident">get_tail_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_tail_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="number">0</span>
     }
 
@@ -1674,7 +1675,7 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buffer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AudioBuffer</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">process</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buffer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AudioBuffer</span><span class="op">&lt;</span><span class="ident">f32</span><span class="op">&gt;</span>) {
         <span class="comment">// For each input and output</span>
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">zip</span>() {
             <span class="comment">// For each input sample and output sample in buffer</span>
@@ -1717,7 +1718,7 @@
     <span class="doccomment">/// ```</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">process_f64</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">buffer</span>: <span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="ident">AudioBuffer</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) {
+    <span class="kw">fn</span> <span class="ident">process_f64</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">buffer</span>: <span class="kw-2">&amp;mut</span> <span class="ident">AudioBuffer</span><span class="op">&lt;</span><span class="ident">f64</span><span class="op">&gt;</span>) {
         <span class="comment">// For each input and output</span>
         <span class="kw">for</span> (<span class="ident">input</span>, <span class="ident">output</span>) <span class="kw">in</span> <span class="ident">buffer</span>.<span class="ident">zip</span>() {
             <span class="comment">// For each input sample and output sample in buffer</span>
@@ -1732,15 +1733,15 @@
     <span class="doccomment">/// This is always called before the start of `process` or `process_f64`.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">process_events</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>, <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="ident">api::Events</span>) {}
+    <span class="kw">fn</span> <span class="ident">process_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="ident">api::Events</span>) {}
 
     <span class="doccomment">/// Get a reference to the shared parameter object.</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
         <span class="ident">Arc::new</span>(<span class="ident">DummyPluginParameters</span>)
     }
 
     <span class="doccomment">/// Get information about an input channel. Only used by some hosts.</span>
-    <span class="kw">fn</span> <span class="ident">get_input_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChannelInfo</span> {
+    <span class="kw">fn</span> <span class="ident">get_input_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">input</span>: <span class="ident">i32</span>) -&gt; <span class="ident">ChannelInfo</span> {
         <span class="ident">ChannelInfo::new</span>(
             <span class="macro">format!</span>(<span class="string">&quot;Input channel {}&quot;</span>, <span class="ident">input</span>),
             <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;In {}&quot;</span>, <span class="ident">input</span>)),
@@ -1750,7 +1751,7 @@
     }
 
     <span class="doccomment">/// Get information about an output channel. Only used by some hosts.</span>
-    <span class="kw">fn</span> <span class="ident">get_output_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">ChannelInfo</span> {
+    <span class="kw">fn</span> <span class="ident">get_output_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">output</span>: <span class="ident">i32</span>) -&gt; <span class="ident">ChannelInfo</span> {
         <span class="ident">ChannelInfo::new</span>(
             <span class="macro">format!</span>(<span class="string">&quot;Output channel {}&quot;</span>, <span class="ident">output</span>),
             <span class="prelude-val">Some</span>(<span class="macro">format!</span>(<span class="string">&quot;Out {}&quot;</span>, <span class="ident">output</span>)),
@@ -1765,12 +1766,12 @@
     <span class="doccomment">/// or bypass state when the plug-in doesn&#39;t support softBypass).</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">start_process</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+    <span class="kw">fn</span> <span class="ident">start_process</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
 
     <span class="doccomment">/// Called after the stop of process call.</span>
     <span class="doccomment">///</span>
     <span class="doccomment">/// This method is only called while the plugin is in the *resumed* state.</span>
-    <span class="kw">fn</span> <span class="ident">stop_process</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {}
+    <span class="kw">fn</span> <span class="ident">stop_process</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {}
 
     <span class="doccomment">/// Return handle to plugin editor if supported.</span>
     <span class="doccomment">/// The method need only return the object on the first call.</span>
@@ -1778,7 +1779,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The editor object will typically contain an `Arc` reference to the parameter</span>
     <span class="doccomment">/// object through which it can communicate with the audio processing.</span>
-    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -1794,7 +1795,7 @@
     <span class="kw">fn</span> <span class="ident">change_preset</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">preset</span>: <span class="ident">i32</span>) {}
 
     <span class="doccomment">/// Get the current preset index.</span>
-    <span class="kw">fn</span> <span class="ident">get_preset_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">fn</span> <span class="ident">get_preset_num</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="number">0</span>
     }
 
@@ -1802,27 +1803,27 @@
     <span class="kw">fn</span> <span class="ident">set_preset_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">name</span>: <span class="ident">String</span>) {}
 
     <span class="doccomment">/// Get the name of the preset at the index specified by `preset`.</span>
-    <span class="kw">fn</span> <span class="ident">get_preset_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">preset</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">get_preset_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">preset</span>: <span class="ident">i32</span>) -&gt; <span class="ident">String</span> {
         <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
     }
 
     <span class="doccomment">/// Get parameter label for parameter at `index` (e.g. &quot;db&quot;, &quot;sec&quot;, &quot;ms&quot;, &quot;%&quot;).</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">get_parameter_label</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) -&gt; <span class="ident">String</span> {
         <span class="string">&quot;&quot;</span>.<span class="ident">to_string</span>()
     }
 
     <span class="doccomment">/// Get the parameter value for parameter at `index` (e.g. &quot;1.0&quot;, &quot;150&quot;, &quot;Plate&quot;, &quot;Off&quot;).</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">get_parameter_text</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;{:.3}&quot;</span>, <span class="self">self</span>.<span class="ident">get_parameter</span>(<span class="ident">index</span>))
     }
 
     <span class="doccomment">/// Get the name of parameter at `index`.</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">get_parameter_name</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) -&gt; <span class="ident">String</span> {
         <span class="macro">format!</span>(<span class="string">&quot;Param {}&quot;</span>, <span class="ident">index</span>)
     }
 
-    <span class="doccomment">/// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">f32</span> {
+    <span class="doccomment">/// Get the value of parameter at `index`. Should be value between 0.0 and 1.0.</span>
+    <span class="kw">fn</span> <span class="ident">get_parameter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) -&gt; <span class="ident">f32</span> {
         <span class="number">0.0</span>
     }
 
@@ -1832,26 +1833,26 @@
     <span class="kw">fn</span> <span class="ident">set_parameter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">f32</span>) {}
 
     <span class="doccomment">/// Return whether parameter at `index` can be automated.</span>
-    <span class="kw">fn</span> <span class="ident">can_be_automated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">can_be_automated</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">true</span>
     }
 
     <span class="doccomment">/// Use String as input for parameter value. Used by host to provide an editable field to</span>
     <span class="doccomment">/// adjust a parameter value. E.g. &quot;100&quot; may be interpreted as 100hz for parameter. Returns if</span>
     <span class="doccomment">/// the input string was used.</span>
-    <span class="kw">fn</span> <span class="ident">string_to_parameter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">text</span>: <span class="ident">String</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">string_to_parameter</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">text</span>: <span class="ident">String</span>) -&gt; <span class="ident">bool</span> {
         <span class="bool-val">false</span>
     }
 
     <span class="doccomment">/// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for</span>
     <span class="doccomment">/// the current preset.</span>
-    <span class="kw">fn</span> <span class="ident">get_preset_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_preset_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="ident">Vec::new</span>()
     }
 
     <span class="doccomment">/// If `preset_chunks` is set to true in plugin info, this should return the raw chunk data for</span>
     <span class="doccomment">/// the current plugin bank.</span>
-    <span class="kw">fn</span> <span class="ident">get_bank_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_bank_data</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Vec</span><span class="op">&lt;</span><span class="ident">u8</span><span class="op">&gt;</span> {
         <span class="ident">Vec::new</span>()
     }
 
@@ -1877,13 +1878,13 @@
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Copy</span>, <span class="ident">Clone</span>)]</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">HostCallback</span> {
     <span class="ident">callback</span>: <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HostCallbackProc</span><span class="op">&gt;</span>,
-    <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
+    <span class="ident">effect</span>: <span class="kw-2">*mut</span> <span class="ident">AEffect</span>,
 }
 
 <span class="doccomment">/// `HostCallback` implements `Default` so that the plugin can implement `Default` and have a</span>
 <span class="doccomment">/// `HostCallback` field.</span>
 <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">HostCallback</span> {
-    <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HostCallback</span> {
+    <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">HostCallback</span> {
         <span class="ident">HostCallback</span> {
             <span class="ident">callback</span>: <span class="prelude-val">None</span>,
             <span class="ident">effect</span>: <span class="ident">ptr::null_mut</span>(),
@@ -1899,27 +1900,27 @@
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
     <span class="kw">fn</span> <span class="ident">callback</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
-        <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
+        <span class="ident">effect</span>: <span class="kw-2">*mut</span> <span class="ident">AEffect</span>,
         <span class="ident">opcode</span>: <span class="ident">host::OpCode</span>,
         <span class="ident">index</span>: <span class="ident">i32</span>,
         <span class="ident">value</span>: <span class="ident">isize</span>,
-        <span class="ident">ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+        <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
         <span class="ident">opt</span>: <span class="ident">f32</span>,
-    ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    ) -&gt; <span class="ident">isize</span> {
         <span class="kw">let</span> <span class="ident">callback</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">callback</span>.<span class="ident">unwrap_or_else</span>(<span class="op">|</span><span class="op">|</span> <span class="macro">panic!</span>(<span class="string">&quot;Host not yet initialized.&quot;</span>));
         <span class="ident">callback</span>(<span class="ident">effect</span>, <span class="ident">opcode</span>.<span class="ident">into</span>(), <span class="ident">index</span>, <span class="ident">value</span>, <span class="ident">ptr</span>, <span class="ident">opt</span>)
     }
 
     <span class="doccomment">/// Check whether the plugin has been initialized.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">fn</span> <span class="ident">is_effect_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">bool</span> {
+    <span class="kw">fn</span> <span class="ident">is_effect_valid</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">bool</span> {
         <span class="comment">// Check whether `effect` points to a valid AEffect struct</span>
-        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">effect</span>).<span class="ident">magic</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">=</span><span class="op">=</span> <span class="ident">VST_MAGIC</span> }
+        <span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="self">self</span>.<span class="ident">effect</span>).<span class="ident">magic</span> <span class="kw">as</span> <span class="ident">i32</span> <span class="op">==</span> <span class="ident">VST_MAGIC</span> }
     }
 
     <span class="doccomment">/// Create a new Host structure wrapping a host callback.</span>
     <span class="attribute">#[<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap</span>(<span class="ident">callback</span>: <span class="ident">HostCallbackProc</span>, <span class="ident">effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">HostCallback</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">wrap</span>(<span class="ident">callback</span>: <span class="ident">HostCallbackProc</span>, <span class="ident">effect</span>: <span class="kw-2">*mut</span> <span class="ident">AEffect</span>) -&gt; <span class="ident">HostCallback</span> {
         <span class="ident">HostCallback</span> {
             <span class="ident">callback</span>: <span class="prelude-val">Some</span>(<span class="ident">callback</span>),
             <span class="ident">effect</span>,
@@ -1927,29 +1928,29 @@
     }
 
     <span class="doccomment">/// Get the VST API version supported by the host e.g. `2400 = VST 2.4`.</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vst_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">vst_version</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::Version</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>) <span class="kw">as</span> <span class="ident">i32</span>
     }
 
     <span class="doccomment">/// Get the callback for calling host-specific extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_callback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HostCallbackProc</span><span class="op">&gt;</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_callback</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">HostCallbackProc</span><span class="op">&gt;</span> {
         <span class="self">self</span>.<span class="ident">callback</span>
     }
 
     <span class="doccomment">/// Get the effect pointer for calling host-specific extensions</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_effect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">raw_effect</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="kw-2">*mut</span> <span class="ident">AEffect</span> {
         <span class="self">self</span>.<span class="ident">effect</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">read_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">opcode</span>: <span class="ident">host::OpCode</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">read_string</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">opcode</span>: <span class="ident">host::OpCode</span>, <span class="ident">max</span>: <span class="ident">usize</span>) -&gt; <span class="ident">String</span> {
         <span class="self">self</span>.<span class="ident">read_string_param</span>(<span class="ident">opcode</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0.0</span>, <span class="ident">max</span>)
     }
 
-    <span class="kw">fn</span> <span class="ident">read_string_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">opcode</span>: <span class="ident">host::OpCode</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">isize</span>, <span class="ident">opt</span>: <span class="ident">f32</span>, <span class="ident">max</span>: <span class="ident">usize</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">String</span> {
+    <span class="kw">fn</span> <span class="ident">read_string_param</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">opcode</span>: <span class="ident">host::OpCode</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">isize</span>, <span class="ident">opt</span>: <span class="ident">f32</span>, <span class="ident">max</span>: <span class="ident">usize</span>) -&gt; <span class="ident">String</span> {
         <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">buf</span> <span class="op">=</span> <span class="macro">vec!</span>[<span class="number">0</span>; <span class="ident">max</span>];
-        <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">opcode</span>, <span class="ident">index</span>, <span class="ident">value</span>, <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>, <span class="ident">opt</span>);
+        <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">opcode</span>, <span class="ident">index</span>, <span class="ident">value</span>, <span class="ident">buf</span>.<span class="ident">as_mut_ptr</span>() <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="ident">c_void</span>, <span class="ident">opt</span>);
         <span class="ident">String::from_utf8_lossy</span>(<span class="kw-2">&amp;</span><span class="ident">buf</span>)
             .<span class="ident">chars</span>()
             .<span class="ident">take_while</span>(<span class="op">|</span><span class="ident">c</span><span class="op">|</span> <span class="kw-2">*</span><span class="ident">c</span> <span class="op">!</span><span class="op">=</span> <span class="string">&#39;\0&#39;</span>)
@@ -1980,7 +1981,7 @@
         <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::EndEdit</span>, <span class="ident">index</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_plugin_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">i32</span> {
+    <span class="kw">fn</span> <span class="ident">get_plugin_id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">i32</span> {
         <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::CurrentId</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>) <span class="kw">as</span> <span class="ident">i32</span>
     }
 
@@ -1988,7 +1989,7 @@
         <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::Idle</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>);
     }
 
-    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> (<span class="ident">isize</span>, <span class="ident">String</span>, <span class="ident">String</span>) {
+    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; (<span class="ident">isize</span>, <span class="ident">String</span>, <span class="ident">String</span>) {
         <span class="kw">use</span> <span class="ident">api::consts</span>::<span class="kw-2">*</span>;
         <span class="kw">let</span> <span class="ident">version</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::CurrentId</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>) <span class="kw">as</span> <span class="ident">isize</span>;
         <span class="kw">let</span> <span class="ident">vendor_name</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">read_string</span>(<span class="ident">host::OpCode::GetVendorString</span>, <span class="ident">MAX_VENDOR_STR_LEN</span>);
@@ -2009,7 +2010,7 @@
             <span class="ident">host::OpCode::ProcessEvents</span>,
             <span class="number">0</span>,
             <span class="number">0</span>,
-            <span class="ident">events</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="kw">_</span>,
+            <span class="ident">events</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="kw">_</span> <span class="kw">as</span> <span class="kw-2">*mut</span> <span class="kw">_</span>,
             <span class="number">0.0</span>,
         );
     }
@@ -2024,20 +2025,20 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// Also please be aware that requesting information does not necessarily mean that that information is provided in return.</span>
     <span class="doccomment">/// Check the flags field in the `TimeInfo` structure to see if your request was actually met.</span>
-    <span class="kw">fn</span> <span class="ident">get_time_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mask</span>: <span class="ident">i32</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TimeInfo</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_time_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">mask</span>: <span class="ident">i32</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">TimeInfo</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">host::OpCode::GetTime</span>;
         <span class="kw">let</span> <span class="ident">mask</span> <span class="op">=</span> <span class="ident">mask</span> <span class="kw">as</span> <span class="ident">isize</span>;
         <span class="kw">let</span> <span class="ident">null</span> <span class="op">=</span> <span class="ident">ptr::null_mut</span>();
         <span class="kw">let</span> <span class="ident">ptr</span> <span class="op">=</span> <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">opcode</span>, <span class="number">0</span>, <span class="ident">mask</span>, <span class="ident">null</span>, <span class="number">0.0</span>);
 
         <span class="kw">match</span> <span class="ident">ptr</span> {
-            <span class="number">0</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">None</span>,
-            <span class="ident">ptr</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="kw-2">*</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*</span><span class="kw">const</span> <span class="ident">TimeInfo</span>) }),
+            <span class="number">0</span> =&gt; <span class="prelude-val">None</span>,
+            <span class="ident">ptr</span> =&gt; <span class="prelude-val">Some</span>(<span class="kw">unsafe</span> { <span class="kw-2">*</span>(<span class="ident">ptr</span> <span class="kw">as</span> <span class="kw-2">*const</span> <span class="ident">TimeInfo</span>) }),
         }
     }
 
     <span class="doccomment">/// Get block size.</span>
-    <span class="kw">fn</span> <span class="ident">get_block_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+    <span class="kw">fn</span> <span class="ident">get_block_size</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">isize</span> {
         <span class="self">self</span>.<span class="ident">callback</span>(<span class="self">self</span>.<span class="ident">effect</span>, <span class="ident">host::OpCode::GetBlockSize</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>)
     }
 
@@ -2057,7 +2058,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// This is a macro to allow you to specify attributes on the created struct.</span>
     <span class="macro">macro_rules!</span> <span class="ident">make_plugin</span> {
-        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>) <span class="kw-2">*</span>) <span class="op">=</span><span class="op">&gt;</span> {
+        ($(<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>:<span class="ident">meta</span>) <span class="kw-2">*</span>) =&gt; {
             <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
             <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
 
@@ -2072,20 +2073,20 @@
             }
 
             <span class="kw">impl</span> <span class="ident">Plugin</span> <span class="kw">for</span> <span class="ident">TestPlugin</span> {
-                <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">Info</span> {
+                <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Info</span> {
                     <span class="ident">Info</span> {
                         <span class="ident">name</span>: <span class="string">&quot;Test Plugin&quot;</span>.<span class="ident">to_string</span>(),
                         ..<span class="ident">Default::default</span>()
                     }
                 }
 
-                <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">HostCallback</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestPlugin</span> {
+                <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">host</span>: <span class="ident">HostCallback</span>) -&gt; <span class="ident">TestPlugin</span> {
                     <span class="ident">TestPlugin</span> {
                         <span class="ident">host</span>
                     }
                 }
 
-                <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;</span><span class="kw-2">mut</span> <span class="self">self</span>) {
+                <span class="kw">fn</span> <span class="ident">init</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) {
                     <span class="macro">info!</span>(<span class="string">&quot;Loaded with host vst version: {}&quot;</span>, <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">vst_version</span>());
                     <span class="macro">assert_eq!</span>(<span class="number">2400</span>, <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">vst_version</span>());
                     <span class="macro">assert_eq!</span>(<span class="number">9876</span>, <span class="self">self</span>.<span class="ident">host</span>.<span class="ident">get_plugin_id</span>());
@@ -2098,33 +2099,33 @@
             }
 
             <span class="attribute">#[<span class="ident">allow</span>(<span class="ident">dead_code</span>)]</span>
-            <span class="kw">fn</span> <span class="ident">instance</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span> {
+            <span class="kw">fn</span> <span class="ident">instance</span>() -&gt; <span class="kw-2">*mut</span> <span class="ident">AEffect</span> {
                 <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">host_callback</span>(
-                    <span class="ident">_effect</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">AEffect</span>,
+                    <span class="ident">_effect</span>: <span class="kw-2">*mut</span> <span class="ident">AEffect</span>,
                     <span class="ident">opcode</span>: <span class="ident">i32</span>,
                     <span class="ident">index</span>: <span class="ident">i32</span>,
                     <span class="ident">_value</span>: <span class="ident">isize</span>,
-                    <span class="ident">_ptr</span>: <span class="kw-2">*</span><span class="kw-2">mut</span> <span class="ident">c_void</span>,
+                    <span class="ident">_ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
                     <span class="ident">opt</span>: <span class="ident">f32</span>,
-                ) <span class="op">-</span><span class="op">&gt;</span> <span class="ident">isize</span> {
+                ) -&gt; <span class="ident">isize</span> {
                     <span class="kw">match</span> <span class="ident">OpCode::try_from</span>(<span class="ident">opcode</span>) {
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::BeginEdit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::BeginEdit</span>) =&gt; {
                             <span class="macro">assert_eq!</span>(<span class="ident">index</span>, <span class="number">123</span>);
                             <span class="number">0</span>
                         },
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Automate</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Automate</span>) =&gt; {
                             <span class="macro">assert_eq!</span>(<span class="ident">index</span>, <span class="number">123</span>);
                             <span class="macro">assert_eq!</span>(<span class="ident">opt</span>, <span class="number">12.3</span>);
                             <span class="number">0</span>
                         },
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::EndEdit</span>) <span class="op">=</span><span class="op">&gt;</span> {
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::EndEdit</span>) =&gt; {
                             <span class="macro">assert_eq!</span>(<span class="ident">index</span>, <span class="number">123</span>);
                             <span class="number">0</span>
                         },
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Version</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">2400</span>,
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::CurrentId</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">9876</span>,
-                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Idle</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>,
-                        <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="number">0</span>
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Version</span>) =&gt; <span class="number">2400</span>,
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::CurrentId</span>) =&gt; <span class="number">9876</span>,
+                        <span class="prelude-val">Ok</span>(<span class="ident">OpCode::Idle</span>) =&gt; <span class="number">0</span>,
+                        <span class="kw">_</span> =&gt; <span class="number">0</span>
                     }
                 }
 
@@ -2141,7 +2142,7 @@
         <span class="macro">make_plugin!</span>(<span class="comment">/* no `derive(Default)` */</span>);
 
         <span class="kw">impl</span> <span class="ident">Default</span> <span class="kw">for</span> <span class="ident">TestPlugin</span> {
-            <span class="kw">fn</span> <span class="ident">default</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="ident">TestPlugin</span> {
+            <span class="kw">fn</span> <span class="ident">default</span>() -&gt; <span class="ident">TestPlugin</span> {
                 <span class="kw">let</span> <span class="ident">plugin</span> <span class="op">=</span> <span class="ident">TestPlugin</span> {
                     <span class="ident">host</span>: <span class="ident">Default::default</span>(),
                 };
@@ -2163,7 +2164,6 @@
         (<span class="kw">unsafe</span> { (<span class="kw-2">*</span><span class="ident">aeffect</span>).<span class="ident">dispatcher</span> })(<span class="ident">aeffect</span>, <span class="ident">plugin::OpCode::Initialize</span>.<span class="ident">into</span>(), <span class="number">0</span>, <span class="number">0</span>, <span class="ident">ptr::null_mut</span>(), <span class="number">0.0</span>);
     }
 }
-</pre></div>
-</section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../../" data-current-crate="vst" data-search-index-js="../../search-index.js" data-search-js="../../search.js"></div>
-    <script src="../../main.js"></script><script src="../../source-script.js"></script><script src="../../source-files.js"></script>
+</code></pre></div>
+</section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../../" data-current-crate="vst" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
 </body></html>
