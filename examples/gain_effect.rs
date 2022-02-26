@@ -1,8 +1,7 @@
-// author: doomy <alexander@resamplr.com>
+// author: doomy <notdoomy@protonmail.com>
 
 #[macro_use]
 extern crate vst;
-extern crate time;
 
 use std::sync::Arc;
 
