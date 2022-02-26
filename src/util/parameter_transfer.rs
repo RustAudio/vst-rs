@@ -142,8 +142,8 @@ mod tests {
             thread::spawn(move || {
                 let mut values = vec![0f32; PARAMETERS];
                 for _ in 0..UPDATES {
-                    let p: usize = t_rng.gen_range(0, PARAMETERS);
-                    let v: f32 = t_rng.gen_range(0.0, 1.0);
+                    let p: usize = t_rng.gen_range(0..PARAMETERS);
+                    let v: f32 = t_rng.gen_range(0.0..1.0);
                     values[p] = v;
                     t_transfer.set_parameter(p, v);
                 }

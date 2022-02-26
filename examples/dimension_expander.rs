@@ -2,7 +2,6 @@
 
 #[macro_use]
 extern crate vst;
-extern crate time;
 
 use vst::buffer::AudioBuffer;
 use vst::plugin::{Category, HostCallback, Info, Plugin, PluginParameters};
@@ -11,6 +10,7 @@ use vst::util::AtomicFloat;
 use std::collections::VecDeque;
 use std::f64::consts::PI;
 use std::sync::Arc;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 /// Calculate the length in samples for a delay. Size ranges from 0.0 to 1.0.
 fn delay(index: usize, mut size: f32) -> isize {
@@ -153,7 +153,7 @@ impl Plugin for DimensionExpander {
             let mut right_processed = 0.0;
 
             // Recalculate time per sample
-            let time_s = time::precise_time_ns() as f64 / 1_000_000_000.0;
+            let time_s = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs_f64();
 
             // Use buffer index to offset volume LFO
             for (n, buffer) in self.buffers.iter_mut().enumerate() {
