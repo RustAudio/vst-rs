@@ -68,7 +68,7 @@ pub enum OpCode {
     /// [index]: parameter
     /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "db", "ms", etc)
     GetParameterLabel,
-    /// [index]: paramter
+    /// [index]: parameter
     /// [ptr]: char buffer, limited to `consts::MAX_PARAM_STR_LEN` (e.g. "0.5", "ROOM", etc).
     GetParameterDisplay,
     /// [index]: parameter
@@ -200,7 +200,7 @@ pub enum OpCode {
     /// [ptr]: "Can do" string.
     /// [return]: 1 = yes, 0 = maybe, -1 = no.
     CanDo,
-    /// [return]: tail size (e.g. reverb time). 0 is defualt, 1 means no tail.
+    /// [return]: tail size (e.g. reverb time). 0 is default, 1 means no tail.
     GetTailSize,
 
     /// Deprecated.
@@ -476,7 +476,7 @@ pub trait Plugin: Send {
 
     /// Called during initialization to pass a `HostCallback` to the plugin.
     ///
-    /// This method can be overriden to set `host` as a field in the plugin struct.
+    /// This method can be overridden to set `host` as a field in the plugin struct.
     ///
     /// # Example
     ///
@@ -738,7 +738,7 @@ pub trait PluginParameters: Sync {
         format!("Param {}", index)
     }
 
-    /// Get the value of paramater at `index`. Should be value between 0.0 and 1.0.
+    /// Get the value of parameter at `index`. Should be value between 0.0 and 1.0.
     fn get_parameter(&self, index: i32) -> f32 {
         0.0
     }
