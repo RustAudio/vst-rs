@@ -1,6 +1,6 @@
 [package]
 name = "vst"
-version = "0.2.1"
+version = "0.3.0"
 authors = [
 	"Marko Mijalkovic <marko.mijalkovic97@gmail.com>",
 	"Boscop",
