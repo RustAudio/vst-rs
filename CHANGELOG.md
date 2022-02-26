@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Function pointers in `AEffect` marked as `extern` ([#141](https://github.com/RustAudio/vst-rs/pull/141))
 - Key character fixes ([#152](https://github.com/RustAudio/vst-rs/pull/152))
 - Doc and deploy actions fixes ([9eb1bef](https://github.com/RustAudio/vst-rs/commit/9eb1bef1826db1581b4162081de05c1090935afb))
+- Various doc fixes ([#177](https://github.com/RustAudio/vst-rs/pull/177))
 
 ### Added
 
