@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `begin_edit` and `end_edit` now in `Host` trait ([#151](https://github.com/RustAudio/vst-rs/pull/151))
+- Added a `prelude` for commonly used items when constructing a `Plugin` ([#161](https://github.com/RustAudio/vst-rs/pull/161))
 - Various useful implementations for `AtomicFloat` ([#150](https://github.com/RustAudio/vst-rs/pull/150))
 
 ### Changed
@@ -26,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No longer require `Plugin` to implement `Default` ([#154](https://github.com/RustAudio/vst-rs/pull/154))
 - `impl_clicke` replaced with `num_enum` ([#168](https://github.com/RustAudio/vst-rs/pull/168))
 - Reworked `SendEventBuffer` to make it useable in `Plugin::process_events` ([#160](https://github.com/RustAudio/vst-rs/pull/160))
+- Updated dependencies and removed development dependency on `time` ([#179](https://github.com/RustAudio/vst-rs/pull/179))
 
 ## 0.2.1
 
