@@ -606,7 +606,6 @@
 <span id="604">604</span>
 <span id="605">605</span>
 <span id="606">606</span>
-<span id="607">607</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Buffers to safely work with audio samples.</span>
 
 <span class="kw">use</span> <span class="ident">num_traits::Float</span>;
@@ -902,7 +901,7 @@
     }
 }
 
-<span class="kw">use</span> <span class="ident">event</span>::{<span class="ident">Event</span>, <span class="ident">MidiEvent</span>, <span class="ident">SysExEvent</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::event</span>::{<span class="ident">Event</span>, <span class="ident">MidiEvent</span>, <span class="ident">SysExEvent</span>};
 
 <span class="doccomment">/// This is used as a placeholder to pre-allocate space for a fixed number of</span>
 <span class="doccomment">/// midi events in the re-useable `SendEventBuffer`, because `SysExEvent` is</span>
@@ -977,8 +976,7 @@
     }
 }
 
-<span class="kw">use</span> <span class="ident">api</span>;
-<span class="kw">use</span> <span class="ident">host::Host</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{<span class="ident">api</span>, <span class="ident">host::Host</span>};
 <span class="kw">use</span> <span class="ident">std::mem</span>;
 
 <span class="doccomment">/// This buffer is used for sending midi events through the VST interface.</span>
@@ -1040,7 +1038,7 @@
     <span class="doccomment">/// # }</span>
     <span class="doccomment">/// ```</span>
     <span class="attribute">#[<span class="ident">inline</span>(<span class="ident">always</span>)]</span>
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_events</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">U</span>: <span class="ident">WriteIntoPlaceholder</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">events</span>: <span class="ident">T</span>, <span class="ident">host</span>: <span class="kw-2">&amp;mut</span> <span class="ident">dyn</span> <span class="ident">Host</span>) {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">send_events</span><span class="op">&lt;</span><span class="ident">T</span>: <span class="ident">IntoIterator</span><span class="op">&lt;</span><span class="ident">Item</span> <span class="op">=</span> <span class="ident">U</span><span class="op">&gt;</span>, <span class="ident">U</span>: <span class="ident">WriteIntoPlaceholder</span><span class="op">&gt;</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">events</span>: <span class="ident">T</span>, <span class="ident">host</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Host</span>) {
         <span class="self">self</span>.<span class="ident">store_events</span>(<span class="ident">events</span>);
         <span class="ident">host</span>.<span class="ident">process_events</span>(<span class="self">self</span>.<span class="ident">events</span>());
     }
@@ -1091,7 +1089,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">buffer::AudioBuffer</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::buffer::AudioBuffer</span>;
 
     <span class="doccomment">/// Size of buffers used in tests.</span>
     <span class="kw">const</span> <span class="ident">SIZE</span>: <span class="ident">usize</span> <span class="op">=</span> <span class="number">1024</span>;

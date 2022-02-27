@@ -375,15 +375,15 @@
 <span class="attribute">#![<span class="ident">doc</span>(<span class="ident">hidden</span>)]</span>
 
 <span class="kw">use</span> <span class="ident">std::cell::Cell</span>;
-<span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
 <span class="kw">use</span> <span class="ident">std::os::raw</span>::{<span class="ident">c_char</span>, <span class="ident">c_void</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">mem</span>, <span class="ident">slice</span>};
 
-<span class="kw">use</span> <span class="ident">api::consts</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">api</span>::{<span class="self">self</span>, <span class="ident">AEffect</span>, <span class="ident">TimeInfo</span>};
-<span class="kw">use</span> <span class="ident">buffer::AudioBuffer</span>;
-<span class="kw">use</span> <span class="ident">editor</span>::{<span class="ident">Key</span>, <span class="ident">KeyCode</span>, <span class="ident">KnobMode</span>, <span class="ident">Rect</span>};
-<span class="kw">use</span> <span class="ident">host::Host</span>;
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">api</span>::{<span class="self">self</span>, <span class="ident">consts</span>::<span class="kw-2">*</span>, <span class="ident">AEffect</span>, <span class="ident">TimeInfo</span>},
+    <span class="ident">buffer::AudioBuffer</span>,
+    <span class="ident">editor</span>::{<span class="ident">Key</span>, <span class="ident">KeyCode</span>, <span class="ident">KnobMode</span>, <span class="ident">Rect</span>},
+    <span class="ident">host::Host</span>,
+};
 
 <span class="doccomment">/// Deprecated process function.</span>
 <span class="kw">pub</span> <span class="kw">extern</span> <span class="string">&quot;C&quot;</span> <span class="kw">fn</span> <span class="ident">process_deprecated</span>(
@@ -460,7 +460,7 @@
     <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
     <span class="ident">opt</span>: <span class="ident">f32</span>,
 ) -&gt; <span class="ident">isize</span> {
-    <span class="kw">use</span> <span class="ident">plugin</span>::{<span class="ident">CanDo</span>, <span class="ident">OpCode</span>};
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::plugin</span>::{<span class="ident">CanDo</span>, <span class="ident">OpCode</span>};
 
     <span class="comment">// Convert passed in opcode to enum</span>
     <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">OpCode::try_from</span>(<span class="ident">opcode</span>);
@@ -671,7 +671,7 @@
 }
 
 <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">host_dispatch</span>(
-    <span class="ident">host</span>: <span class="kw-2">&amp;mut</span> <span class="ident">dyn</span> <span class="ident">Host</span>,
+    <span class="ident">host</span>: <span class="kw-2">&amp;mut</span> <span class="kw">dyn</span> <span class="ident">Host</span>,
     <span class="ident">effect</span>: <span class="kw-2">*mut</span> <span class="ident">AEffect</span>,
     <span class="ident">opcode</span>: <span class="ident">i32</span>,
     <span class="ident">index</span>: <span class="ident">i32</span>,
@@ -679,7 +679,7 @@
     <span class="ident">ptr</span>: <span class="kw-2">*mut</span> <span class="ident">c_void</span>,
     <span class="ident">opt</span>: <span class="ident">f32</span>,
 ) -&gt; <span class="ident">isize</span> {
-    <span class="kw">use</span> <span class="ident">host::OpCode</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::host::OpCode</span>;
 
     <span class="kw">let</span> <span class="ident">opcode</span> <span class="op">=</span> <span class="ident">OpCode::try_from</span>(<span class="ident">opcode</span>);
     <span class="kw">match</span> <span class="ident">opcode</span> {

@@ -355,8 +355,8 @@
 </pre><pre class="rust"><code><span class="doccomment">//! Meta data for dealing with input / output channels. Not all hosts use this so it is not</span>
 <span class="doccomment">//! necessary for plugin functionality.</span>
 
-<span class="kw">use</span> <span class="ident">api</span>;
-<span class="kw">use</span> <span class="ident">api::consts</span>::{<span class="ident">MAX_LABEL</span>, <span class="ident">MAX_SHORT_LABEL</span>};
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::api</span>;
+<span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::api::consts</span>::{<span class="ident">MAX_LABEL</span>, <span class="ident">MAX_SHORT_LABEL</span>};
 
 <span class="doccomment">/// Information about an input / output channel. This isn&#39;t necessary for a channel to function but</span>
 <span class="doccomment">/// informs the host how the channel is meant to be used.</span>

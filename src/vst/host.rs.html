@@ -961,6 +961,7 @@
 <span id="959">959</span>
 <span id="960">960</span>
 <span id="961">961</span>
+<span id="962">962</span>
 </pre><pre class="rust"><code><span class="doccomment">//! Host specific structures.</span>
 
 <span class="kw">use</span> <span class="ident">num_enum</span>::{<span class="ident">IntoPrimitive</span>, <span class="ident">TryFromPrimitive</span>};
@@ -977,13 +978,14 @@
 <span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">fmt</span>, <span class="ident">ptr</span>, <span class="ident">slice</span>};
 
-<span class="kw">use</span> <span class="ident">api::consts</span>::<span class="kw-2">*</span>;
-<span class="kw">use</span> <span class="ident">api</span>::{<span class="self">self</span>, <span class="ident">AEffect</span>, <span class="ident">PluginFlags</span>, <span class="ident">PluginMain</span>, <span class="ident">Supported</span>, <span class="ident">TimeInfo</span>};
-<span class="kw">use</span> <span class="ident">buffer::AudioBuffer</span>;
-<span class="kw">use</span> <span class="ident">channels::ChannelInfo</span>;
-<span class="kw">use</span> <span class="ident">editor</span>::{<span class="ident">Editor</span>, <span class="ident">Rect</span>};
-<span class="kw">use</span> <span class="ident">interfaces</span>;
-<span class="kw">use</span> <span class="ident">plugin</span>::{<span class="self">self</span>, <span class="ident">Category</span>, <span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>, <span class="ident">PluginParameters</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">api</span>::{<span class="self">self</span>, <span class="ident">consts</span>::<span class="kw-2">*</span>, <span class="ident">AEffect</span>, <span class="ident">PluginFlags</span>, <span class="ident">PluginMain</span>, <span class="ident">Supported</span>, <span class="ident">TimeInfo</span>},
+    <span class="ident">buffer::AudioBuffer</span>,
+    <span class="ident">channels::ChannelInfo</span>,
+    <span class="ident">editor</span>::{<span class="ident">Editor</span>, <span class="ident">Rect</span>},
+    <span class="ident">interfaces</span>,
+    <span class="ident">plugin</span>::{<span class="self">self</span>, <span class="ident">Category</span>, <span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>, <span class="ident">PluginParameters</span>},
+};
 
 <span class="attribute">#[<span class="ident">repr</span>(<span class="ident">i32</span>)]</span>
 <span class="attribute">#[<span class="ident">derive</span>(<span class="ident">Clone</span>, <span class="ident">Copy</span>, <span class="ident">Debug</span>, <span class="ident">TryFromPrimitive</span>, <span class="ident">IntoPrimitive</span>)]</span>
@@ -1627,11 +1629,11 @@
         <span class="ident">ChannelInfo::from</span>(<span class="kw">unsafe</span> { <span class="ident">props</span>.<span class="ident">assume_init</span>() })
     }
 
-    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
-        <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">params</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span>
+    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
+        <span class="ident">Arc::clone</span>(<span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">params</span>) <span class="kw">as</span> <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span>
     }
 
-    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">if</span> <span class="self">self</span>.<span class="ident">is_editor_active</span> {
             <span class="comment">// An editor is already active, the caller should be using the active editor instead of</span>
             <span class="comment">// requesting for a new one.</span>
@@ -1895,7 +1897,7 @@
 
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">test</span>)]</span>
 <span class="kw">mod</span> <span class="ident">tests</span> {
-    <span class="kw">use</span> <span class="ident">host::HostBuffer</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::host::HostBuffer</span>;
 
     <span class="attribute">#[<span class="ident">test</span>]</span>
     <span class="kw">fn</span> <span class="ident">host_buffer</span>() {

@@ -1090,13 +1090,13 @@
 <span class="kw">use</span> <span class="ident">std::ptr</span>;
 <span class="kw">use</span> <span class="ident">std::sync::Arc</span>;
 
-<span class="kw">use</span> <span class="ident">api</span>;
-<span class="kw">use</span> <span class="ident">api::consts::VST_MAGIC</span>;
-<span class="kw">use</span> <span class="ident">api</span>::{<span class="ident">AEffect</span>, <span class="ident">HostCallbackProc</span>, <span class="ident">Supported</span>, <span class="ident">TimeInfo</span>};
-<span class="kw">use</span> <span class="ident">buffer::AudioBuffer</span>;
-<span class="kw">use</span> <span class="ident">channels::ChannelInfo</span>;
-<span class="kw">use</span> <span class="ident">editor::Editor</span>;
-<span class="kw">use</span> <span class="ident">host</span>::{<span class="self">self</span>, <span class="ident">Host</span>};
+<span class="kw">use</span> <span class="kw">crate</span>::{
+    <span class="ident">api</span>::{<span class="self">self</span>, <span class="ident">consts::VST_MAGIC</span>, <span class="ident">AEffect</span>, <span class="ident">HostCallbackProc</span>, <span class="ident">Supported</span>, <span class="ident">TimeInfo</span>},
+    <span class="ident">buffer::AudioBuffer</span>,
+    <span class="ident">channels::ChannelInfo</span>,
+    <span class="ident">editor::Editor</span>,
+    <span class="ident">host</span>::{<span class="self">self</span>, <span class="ident">Host</span>},
+};
 
 <span class="doccomment">/// Plugin type. Generally either Effect or Synth.</span>
 <span class="doccomment">///</span>
@@ -1736,7 +1736,7 @@
     <span class="kw">fn</span> <span class="ident">process_events</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>, <span class="ident">events</span>: <span class="kw-2">&amp;</span><span class="ident">api::Events</span>) {}
 
     <span class="doccomment">/// Get a reference to the shared parameter object.</span>
-    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_parameter_object</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="ident">Arc</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">PluginParameters</span><span class="op">&gt;</span> {
         <span class="ident">Arc::new</span>(<span class="ident">DummyPluginParameters</span>)
     }
 
@@ -1779,7 +1779,7 @@
     <span class="doccomment">///</span>
     <span class="doccomment">/// The editor object will typically contain an `Arc` reference to the parameter</span>
     <span class="doccomment">/// object through which it can communicate with the audio processing.</span>
-    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="ident">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
+    <span class="kw">fn</span> <span class="ident">get_editor</span>(<span class="kw-2">&amp;mut</span> <span class="self">self</span>) -&gt; <span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Editor</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="prelude-val">None</span>
     }
 }
@@ -2052,7 +2052,7 @@
 <span class="kw">mod</span> <span class="ident">tests</span> {
     <span class="kw">use</span> <span class="ident">std::ptr</span>;
 
-    <span class="kw">use</span> <span class="ident">plugin</span>;
+    <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::plugin</span>;
 
     <span class="doccomment">/// Create a plugin instance.</span>
     <span class="doccomment">///</span>
@@ -2062,10 +2062,10 @@
             <span class="kw">use</span> <span class="ident">std::convert::TryFrom</span>;
             <span class="kw">use</span> <span class="ident">std::os::raw::c_void</span>;
 
-            <span class="kw">use</span> <span class="ident">main</span>;
-            <span class="kw">use</span> <span class="ident">api::AEffect</span>;
-            <span class="kw">use</span> <span class="ident">host</span>::{<span class="ident">Host</span>, <span class="ident">OpCode</span>};
-            <span class="kw">use</span> <span class="ident">plugin</span>::{<span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>};
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::main</span>;
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::api::AEffect</span>;
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::host</span>::{<span class="ident">Host</span>, <span class="ident">OpCode</span>};
+            <span class="kw">use</span> <span class="ident"><span class="kw">crate</span>::plugin</span>::{<span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>};
 
             $(<span class="attribute">#[<span class="macro-nonterminal">$</span><span class="macro-nonterminal">attr</span>]</span>) <span class="op">*</span>
             <span class="kw">struct</span> <span class="ident">TestPlugin</span> {
