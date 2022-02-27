@@ -26,7 +26,7 @@ include the crate directly from the official [Github repository](https://github.
 
 ```toml
 # get from crates.io.
-vst = "0.2.1"
+vst = "0.3"
 ```
 ```toml
 # get directly from Github.  This might be unstable!
@@ -46,7 +46,7 @@ A simple plugin that bears no functionality. The provided `Cargo.toml` has a
 #[macro_use]
 extern crate vst;
 
-use vst::plugin::{HostCallback, Info, Plugin};
+use vst::prelude::*;
 
 struct BasicPlugin;
 
@@ -92,7 +92,7 @@ crate-type = ["cdylib"]
 
 #### Packaging on OS X
 
-On OS X VST plugins are packaged inside of loadable bundles.
+On OS X VST plugins are packaged inside loadable bundles.
 To package your VST as a loadable bundle you may use the `osx_vst_bundler.sh` script this library provides. 
 
 Example: 

@@ -14,13 +14,14 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 use std::{fmt, ptr, slice};
 
-use api::consts::*;
-use api::{self, AEffect, PluginFlags, PluginMain, Supported, TimeInfo};
-use buffer::AudioBuffer;
-use channels::ChannelInfo;
-use editor::{Editor, Rect};
-use interfaces;
-use plugin::{self, Category, HostCallback, Info, Plugin, PluginParameters};
+use crate::{
+    api::{self, consts::*, AEffect, PluginFlags, PluginMain, Supported, TimeInfo},
+    buffer::AudioBuffer,
+    channels::ChannelInfo,
+    editor::{Editor, Rect},
+    interfaces,
+    plugin::{self, Category, HostCallback, Info, Plugin, PluginParameters},
+};
 
 #[repr(i32)]
 #[derive(Clone, Copy, Debug, TryFromPrimitive, IntoPrimitive)]
@@ -932,7 +933,7 @@ extern "C" fn callback_wrapper<T: Host>(
 
 #[cfg(test)]
 mod tests {
-    use host::HostBuffer;
+    use crate::host::HostBuffer;
 
     #[test]
     fn host_buffer() {

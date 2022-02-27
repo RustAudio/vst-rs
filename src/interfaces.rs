@@ -3,15 +3,15 @@
 #![doc(hidden)]
 
 use std::cell::Cell;
-use std::convert::TryFrom;
 use std::os::raw::{c_char, c_void};
 use std::{mem, slice};
 
-use api::consts::*;
-use api::{self, AEffect, TimeInfo};
-use buffer::AudioBuffer;
-use editor::{Key, KeyCode, KnobMode, Rect};
-use host::Host;
+use crate::{
+    api::{self, consts::*, AEffect, TimeInfo},
+    buffer::AudioBuffer,
+    editor::{Key, KeyCode, KnobMode, Rect},
+    host::Host,
+};
 
 /// Deprecated process function.
 pub extern "C" fn process_deprecated(
@@ -88,7 +88,7 @@ pub extern "C" fn dispatch(
     ptr: *mut c_void,
     opt: f32,
 ) -> isize {
-    use plugin::{CanDo, OpCode};
+    use crate::plugin::{CanDo, OpCode};
 
     // Convert passed in opcode to enum
     let opcode = OpCode::try_from(opcode);
@@ -307,7 +307,7 @@ pub fn host_dispatch(
     ptr: *mut c_void,
     opt: f32,
 ) -> isize {
-    use host::OpCode;
+    use crate::host::OpCode;
 
     let opcode = OpCode::try_from(opcode);
     match opcode {

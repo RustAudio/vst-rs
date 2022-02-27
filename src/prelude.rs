@@ -1,12 +1,12 @@
 //! A collection of commonly used items for implement a Plugin
 
 #[doc(no_inline)]
-pub use api::{Events, Supported};
+pub use crate::api::{Events, Supported};
 #[doc(no_inline)]
-pub use buffer::{AudioBuffer, SendEventBuffer};
+pub use crate::buffer::{AudioBuffer, SendEventBuffer};
 #[doc(no_inline)]
-pub use event::{Event, MidiEvent};
+pub use crate::event::{Event, MidiEvent};
 #[doc(no_inline)]
-pub use plugin::{CanDo, Category, HostCallback, Info, Plugin, PluginParameters};
+pub use crate::plugin::{CanDo, Category, HostCallback, Info, Plugin, PluginParameters};
 #[doc(no_inline)]
-pub use util::{AtomicFloat, ParameterTransfer};
+pub use crate::util::{AtomicFloat, ParameterTransfer};

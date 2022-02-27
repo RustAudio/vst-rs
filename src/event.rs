@@ -3,7 +3,7 @@
 
 use std::{mem, slice};
 
-use api;
+use crate::api;
 
 /// A VST event.
 #[derive(Copy, Clone)]

@@ -293,7 +293,7 @@ impl<'a, 'b, T: Sized> IntoIterator for &'b mut Outputs<'a, T> {
     }
 }
 
-use event::{Event, MidiEvent, SysExEvent};
+use crate::event::{Event, MidiEvent, SysExEvent};
 
 /// This is used as a placeholder to pre-allocate space for a fixed number of
 /// midi events in the re-useable `SendEventBuffer`, because `SysExEvent` is
@@ -368,8 +368,7 @@ impl<'a> WriteIntoPlaceholder for Event<'a> {
     }
 }
 
-use api;
-use host::Host;
+use crate::{api, host::Host};
 use std::mem;
 
 /// This buffer is used for sending midi events through the VST interface.
@@ -482,7 +481,7 @@ impl SendEventBuffer {
 
 #[cfg(test)]
 mod tests {
-    use buffer::AudioBuffer;
+    use crate::buffer::AudioBuffer;
 
     /// Size of buffers used in tests.
     const SIZE: usize = 1024;
