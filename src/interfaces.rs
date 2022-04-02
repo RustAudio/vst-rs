@@ -244,7 +244,16 @@ pub extern "C" fn dispatch(
             }
         }
 
-        //OpCode::GetParamInfo => { /*TODO*/ }
+        Ok(OpCode::GetParamInfo) => {
+            if let Some(info) = get_plugin().get_parameter_info(index) {
+                let ptr = ptr as *mut api::VstParameterProperties;
+                unsafe {
+                    *ptr = info.into();
+                }
+                return 1;
+            }
+        }
+
         Ok(OpCode::GetApiVersion) => return 2400,
 
         Ok(OpCode::EditorKeyDown) => {

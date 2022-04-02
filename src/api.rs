@@ -738,6 +738,72 @@ impl Default for SmpteFrameRate {
     }
 }
 
+/// Parameter properties.
+#[repr(C)]
+pub struct VstParameterProperties {
+    /// Float step.
+    pub step_float: f32,
+    /// Small float step.
+    pub small_step_float: f32,
+    /// Large float step.
+    pub large_step_float: f32,
+    /// Parameter label.
+    pub label: [u8; 64],
+    /// Flags found in `VstParameterFlags`.
+    pub flags: i32,
+    /// Integer minimum.
+    pub min_integer: i32,
+    /// Integer maximum.
+    pub max_integer: i32,
+    /// Integer step.
+    pub step_integer: i32,
+    /// Large integer step.
+    pub large_step_integer: i32,
+    /// Short label.
+    ///
+    /// Recommended: 6 characters + delimiter.
+    pub short_label: [u8; 8],
+    /// Index where this parameter should be displayed (starting with 0).
+    ///
+    /// Requires flag `SUPPORTS_DISPLAY_INDEX`.
+    pub display_index: i16,
+    /// Parameter category.
+    ///
+    /// 0 means no category, else category index + 1.
+    pub category: i16,
+    /// Number of parameters in category.
+    pub num_parameters_in_category: i16,
+    /// Reserved for future use (please zero).
+    pub reserved: i16,
+    /// Category label.
+    pub category_label: [u8; 24],
+    /// Reserved for future use (please zero).
+    pub future: [u8; 16],
+}
+
+impl Default for VstParameterProperties {
+    fn default() -> Self {
+        Self {
+            step_float: 0.0,
+            small_step_float: 0.0,
+            large_step_float: 0.0,
+            label: [0; 64],
+            flags: 0,
+            min_integer: 0,
+            max_integer: 0,
+            step_integer: 0,
+            large_step_integer: 0,
+            short_label: [0; 8],
+            display_index: 0,
+            category: 0,
+            num_parameters_in_category: 0,
+            reserved: 0,
+            category_label: [0; 24],
+            future: [0; 16],
+        }
+    }
+}
+
 bitflags! {
     /// Flags for VST channels.
     pub struct ChannelFlags: i32 {
@@ -825,6 +891,28 @@ bitflags! {
         const SMPTE_VALID = 1 << 14;
         /// Set if TimeInfo::samples_to_next_clock is valid.
         const VST_CLOCK_VALID = 1 << 15;
+    }
+}
+
+bitflags! {
+    /// Flags for VST parameters.
+    ///
+    /// Used in `VstParameterProperties`.
+    pub struct VstParameterFlags: i32 {
+        /// Parameter is a switch (on or off).
+        const IS_SWITCH = 1;
+        /// Indicates that `min_integer` and `max_integer` are valid.
+        const USES_INTEGER_MIN_MAX = 1 << 1;
+        /// Indicates that `step_float`, `small_step_float` and `large_step_float` are valid.
+        const USES_FLOAT_STEP = 1 << 2;
+        /// Indicates that `step_integer` and `large_step_integer` are valid.
+        const USES_INT_STEP = 1 << 3;
+        /// Indicates that `display_index` is valid.
+        const SUPPORTS_DISPLAY_INDEX = 1 << 4;
+        /// Indicates that `category`, `num_parameters_in_category` and `category_label` are valid.
+        const SUPPORTS_DISPLAY_CATEGORY = 1 << 5;
+        /// If the parameter value can ramp up or down.
+        const CAN_RAMP = 1 << 6;
     }
 }
 

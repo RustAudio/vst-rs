@@ -383,6 +383,102 @@ impl Default for Info {
     }
 }
 
+/// A structure representing information about a specific plug-in parameter.
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub struct PluginParameterInfo {
+    /// Defines the parameter character.
+    pub character: PluginParameterCharacter,
+    /// If the parameter value can ramp up or down.
+    pub can_ramp: bool,
+}
+
+impl Default for PluginParameterInfo {
+    fn default() -> Self {
+        Self {
+            character: PluginParameterCharacter::Continuous { steps: None },
+            can_ramp: false,
+        }
+    }
+}
+
+/// Character of a plug-in parameter.
+#[derive(Clone, Debug)]
+#[non_exhaustive]
+pub enum PluginParameterCharacter {
+    /// Parameter is a switch (on or off).
+    Switch,
+    /// Parameter has a continuous value range (floating point numbers).
+    Continuous {
+        /// Step sizes.
+        steps: Option<FloatSteps>,
+    },
+    /// Parameter has a discrete value range (integers).
+    Discrete {
+        /// Minimum value.
+        min: i32,
+        /// Maximum value.
+        max: i32,
+        /// Step sizes.
+        steps: Option<IntegerSteps>,
+    },
+}
+
+/// Custom step sizes for continuous parameters.
+#[derive(Clone, Debug)]
+pub struct FloatSteps {
+    /// Normal step.
+    pub step: f32,
+    /// Small step.
+    pub small_step: f32,
+    /// Large step.
+    pub large_step: f32,
+}
+
+/// Custom step sizes for discrete parameters.
+#[derive(Clone, Debug)]
+pub struct IntegerSteps {
+    /// Normal step.
+    pub step: i32,
+    /// Large step.
+    pub large_step: i32,
+}
+
+impl From<PluginParameterInfo> for api::VstParameterProperties {
+    fn from(info: PluginParameterInfo) -> api::VstParameterProperties {
+        let mut props = api::VstParameterProperties::default();
+        let mut flags = api::VstParameterFlags::empty();
+        if info.can_ramp {
+            flags |= api::VstParameterFlags::CAN_RAMP;
+        }
+        match info.character {
+            PluginParameterCharacter::Switch => {
+                flags |= api::VstParameterFlags::IS_SWITCH;
+            }
+            PluginParameterCharacter::Continuous { steps } => {
+                if let Some(steps) = steps {
+                    flags |= api::VstParameterFlags::USES_FLOAT_STEP;
+                    props.small_step_float = steps.small_step;
+                    props.step_float = steps.step;
+                    props.large_step_float = steps.large_step;
+                }
+            }
+            PluginParameterCharacter::Discrete { min, max, steps } => {
+                flags |= api::VstParameterFlags::USES_INTEGER_MIN_MAX;
+                props.min_integer = min;
+                props.max_integer = max;
+                if let Some(steps) = steps {
+                    flags |= api::VstParameterFlags::USES_INT_STEP;
+                    props.step_integer = steps.step;
+                    props.large_step_integer = steps.large_step;
+                }
+            }
+        }
+        props.flags = flags.bits();
+        props
+    }
+}
+
 /// Features which are optionally supported by a plugin. These are queried by the host at run time.
 #[derive(Debug)]
 #[allow(missing_docs)]
@@ -674,6 +770,11 @@ pub trait Plugin: Send {
             true,
             None,
         )
+    }
+
+    /// Returns additional information about the parameter at the given index.
+    fn get_parameter_info(&self, index: i32) -> Option<PluginParameterInfo> {
+        None
     }
 
     /// Called one time before the start of process call.
