@@ -384,6 +384,14 @@ impl Default for Info {
 }
 
 /// A structure representing information about a specific plug-in parameter.
+///
+/// # Example
+///
+/// ```no_run
+/// # use vst::plugin::{PluginParameterCharacter, PluginParameterInfo};
+/// let mut info = PluginParameterInfo::default();
+/// info.character = PluginParameterCharacter::Switch;
+/// ```
 #[derive(Clone, Debug)]
 #[non_exhaustive]
 pub struct PluginParameterInfo {
