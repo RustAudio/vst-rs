@@ -1,105 +1,90 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A rust implementation of the VST2.4 API."><meta name="keywords" content="rust, rustlang, rust-lang, vst"><title>vst - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Regular.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../FiraSans-Medium.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Regular.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceSerif4-Bold.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../SourceCodePro-Semibold.ttf.woff2"><link rel="stylesheet" type="text/css" href="../normalize.css"><link rel="stylesheet" type="text/css" href="../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../ayu.css" disabled><link rel="stylesheet" type="text/css" href="../dark.css" disabled><link rel="stylesheet" type="text/css" href="../light.css" id="themeStyle"><script id="default-settings" ></script><script src="../storage.js"></script><script src="../crates.js"></script><script defer src="../main.js"></script>
-    <noscript><link rel="stylesheet" href="../noscript.css"></noscript><link rel="alternate icon" type="image/png" href="../favicon-16x16.png"><link rel="alternate icon" type="image/png" href="../favicon-32x32.png"><link rel="icon" type="image/svg+xml" href="../favicon.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu" role="button">&#9776;</div><a class="sidebar-logo" href="../vst/index.html"><div class="logo-container"><img class="rust-logo" src="../rust-logo.png" alt="logo"></div>
-        </a><h2 class="location">Crate vst</h2><div class="block version"><div class="narrow-helper"></div><p>Version 0.3.0</p></div><div class="sidebar-elems"><a id="all-types" href="all.html"><p>See all vst's items</p></a><div class="block items"><ul><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li></ul></div><div id="sidebar-vars" data-name="vst" data-ty="mod" data-relpath=""></div><script defer src="sidebar-items.js"></script></div></nav><main><div class="width-limiter"><div class="sub-container"><a class="sub-logo-container" href="../vst/index.html"><img class="rust-logo" src="../rust-logo.png" alt="logo"></a><nav class="sub"><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu" title="themes"><img width="18" height="18" alt="Pick another theme!" src="../brush.svg"></button><div id="theme-choices" role="menu"></div></div><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><button type="button" id="help-button" title="help">?</button><a id="settings-menu" href="../settings.html" title="settings"><img width="18" height="18" alt="Change settings" src="../wheel.svg"></a></div></form></nav></div><section id="main-content" class="content"><h1 class="fqn"><span class="in-band">Crate <a class="mod" href="#">vst</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../clipboard.svg" width="19" height="18" alt="Copy item path"></button></span><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../src/vst/lib.rs.html#1-416" title="goto source code">[src]</a></span></h1><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A rust implementation of the VST2.4 API.</p>
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="A rust implementation of the VST2.4 API."><meta name="keywords" content="rust, rustlang, rust-lang, vst"><title>vst - Rust</title><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Regular-1f7d512b176f0f72.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Regular-018c141bf0843ffd.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/FiraSans-Medium-8f9a781e4970d388.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Regular-562dcc5011b6de7d.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceSerif4-Bold-124a1ca42af929b6.ttf.woff2"><link rel="preload" as="font" type="font/woff2" crossorigin href="../static.files/SourceCodePro-Semibold-d899c5a5c4aeb14a.ttf.woff2"><link rel="stylesheet" href="../static.files/normalize-76eba96aa4d2e634.css"><link rel="stylesheet" href="../static.files/rustdoc-6827029ac823cab7.css" id="mainThemeStyle"><link rel="stylesheet" id="themeStyle" href="../static.files/light-ebce58d0a40c3431.css"><link rel="stylesheet" disabled href="../static.files/dark-f23faae4a2daf9a6.css"><link rel="stylesheet" disabled href="../static.files/ayu-8af5e100b21cd173.css"><script id="default-settings" ></script><script src="../static.files/storage-d43fa987303ecbbb.js"></script><script defer src="../crates.js"></script><script defer src="../static.files/main-c55e1eb52e1886b4.js"></script><noscript><link rel="stylesheet" href="../static.files/noscript-13285aec31fa243e.css"></noscript><link rel="alternate icon" type="image/png" href="../static.files/favicon-16x16-8b506e7a72182f1c.png"><link rel="alternate icon" type="image/png" href="../static.files/favicon-32x32-422f7d1d52889060.png"><link rel="icon" type="image/svg+xml" href="../static.files/favicon-2c020d218678b618.svg"></head><body class="rustdoc mod crate"><!--[if lte IE 11]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="mobile-topbar"><button class="sidebar-menu-toggle">&#9776;</button><a class="sidebar-logo" href="../vst/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2></h2></nav><nav class="sidebar"><a class="sidebar-logo" href="../vst/index.html"><div class="logo-container"><img class="rust-logo" src="../static.files/rust-logo-151179464ae7ed46.svg" alt="logo"></div></a><h2 class="location"><a href="#">Crate vst</a></h2><div class="sidebar-elems"><ul class="block"><li class="version">Version 0.4.0</li><li><a id="all-types" href="all.html">All Items</a></li></ul><section><ul class="block"><li><a href="#modules">Modules</a></li><li><a href="#macros">Macros</a></li></ul></section></div></nav><main><div class="width-limiter"><nav class="sub"><form class="search-form"><span></span><input class="search-input" name="search" aria-label="Run search in the documentation" autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"><div id="help-button" title="help" tabindex="-1"><a href="../help.html">?</a></div><div id="settings-menu" tabindex="-1"><a href="../settings.html" title="settings"><img width="22" height="22" alt="Change settings" src="../static.files/wheel-5ec35bf9ca753509.svg"></a></div></form></nav><section id="main-content" class="content"><div class="main-heading"><h1 class="fqn">Crate <a class="mod" href="#">vst</a><button id="copy-path" onclick="copy_path(this)" title="Copy item path to clipboard"><img src="../static.files/clipboard-7571035ce49a181d.svg" width="19" height="18" alt="Copy item path"></button></h1><span class="out-of-band"><a class="srclink" href="../src/vst/lib.rs.html#1-416">source</a> · <button id="toggle-all-docs" title="collapse all docs">[<span>&#x2212;</span>]</button></span></div><details class="rustdoc-toggle top-doc" open><summary class="hideme"><span>Expand description</span></summary><div class="docblock"><p>A rust implementation of the VST2.4 API.</p>
 <p>The VST API is multi-threaded. A VST host calls into a plugin generally from two threads -
 the <em>processing</em> thread and the <em>UI</em> thread. The organization of this crate reflects this
 structure to ensure that the threading assumptions of Safe Rust are fulfilled and data
 races are avoided.</p>
-<h2 id="plugins" class="section-header"><a href="#plugins">Plugins</a></h2>
+<h2 id="plugins"><a href="#plugins">Plugins</a></h2>
 <p>All Plugins must implement the <code>Plugin</code> trait and <code>std::default::Default</code>.
 The <code>plugin_main!</code> macro must also be called in order to export the necessary functions
 for the plugin to function.</p>
-<h3 id="plugin-trait" class="section-header"><a href="#plugin-trait"><code>Plugin</code> Trait</a></h3>
+<h3 id="plugin-trait"><a href="#plugin-trait"><code>Plugin</code> Trait</a></h3>
 <p>All methods in this trait have a default implementation except for the <code>get_info</code> method which
 must be implemented by the plugin. Any of the default implementations may be overridden for
 custom functionality; the defaults do nothing on their own.</p>
-<h3 id="pluginparameters-trait" class="section-header"><a href="#pluginparameters-trait"><code>PluginParameters</code> Trait</a></h3>
+<h3 id="pluginparameters-trait"><a href="#pluginparameters-trait"><code>PluginParameters</code> Trait</a></h3>
 <p>The methods in this trait handle access to plugin parameters. Since the host may call these
 methods concurrently with audio processing, it needs to be separate from the main <code>Plugin</code>
 trait.</p>
 <p>To support parameters, a plugin must provide an implementation of the <code>PluginParameters</code>
 trait, wrap it in an <code>Arc</code> (so it can be accessed from both threads) and
 return a reference to it from the <code>get_parameter_object</code> method in the <code>Plugin</code>.</p>
-<h3 id="plugin_main-macro" class="section-header"><a href="#plugin_main-macro"><code>plugin_main!</code> macro</a></h3>
+<h3 id="plugin_main-macro"><a href="#plugin_main-macro"><code>plugin_main!</code> macro</a></h3>
 <p><code>plugin_main!</code> will export the necessary functions to create a proper VST plugin. This must be
 called with your VST plugin struct name in order for the vst to work.</p>
-<h3 id="example-plugin" class="section-header"><a href="#example-plugin">Example plugin</a></h3>
+<h3 id="example-plugin"><a href="#example-plugin">Example plugin</a></h3>
 <p>A barebones VST plugin:</p>
 
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attribute">#[<span class="ident">macro_use</span>]</span>
-<span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">vst</span>;
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="attr">#[macro_use]
+</span><span class="kw">extern crate </span>vst;
 
-<span class="kw">use</span> <span class="ident">vst::plugin</span>::{<span class="ident">HostCallback</span>, <span class="ident">Info</span>, <span class="ident">Plugin</span>};
+<span class="kw">use </span>vst::plugin::{HostCallback, Info, Plugin};
 
-<span class="kw">struct</span> <span class="ident">BasicPlugin</span>;
+<span class="kw">struct </span>BasicPlugin;
 
-<span class="kw">impl</span> <span class="ident">Plugin</span> <span class="kw">for</span> <span class="ident">BasicPlugin</span> {
-    <span class="kw">fn</span> <span class="ident">new</span>(<span class="ident">_host</span>: <span class="ident">HostCallback</span>) -&gt; <span class="self">Self</span> {
-        <span class="ident">BasicPlugin</span>
+<span class="kw">impl </span>Plugin <span class="kw">for </span>BasicPlugin {
+    <span class="kw">fn </span>new(_host: HostCallback) -&gt; <span class="self">Self </span>{
+        BasicPlugin
     }
 
-    <span class="kw">fn</span> <span class="ident">get_info</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; <span class="ident">Info</span> {
-        <span class="ident">Info</span> {
-            <span class="ident">name</span>: <span class="string">&quot;Basic Plugin&quot;</span>.<span class="ident">to_string</span>(),
-            <span class="ident">unique_id</span>: <span class="number">1357</span>, <span class="comment">// Used by hosts to differentiate between plugins.</span>
+    <span class="kw">fn </span>get_info(<span class="kw-2">&amp;</span><span class="self">self</span>) -&gt; Info {
+        Info {
+            name: <span class="string">&quot;Basic Plugin&quot;</span>.to_string(),
+            unique_id: <span class="number">1357</span>, <span class="comment">// Used by hosts to differentiate between plugins.
 
-            ..<span class="ident">Default::default</span>()
+            </span>..Default::default()
         }
     }
 }
 
-<span class="macro">plugin_main!</span>(<span class="ident">BasicPlugin</span>); <span class="comment">// Important!</span></code></pre></div>
-<h2 id="hosts" class="section-header"><a href="#hosts">Hosts</a></h2><h3 id="host-trait" class="section-header"><a href="#host-trait"><code>Host</code> Trait</a></h3>
+<span class="macro">plugin_main!</span>(BasicPlugin); <span class="comment">// Important!</span></code></pre></div>
+<h2 id="hosts"><a href="#hosts">Hosts</a></h2><h3 id="host-trait"><a href="#host-trait"><code>Host</code> Trait</a></h3>
 <p>All hosts must implement the <a href="host/trait.Host.html"><code>Host</code> trait</a>. To load a VST plugin, you
 need to wrap your host in an <code>Arc&lt;Mutex&lt;T&gt;&gt;</code> wrapper for thread safety reasons. Along with the
 plugin path, this can be passed to the <a href="host/struct.PluginLoader.html#method.load"><code>PluginLoader::load</code></a> method to create a plugin loader
 which can spawn plugin instances.</p>
-<h3 id="example-host" class="section-header"><a href="#example-host">Example Host</a></h3>
-<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern</span> <span class="kw">crate</span> <span class="ident">vst</span>;
+<h3 id="example-host"><a href="#example-host">Example Host</a></h3>
+<div class="example-wrap"><pre class="rust rust-example-rendered"><code><span class="kw">extern crate </span>vst;
 
-<span class="kw">use</span> <span class="ident">std::sync</span>::{<span class="ident">Arc</span>, <span class="ident">Mutex</span>};
-<span class="kw">use</span> <span class="ident">std::path::Path</span>;
+<span class="kw">use </span>std::sync::{Arc, Mutex};
+<span class="kw">use </span>std::path::Path;
 
-<span class="kw">use</span> <span class="ident">vst::host</span>::{<span class="ident">Host</span>, <span class="ident">PluginLoader</span>};
-<span class="kw">use</span> <span class="ident">vst::plugin::Plugin</span>;
+<span class="kw">use </span>vst::host::{Host, PluginLoader};
+<span class="kw">use </span>vst::plugin::Plugin;
 
-<span class="kw">struct</span> <span class="ident">SampleHost</span>;
+<span class="kw">struct </span>SampleHost;
 
-<span class="kw">impl</span> <span class="ident">Host</span> <span class="kw">for</span> <span class="ident">SampleHost</span> {
-    <span class="kw">fn</span> <span class="ident">automate</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">index</span>: <span class="ident">i32</span>, <span class="ident">value</span>: <span class="ident">f32</span>) {
-        <span class="macro">println!</span>(<span class="string">&quot;Parameter {} had its value changed to {}&quot;</span>, <span class="ident">index</span>, <span class="ident">value</span>);
+<span class="kw">impl </span>Host <span class="kw">for </span>SampleHost {
+    <span class="kw">fn </span>automate(<span class="kw-2">&amp;</span><span class="self">self</span>, index: i32, value: f32) {
+        <span class="macro">println!</span>(<span class="string">&quot;Parameter {} had its value changed to {}&quot;</span>, index, value);
     }
 }
 
-<span class="kw">fn</span> <span class="ident">main</span>() {
-    <span class="kw">let</span> <span class="ident">host</span> <span class="op">=</span> <span class="ident">Arc::new</span>(<span class="ident">Mutex::new</span>(<span class="ident">SampleHost</span>));
-    <span class="kw">let</span> <span class="ident">path</span> <span class="op">=</span> <span class="ident">Path::new</span>(<span class="string">&quot;/path/to/vst&quot;</span>);
+<span class="kw">fn </span>main() {
+    <span class="kw">let </span>host = Arc::new(Mutex::new(SampleHost));
+    <span class="kw">let </span>path = Path::new(<span class="string">&quot;/path/to/vst&quot;</span>);
 
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">loader</span> <span class="op">=</span> <span class="ident">PluginLoader::load</span>(<span class="ident">path</span>, <span class="ident">host</span>.<span class="ident">clone</span>()).<span class="ident">unwrap</span>();
-    <span class="kw">let</span> <span class="kw-2">mut</span> <span class="ident">instance</span> <span class="op">=</span> <span class="ident">loader</span>.<span class="ident">instance</span>().<span class="ident">unwrap</span>();
+    <span class="kw">let </span><span class="kw-2">mut </span>loader = PluginLoader::load(path, host.clone()).unwrap();
+    <span class="kw">let </span><span class="kw-2">mut </span>instance = loader.instance().unwrap();
 
-    <span class="macro">println!</span>(<span class="string">&quot;Loaded {}&quot;</span>, <span class="ident">instance</span>.<span class="ident">get_info</span>().<span class="ident">name</span>);
+    <span class="macro">println!</span>(<span class="string">&quot;Loaded {}&quot;</span>, instance.get_info().name);
 
-    <span class="ident">instance</span>.<span class="ident">init</span>();
+    instance.init();
     <span class="macro">println!</span>(<span class="string">&quot;Initialized instance!&quot;</span>);
 
     <span class="macro">println!</span>(<span class="string">&quot;Closing instance...&quot;</span>);
-    <span class="comment">// Not necessary as the instance is shut down when it goes out of scope anyway.</span>
-    <span class="comment">// drop(instance);</span>
-}
+    <span class="comment">// Not necessary as the instance is shut down when it goes out of scope anyway.
+    // drop(instance);
+</span>}
 </code></pre></div>
-</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="api/index.html" title="vst::api mod">api</a></div><div class="item-right docblock-short"><p>Structures and types for interfacing with the VST 2.4 API.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="buffer/index.html" title="vst::buffer mod">buffer</a></div><div class="item-right docblock-short"><p>Buffers to safely work with audio samples.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="channels/index.html" title="vst::channels mod">channels</a></div><div class="item-right docblock-short"><p>Meta data for dealing with input / output channels. Not all hosts use this so it is not
-necessary for plugin functionality.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="editor/index.html" title="vst::editor mod">editor</a></div><div class="item-right docblock-short"><p>All VST plugin editor related functionality.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="event/index.html" title="vst::event mod">event</a></div><div class="item-right docblock-short"><p>Interfaces to VST events.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="host/index.html" title="vst::host mod">host</a></div><div class="item-right docblock-short"><p>Host specific structures.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="plugin/index.html" title="vst::plugin mod">plugin</a></div><div class="item-right docblock-short"><p>Plugin specific structures.</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="vst::prelude mod">prelude</a></div><div class="item-right docblock-short"><p>A collection of commonly used items for implement a Plugin</p>
-</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="util/index.html" title="vst::util mod">util</a></div><div class="item-right docblock-short"><p>Structures for easing the implementation of VST plugins.</p>
-</div></div></div><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2>
-<div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.plugin_main.html" title="vst::plugin_main macro">plugin_main</a></div><div class="item-right docblock-short"><p>Exports the necessary symbols for the plugin to be used by a VST host.</p>
-</div></div></div></section><section id="search" class="content hidden"></section></div></main><div id="rustdoc-vars" data-root-path="../" data-current-crate="vst" data-themes="ayu,dark,light" data-resource-suffix="" data-rustdoc-version="1.59.0 (9d1b2106e 2022-02-23)" ></div>
-</body></html>
+</div></details><h2 id="modules" class="small-section-header"><a href="#modules">Modules</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="mod" href="api/index.html" title="vst::api mod">api</a></div><div class="item-right docblock-short">Structures and types for interfacing with the VST 2.4 API.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="buffer/index.html" title="vst::buffer mod">buffer</a></div><div class="item-right docblock-short">Buffers to safely work with audio samples.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="channels/index.html" title="vst::channels mod">channels</a></div><div class="item-right docblock-short">Meta data for dealing with input / output channels. Not all hosts use this so it is not
+necessary for plugin functionality.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="editor/index.html" title="vst::editor mod">editor</a></div><div class="item-right docblock-short">All VST plugin editor related functionality.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="event/index.html" title="vst::event mod">event</a></div><div class="item-right docblock-short">Interfaces to VST events.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="host/index.html" title="vst::host mod">host</a></div><div class="item-right docblock-short">Host specific structures.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="plugin/index.html" title="vst::plugin mod">plugin</a></div><div class="item-right docblock-short">Plugin specific structures.</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="prelude/index.html" title="vst::prelude mod">prelude</a></div><div class="item-right docblock-short">A collection of commonly used items for implement a Plugin</div></div><div class="item-row"><div class="item-left module-item"><a class="mod" href="util/index.html" title="vst::util mod">util</a></div><div class="item-right docblock-short">Structures for easing the implementation of VST plugins.</div></div></div><h2 id="macros" class="small-section-header"><a href="#macros">Macros</a></h2><div class="item-table"><div class="item-row"><div class="item-left module-item"><a class="macro" href="macro.plugin_main.html" title="vst::plugin_main macro">plugin_main</a></div><div class="item-right docblock-short">Exports the necessary symbols for the plugin to be used by a VST host.</div></div></div></section></div></main><div id="rustdoc-vars" data-root-path="../" data-static-root-path="../static.files/" data-current-crate="vst" data-themes="" data-resource-suffix="" data-rustdoc-version="1.67.1 (d5a82bbd2 2023-02-07)" data-search-js="search-444266647c4dba98.js" data-settings-js="settings-bebeae96e00e4617.js" data-settings-css="settings-af96d9e2fc13e081.css" ></div></body></html>

@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["vst"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.59.0/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"vst/host/struct.PluginInstance.html\" title=\"struct vst::host::PluginInstance\">PluginInstance</a>","synthetic":false,"types":["vst::host::PluginInstance"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"vst":[["impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.67.1/core/ops/drop/trait.Drop.html\" title=\"trait core::ops::drop::Drop\">Drop</a> for <a class=\"struct\" href=\"vst/host/struct.PluginInstance.html\" title=\"struct vst::host::PluginInstance\">PluginInstance</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

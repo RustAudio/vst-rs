@@ -1,3 +1,3 @@
-(function() {var implementors = {};
-implementors["vst"] = [{"text":"impl TryFromPrimitive for <a class=\"enum\" href=\"vst/editor/enum.KnobMode.html\" title=\"enum vst::editor::KnobMode\">KnobMode</a>","synthetic":false,"types":["vst::editor::KnobMode"]},{"text":"impl TryFromPrimitive for <a class=\"enum\" href=\"vst/editor/enum.Key.html\" title=\"enum vst::editor::Key\">Key</a>","synthetic":false,"types":["vst::editor::Key"]},{"text":"impl TryFromPrimitive for <a class=\"enum\" href=\"vst/plugin/enum.Category.html\" title=\"enum vst::plugin::Category\">Category</a>","synthetic":false,"types":["vst::plugin::Category"]}];
-if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
+(function() {var implementors = {
+"vst":[["impl TryFromPrimitive for <a class=\"enum\" href=\"vst/editor/enum.KnobMode.html\" title=\"enum vst::editor::KnobMode\">KnobMode</a>"],["impl TryFromPrimitive for <a class=\"enum\" href=\"vst/editor/enum.Key.html\" title=\"enum vst::editor::Key\">Key</a>"],["impl TryFromPrimitive for <a class=\"enum\" href=\"vst/plugin/enum.Category.html\" title=\"enum vst::plugin::Category\">Category</a>"]]
+};if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()
