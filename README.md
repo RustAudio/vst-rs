@@ -4,6 +4,12 @@
 [![Discord Chat][discord-img]][discord-url]
 [![Discourse topics][dc-img]][dc-url]
 
+> **Notice**: `vst-rs` is deprecated.
+>
+> This crate is no longer actively developed or maintained. VST 2 has been [officially discontinued](http://web.archive.org/web/20210727141622/https://www.steinberg.net/en/newsandevents/news/newsdetail/article/vst-2-coming-to-an-end-4727.html) and it is [no longer possible](https://forum.juce.com/t/steinberg-closing-down-vst2-for-good/27722/25) to acquire a license to distribute VST 2 products. It is highly recommended that you make use of other libraries for developing audio plugins and plugin hosts in Rust.
+>
+> If you're looking for a high-level, multi-format framework for developing plugins in Rust, consider using [NIH-plug](https://github.com/robbert-vdh/nih-plug/) or [`baseplug`](https://github.com/wrl/baseplug/). If you're looking for bindings to specific plugin APIs, consider using [`vst3-sys`](https://github.com/RustAudio/vst3-sys/), [`clap-sys`](https://github.com/glowcoil/clap-sys), [`lv2(-sys)`](https://github.com/RustAudio/rust-lv2), or [`auv2-sys`](https://github.com/glowcoil/auv2-sys). If, despite the above warnings, you still have a need to use the VST 2 API from Rust, consider using [`vst2-sys`](https://github.com/RustAudio/vst2-sys) or generating bindings from the original VST 2 SDK using [`bindgen`](https://github.com/rust-lang/rust-bindgen).
+
 `vst-rs` is a library for creating VST2 plugins in the Rust programming language.
 
 This library is a work in progress, and as such it does not yet implement all
