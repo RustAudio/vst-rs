@@ -469,6 +469,10 @@ impl Into<String> for CanDo {
 /// processing thread. For this reason, the plugin API is separated into two
 /// traits: The `Plugin` trait containing setup and processing methods, and
 /// the `PluginParameters` trait containing methods for parameter access.
+#[cfg_attr(
+    not(feature = "disable_deprecation_warning"),
+    deprecated = "This crate has been deprecated. See https://github.com/RustAudio/vst-rs for more information."
+)]
 #[allow(unused_variables)]
 pub trait Plugin: Send {
     /// This method must return an `Info` struct.
