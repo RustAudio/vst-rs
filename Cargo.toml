@@ -30,6 +30,10 @@ keywords = ["vst", "vst2", "plugin"]
 
 autoexamples = false
 
+[features]
+default = []
+disable_deprecation_warning = []
+
 [dependencies]
 log = "0.4"
 num-traits = "0.2"
