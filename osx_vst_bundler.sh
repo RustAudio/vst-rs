@@ -54,8 +54,18 @@ else
 </dict>
 </plist>" > "$1.vst/Contents/Info.plist"
 
-    # move the provided library to the correct location
-    cp "$2" "$1.vst/Contents/MacOS/$1"
+    # Move the provided library to the correct location by removing the original
+    # file and copying the new one in place.
+    #
+    # We must remove the original file because modern macOS code signatures are
+    # cached by inode; copying over the file will not change the inode and the
+    # signature of the new dylib will no longer match the cached signature.
+    #
+    # See https://developer.apple.com/documentation/security/updating_mac_software
+
+    tgt="$1.vst/Contents/MacOS/$1"
+    rm -f "$1"
+    cp "$2" "$1"
 
     echo "Created bundle $1.vst"
 fi
