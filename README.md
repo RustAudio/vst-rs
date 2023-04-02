@@ -1,3 +1,5 @@
+> Disclaimer: the VST 2 specification is [discontinued and unlicensed](https://helpcenter.steinberg.de/hc/en-us/articles/4409561018258). Consider VST 3, CLAP, or LV2 instead.
+
 # vst-rs
 [![crates.io][crates-img]][crates-url]
 [![dependency status](https://deps.rs/repo/github/rustaudio/vst-rs/status.svg)](https://deps.rs/repo/github/rustaudio/vst-rs)
