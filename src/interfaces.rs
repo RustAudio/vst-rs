@@ -73,7 +73,7 @@ fn copy_string(dst: *mut c_void, src: &str, max: usize) -> isize {
 
         let dst = dst as *mut c_void;
         memset(dst, 0, max);
-        memcpy(dst, src.as_ptr() as *const c_void, min(max, src.as_bytes().len()));
+        memcpy(dst, src.as_ptr() as *const c_void, min(max - 1, src.as_bytes().len()));
     }
 
     1 // Success
